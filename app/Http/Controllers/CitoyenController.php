@@ -32,24 +32,17 @@ class CitoyenController extends Controller
 ]);
 
 
-        // Upload pièce d’identité
-        if ($request->hasFile('piece_identite')) {
+        // Upload pièce d'identité
+if ($request->hasFile('piece_identite')) {
+    $file = $request->file('piece_identite');
+    $filename = time() . '_' .
+        Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) .
+        '.' . $file->getClientOriginalExtension();
 
-            if (!is_dir('uploads/pieces')) {
-                mkdir('uploads/pieces', 0755, true);
-            }
-
-            $file = $request->file('piece_identite');
-
-            $filename = time() . '_' .
-                Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) .
-                '.' . $file->getClientOriginalExtension();
-
-            // ⚠️ PAS de public_path()
-            $file->move('uploads/pieces', $filename);
-
-            $validated['piece_identite'] = 'uploads/pieces/' . $filename;
-        }
+    // Utiliser storage/app/public au lieu de public/uploads
+    $path = $file->storeAs('pieces', $filename, 'public');
+    $validated['piece_identite'] = 'storage/' . $path;
+}
 
         // Matricule unique
         $validated['matricule'] = 'CIT-' . strtoupper(Str::random(10));
@@ -62,7 +55,7 @@ class CitoyenController extends Controller
 
         // Création
         $citoyen = Citoyens::create($validated);
-        
+
         // Envoi email SMTP au citoyen
 try {
     Mail::send([], [], function ($message) use ($citoyen) {
