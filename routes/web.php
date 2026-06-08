@@ -290,6 +290,9 @@ use App\Http\Controllers\ServicesUsersController;
 Route::get('/services/citoyens', [ServicesUsersController::class, 'index'])
     ->name('services.citoyens');
 
+    Route::post('/services/compte/upload', [ServicesCompteController::class, 'uploadPiece'])
+    ->name('services.compte.upload');
+
 use App\Http\Controllers\VaccinationController;
 
 Route::prefix('services')->group(function () {
