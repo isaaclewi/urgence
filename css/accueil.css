@@ -1,0 +1,787 @@
+*{
+    border:none;
+    box-sizing:border-box;
+    padding:0;
+    margin:0;
+}
+
+                        /*Corps de la page*/
+body {
+    width:100vw;
+    height:100vh;
+    background:#E6E6FA;
+    position:relative;
+}
+.page1{
+    width:100%;
+    height:100%;
+}
+                       /*Entete par defaut*/
+header{
+    display:flex;
+    justify-content:center;
+    column-gap:150px;
+    height:10%;
+    width:100%;
+    align-items:center;
+    flex-wrap:nowrap;
+    border-bottom:solid 4px #00FF00;
+}
+                /*Nom du logiciel*/
+header div h1{
+    color:#00008B;
+    font-family: 'Playfair Display', serif;
+    font-size:2.2rem;
+}
+
+                    /*Boutons d'accueils*/
+
+.compte{
+    display:flex;
+    column-gap:20px;
+}
+.button{
+    background-color:#32CD32;
+    padding:12px;
+    font-size:1.2rem;
+    border-radius:15px;
+    box-shadow:3px 3px 3px black;
+    cursor:pointer;
+    font-weight:bold;
+    color:white;
+    font-family: 'Playfair Display', serif;
+    transition:1s;
+    &:focus{
+               background-color:black;
+               color:white;
+           }
+}
+
+.Button2{
+    font-size:0.7rem;
+    background-color:#00008B;
+    padding:10px 7px;
+    border-radius:30px;
+    cursor:pointer;
+    font-weight:900;
+    color:white;
+    font-family: 'Lora', serif;
+    transition:1s;
+    &:focus{
+               background-color:#32CD32;
+               color:white;
+           }
+}
+.Button3{
+    font-size:0.7rem;
+    background-color:#00008B;
+    padding:10px 7px;
+    border-radius:30px;
+    cursor:pointer;
+    font-weight:900;
+    color:white;
+    font-family: 'Lora', serif;
+    transition:1s;
+    &:focus{
+               background-color:#32CD32;
+               color:white;
+           }
+}
+.Button4{
+    font-size:0.7rem;
+    background-color:#00008B;
+    padding:10px 7px;
+    border-radius:30px;
+    cursor:pointer;
+    font-weight:900;
+    color:white;
+    font-family: 'Lora', serif;
+    transition:1s;
+    &:focus{
+               background-color:#32CD32;
+               color:white;
+           }
+}
+.Button5{
+    font-size:0.7rem;
+    background-color:#00008B;
+    padding:10px 7px;
+    border-radius:30px;
+    cursor:pointer;
+    font-weight:900;
+    color:white;
+    font-family: 'Lora', serif;
+    transition:1s;
+    &:focus{
+               background-color:#32CD32;
+               color:white;
+           }
+}
+                                /*Page urgence medicale*/
+.cadre1{
+        height:85%;
+        width:100%;
+        background-image:url("../medias/d0c6d100-9836-4c31-8666-fdccb6fadad7.jpeg");
+        background-repeat:no-repeat;
+        background-size:cover;
+        background-position:center;
+        display:flex;
+        z-index:5;
+}
+.bordure1{
+    height:100%;
+    width:10%;
+    display:block;
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+}
+.bordure1 div .button1{
+    position:relative;
+    left:50px;
+    background-color:white;
+    padding:20px 10px;
+    font-size:1rem;
+    margin:10px 0;
+    cursor:pointer;
+    font-weight:bold;
+    transition:1s;
+    &:hover{
+               background-color:black;
+               color:white;
+           }
+}
+.bordure2{
+    height:100%;
+    width:80%;
+}
+.header{
+    display:flex;
+    justify-content:space-between;
+    column-gap:140px;
+    height:10%;
+    width:100%;
+    align-items:center;
+    flex-wrap:nowrap;
+}
+.header div h2{
+    font-size:2rem;
+    font-weight:900;
+    color:#32CD32;
+    font-family: 'Playfair Display', serif;
+}
+.buttonIcon{
+    width:2rem;
+    height:1.5rem;
+    background-color:white;
+    border-radius:30px;
+    cursor:pointer;
+}
+.rechercheInput{
+    height:1.5rem;
+    width:25rem;
+    border-radius:30px;
+    padding:15px;
+    font-size:1rem;
+    border:none;
+}
+.main{
+    display:flex;
+    height:85%;
+    width:100%;
+    flex-wrap:nowrap;
+}
+.main div{
+     height:100%;
+     display:flex;
+     justify-content:center;
+     align-items:center;
+}
+.main1{
+    width:70%;
+    overflow:hidden;
+    border-radius:30px;
+}
+.main1 .image{
+     height:80%;
+     width:50%;
+     border-radius:0 30px 30px 0;
+     overflow:hidden;
+     position:relative;
+     background-image:url("../medias/Cycling.jpeg");
+     background-repeat:no-repeat;
+     background-size:cover;
+     background-position:center;
+}
+.fade {
+    animation-name: fade;
+    animation-duration: 1s;
+}
+
+@keyframes fade {
+    from { opacity: 0.4 }
+    to { opacity: 1 }
+}
+.main1 .text{
+     height:80%;
+     width:40%;
+     background-color:white;
+     border-radius:30px 0 0 30px;
+     padding:15px;
+}
+.main1 .text p{
+     font-size:0.9rem;
+     color:black;
+     text-align:justify;
+     font-family: 'Lora', serif;
+}
+.ButtonRecherche{
+    position:absolute;
+    left:720px;
+    top:420px;
+    background-color:black;
+    padding:10px 7px;
+    font-size:1rem;
+    border-radius:30px;
+    cursor:pointer;
+    font-weight:bold;
+    color:white;
+    transition:1s;
+    &:hover{
+               background-color:#00FF00;
+               color:black;
+           }
+}
+                  /*page urgence police*/
+.cadre2{
+        height:85%;
+        width:100vw;
+        position:absolute;
+        top:10%;
+        left:0;
+        background-color:#E6E6FA;
+        display:none;
+        z-index:5;
+}
+.part1{
+    width:100%;
+    height:40%;
+    overflow:hidden;
+    border-radius:30px;
+    position:relative;
+    background-image:url("../medias/police.jpg");
+    background-repeat:no-repeat;
+    background-size:cover;
+    background-position:center;
+}
+.part2{
+    width:100%;
+    height:60%;
+    overflow:hidden;
+    display:flex;
+}
+.cercle{
+    width:10rem;
+    height:10rem;
+    border-radius:50%;
+    background-color:#E6E6FA;
+    position:absolute;
+    left:45%;
+    top:32%;
+}
+.cercle2{
+    width:7rem;
+    height:7rem;
+    border-radius:50%;
+    position:absolute;
+    left:15%;
+    top:15%;
+    overflow:hidden;
+}
+.part2 .bloc1{
+    width:50%;
+    height:100%;
+    overflow:hidden;
+}
+.part2 .bloc2{
+    width:50%;
+    height:100%;
+    overflow:hidden;
+}
+.bloc2 div{
+    width:85%;
+    height:45%;
+    margin:10px 0;
+    overflow:hidden;
+    border-radius:30px;
+}
+.bloc1 .blocEnfant1{
+    width:90%;
+    height:50%;
+    padding:20px;
+    overflow:hidden;
+    position:relative;
+    left:5%;
+}
+.bloc1 .blocEnfant2{
+    width:100%;
+    height:50%;
+    display:flex;
+    flex-wrap:nowrap;
+}
+.bloc1 .blocEnfant2 .blocEnfant2-1{
+    width:20%;
+    height:100%;
+    overflow:hidden;
+}
+.bloc1 .blocEnfant1 h1{
+    font-size:2rem;
+    font-weight:900;
+    color:#00008B;
+    font-family: 'Playfair Display', serif;
+}
+.bloc1 .blocEnfant1 p{
+    font-size:0.9rem;
+    font-weight:900;
+    color:black;
+    text-align:justify;
+    font-family: 'Lora', serif;
+}
+.bloc1 .blocEnfant2 .blocEnfant2-2{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    display:flex;
+    flex-wrap:nowrap;
+}
+.bloc1 .blocEnfant2 .blocEnfant2-2 div{
+    width:25%;
+    height:90%;
+    overflow:hidden;
+    padding:0 10px;
+    border-radius:30px;
+}
+                            /*page vaccination*/
+.cadre3{
+        height:85%;
+        width:100vw;
+        position:absolute;
+        top:10%;
+        left:0;
+        background-color:#E6E6FA;
+        display:none;
+        justify-content:center;
+        flex-wrap:nowrap;
+        z-index:5;
+}
+.cadre3 div{
+    width:90%;
+    height:100%;
+}
+.cadre3-1{
+    padding:20px;
+}
+.cadre3-1 h1{
+    font-size:3.5rem;
+    font-weight:900;
+    color:#32CD32;
+    text-align:center;
+    position:relative;
+    left:10%;
+    top:30%;
+    font-family: 'Playfair Display', serif;
+}
+.cadre3-1 p{
+    font-size:1rem;
+    font-weight:900;
+    color:black;
+    text-align:justify;
+    position:relative;
+    left:5%;
+    top:35%;
+    font-family: 'Lora', serif;
+}
+.cadre3-1 div{
+    position:relative;
+    left:7%;
+    top:40%;
+    height:4rem;
+    width:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    column-gap:20px;
+}
+.cadre3-1 div button{
+    background-color:#32CD32;
+    color:white;
+    padding:10px 8px;
+    font-size:1.2rem;
+    border-radius:30px;
+    cursor:pointer;
+    font-family: 'Lora', serif;
+    font-weight:bold;
+    transition:1s;
+    &:hover{
+               background-color:#00008B;
+               color:white;
+           }
+}
+.cadre3-2 div{
+    width:100%;
+    height:50%;
+}
+.place1{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    column-gap:20px;
+    position:relative;
+    top:100px;
+}
+.place2{
+    display:flex;
+    align-items:center;
+    column-gap:20px;
+    position:relative;
+    top:30px;
+}
+.place1 div{
+    width:40%;
+    height:100%;
+    overflow:hidden;
+    border-radius:30px;
+}
+.place2 div{
+    width:50%;
+    height:60%;
+    overflow:hidden;
+    border-radius:30px;
+}
+.special{
+    position:relative;
+    top:90px;
+    overflow:hidden;
+    background-image:url("../medias/Free Photo _ Medium shot health worker with mask.jpeg");
+    background-repeat:no-repeat;
+    background-size:cover;
+    background-position:center;
+}
+.cercle4{
+    width:5rem;
+    height:5rem;
+    border-radius:50%;
+    background-color:#E6E6FA;
+    position:absolute;
+    left:12%;
+    top:15%;
+}
+
+                                    /*page urbaine*/
+.cadre4{
+        height:85%;
+        width:100vw;
+        position:absolute;
+        top:10%;
+        left:0;
+        background-color:#E6E6FA;
+        justify-content:center;
+        flex-wrap:nowrap;
+        display:none;
+        z-index:5;
+}
+.cadre4 >div{
+    width:50%;
+    height:100%;
+}
+.cadre4-infos{
+    width:100%;
+    height:50%;
+}
+.cadre4-infos >div{
+    width:100%;
+    height:50%;
+}
+.cadre4-infos div h1{
+    font-size:2.5rem;
+    font-weight:900;
+    color:#00008B;
+    text-align:center;
+    position:relative;
+    top:80px;
+    font-family: 'Playfair Display', serif;
+}
+.cadre4-infos div p{
+    font-size:1rem;
+    font-weight:900;
+    color:black;
+    text-align:justify;
+    position:relative;
+    top:100px;
+    left:80px;
+    font-family: 'Lora', serif;
+}
+.cadre4-infos div button{
+    background-color:#32CD32;
+    color:white;
+    padding:10px 8px;
+    font-size:1.2rem;
+    border-radius:30px;
+    font-family: 'Lora', serif;
+    cursor:pointer;
+    font-weight:bold;
+    transition:1s;
+    margin:0 10px;
+    position:relative;
+    top:95px;
+    left:100px;
+    &:hover{
+               background-color:#00008B;
+               color:white;
+           }
+}
+.cadre4-illustrer{
+    width:100%;
+    height:50%;
+}
+.cadre4-illustrer h1{
+    font-size:1.5rem;
+    font-weight:900;
+    color:#00008B;
+    position:relative;
+    left:80px;
+    font-family: 'Playfair Display', serif;
+}
+.images{
+    width:60%;
+    height:70%;
+    overflow:hidden;
+    position:relative;
+    left:100px;
+    top:30px;
+    background-image:url("../medias/dd038250-b88a-4d0a-ba6a-0b484559d8bd.jpeg");
+    background-repeat:no-repeat;
+    background-size:cover;
+    background-position:center;
+    border-radius:30px;
+}
+.cadre4-2{
+    display:flex;
+    justify-content:center;
+    flex-wrap:nowrap;
+    justify-content:center;
+    align-items:center;
+    position:relative;
+}
+.cadre4-2 .div{
+    width:70%;
+    height:90%;
+    border-radius:30px;
+    overflow:hidden;
+}
+.cadre4-2 .div2{
+    width:7rem;
+    height:7rem;
+    border-radius:30px;
+    overflow:hidden;
+    position:absolute;
+    top:10px;
+    right:100px;
+    border:solid 10px #E6E6FA;
+}
+
+
+                    /*page electricite*/
+.cadre5{
+        height:85%;
+        width:100vw;
+        position:absolute;
+        top:10%;
+        left:0;
+        display:none;
+        background-color:#E6E6FA;
+}
+.cadre5-1{
+    width:100%;
+    height:40%;
+    overflow:hidden;
+    background-image:url("../medias/If.jpg");
+    background-repeat:no-repeat;
+    background-size:cover;
+}
+.cadre5-2{
+    width:100%;
+    height:60%;
+}
+.cadre5-header{
+    width:100%;
+    height:10%;
+    position:relative;
+    top:5%;
+}
+.cadre5-header h1{
+    font-size:1.5rem;
+    font-weight:900;
+    color:#00008B;
+    text-align:center;
+    font-family: 'Playfair Display', serif;
+}
+.cadre5-header p{
+    font-size:0.8rem;
+    text-align:center;
+    font-family: 'Lora', serif;
+    font-weight:900;
+}
+.cadre5-main{
+    width:100%;
+    height:80%;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-items:flex-end;
+}
+.cadre5-opt{
+    width:30%;
+    height:85%;
+    padding:10px;
+    transition:2s;
+    &:hover{
+               box-shadow: 
+                           5px 5px 5px #32CD32,  /* Ombre en bas à droite */
+                          -5px -5px 5px #32CD32, /* Ombre en haut à gauche */
+                          -5px 5px 5px #32CD32,  /* Ombre en bas à gauche */
+                           5px -5px 5px #32CD32;  /* Ombre en haut à droite */
+               position:relative;
+               bottom:10%;
+               z-index:4;
+               border-radius:10px;
+           }
+    &:hover .opt-1{
+              background-color:#00008B;
+           }
+    &:hover,cadre5-opt{
+              background-color:white;
+           }
+}
+.opt-1{
+    width:4rem;
+    height:4rem;
+    border-radius:50%;
+    overflow:hidden;
+    position:relative;
+    left:43%;
+    background-color:#32CD32;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-items:center;
+    transition:2s;
+    &:hover{
+         background-color:#00008B;
+     }
+}
+.opt-2{
+    position:relative;
+    top:3%;
+    text-align:center;
+}
+.opt-2 p{
+    position:relative;
+    top:12px;
+    font-size:0.9rem;
+    font-weight:900;
+    color:black;
+    font-family: 'Lora', serif;
+}
+                                 /*pied de la page*/
+
+footer{
+    background-color:#00008B;
+    height:5%;
+    width:100%;
+    border-top:solid 4px #00FF00;
+    display:flex;
+    justify-content:space-between;
+}
+.reference{
+    width:50%;
+    height:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+.reference a{
+    text-decoration:none;
+    color:white;
+    font-weight:900;
+    font-size:1rem;
+    text-align:center;
+    font-family: 'Lora', serif;
+    transition:1s;
+    &:hover{
+               color:#00FF00;
+           }
+}
+.lienSociaux{
+    width:50%;
+    height:100%;
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    column-gap:20px;
+    padding:0 70px;
+}
+.logoSociaux{
+    width:2rem;
+    height:1.5rem;
+    border-radius:10px;
+    overflow:hidden;
+    cursor:pointer;
+}
+
+.urgence-menu {
+    position: relative;
+    display: inline-block;
+}
+
+.submenu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    border: solid 1px #ccc;
+    border-radius: 8px;
+    padding: 5px;
+    z-index: 10;
+}
+
+.submenu button {
+    margin: 3px 0;
+    background-color: #f0f0f0;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+}
+
+.submenu button:hover {
+    background-color: #e0e0e0;
+}
+
+.Button1{
+    font-size:0.7rem;
+    background-color:#00008B;
+    padding:10px 7px;
+    border-radius:30px;
+    cursor:pointer;
+    font-weight:900;
+    color:white;
+    font-family: 'Lora', serif;
+    transition:1s;
+    &:focus{
+               background-color:#32CD32;
+               color:white;
+           }
+}

@@ -1,0 +1,102 @@
+*{
+    border:none;
+    box-sizing:border-box;
+    padding:0;
+    margin:0;
+}
+body {
+    font-family: 'Lora', serif;
+    background: linear-gradient(to right, #f2f3f9, #e6ebf1);
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.register-container {
+    width: 90%;
+}
+
+.form-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 25px;
+    padding: 40px 50px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    backdrop-filter: blur(5px);
+}
+
+.logo {
+    text-align: center;
+    margin-bottom: 25px;
+}
+.logo img { height: 60px; }
+.logo h1 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 32px;
+}
+.logo span { color: #32CD32; }
+
+h2 {
+    text-align: center;
+    color: #b22222;
+    margin-bottom: 30px;
+}
+
+.row {
+    display: flex;
+    gap: 25px;
+    margin-bottom: 20px;
+}
+.row .form-group {
+    flex: 1;
+    position: relative;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+label i {
+    margin-right: 6px;
+    color: #b22222;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    transition: 0.3s;
+}
+input:focus, select:focus {
+    border-color: #32CD32;
+    box-shadow: 0 0 6px rgba(50,205,50,0.3);
+    outline: none;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 16px;
+    background: #a31616;
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 25px;
+    transition: 0.3s;
+}
+.btn-submit:hover {
+    background: #7d1010;
+}
+
+@media (max-width: 1000px) {
+    .row {
+        flex-direction: column;
+    }
+}

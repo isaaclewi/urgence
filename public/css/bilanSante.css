@@ -1,0 +1,261 @@
+   * {
+            border: none;
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            background: #E6E6FA;
+            position: relative;
+            font-family: 'Lora', serif;
+        }
+
+        form {
+            width: 100%;
+            height: 100%;
+        }
+
+        .contenairePrincipale {
+            width: 100%;
+            height: 100%;
+            display: flex;
+        }
+
+        .contenaireMenu {
+            width: 25%;
+            height: 100%;
+            background-color: #00008B;
+        }
+.logo {
+    width: 2.5rem;
+    height: 2.5rem;
+    overflow: hidden;
+    border-radius: 50%;
+    cursor: pointer;
+}
+.logo-entete{
+    width:2.5;
+    height:2.5rem;
+    overflow:hidden;
+    border-radius:50%;
+    cursor:pointer;
+}
+
+        .contenaireMenuTitre {
+            width: 100%;
+            height: 10%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .contenaireMenuTitre h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: white;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .contenaireMenu1{
+    width:100%;
+    height:50%;
+}
+.contenaireMenu1 > div{
+    width:80%;
+    height:16%;
+    display:flex;
+    align-items:center;
+    /*justify-content:center;*/
+    column-gap:10px;
+    position:relative;
+    left:21%;
+    border-radius:30px 0 0 30px;
+    border-bottom:solid 2px white;
+    transition:1s;
+    cursor:pointer;
+    &:hover{
+               background-color:#E6E6FA;
+               color:black;
+           }
+    &:hover a{
+               color:black;
+      }
+}
+
+        .contenaireMenu1 > div:hover {
+            background-color: #E6E6FA;
+            color: black;
+        }
+
+        .contenaireMenu1 > div:hover a {
+            color: black;
+        }
+
+        .contenaireMenu1 > div > a {
+            text-decoration: none;
+            color: white;
+            font-size: 0.9rem;
+            font-family: 'Lora', serif;
+        }
+
+        .contenaireMenu2 {
+            width: 100%;
+            height: 40%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .contenaireMenu2 > div {
+            width: 50%;
+            height: 70%;
+            overflow: hidden;
+            border-radius: 30px;
+        }
+
+        .contenaireInfos {
+            width: 75%;
+            height: 100%;
+        }
+
+       .header{
+    width:100%;
+    height:7%;
+    display:flex;
+    justify-content:center;
+}
+.headerFils{
+    width:98%;
+    height:95%;
+    display:flex;
+    justify-content:space-around;
+    background-color:white;
+    border-radius: 0 0 30px 30px;
+    box-shadow:5px 5px 5px rgb(0,0,0,0.3),  /* Ombre en bas à droite */
+                          -5px -5px 5px rgb(0,0,0,0.3), /* Ombre en haut à gauche */
+                          -5px 5px 5px rgb(0,0,0,0.3),  /* Ombre en bas à gauche */
+                           5px -5px 5px rgb(0,0,0,0.3);  /* Ombre en haut à droite */
+}
+.headerFils > div{
+    display:flex;
+    align-items:center;
+}
+.headerFils > div h1{
+    color:#00008B;
+    font-family: 'Playfair Display', serif;
+}
+        .main {
+            width: 100%;
+            height: 90%;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .bilan-container {
+            width: 90%;
+            height: 95%;
+            background-color: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            overflow-y: auto;
+        }
+
+        .bilan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .bilan-header h2 {
+            font-family: 'Playfair Display', serif;
+            color: #00008B;
+        }
+
+        .edit-btn, .save-btn, .add-btn {
+            padding: 0.5rem 1rem;
+            background-color: #32CD32;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-left: 10px;
+        }
+
+        .edit-btn:hover, .save-btn:hover, .add-btn:hover {
+            background-color: #228B22;
+        }
+
+        .bilan-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .bilan-group {
+            flex: 1 1 45%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bilan-group label {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #00008B;
+        }
+
+        .bilan-group input[type="text"],
+        .bilan-group textarea {
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f0f8ff;
+        }
+
+        .bilan-group input[readonly],
+        .bilan-group textarea[readonly] {
+            background-color: #e6e6fa;
+            border: none;
+            color: #555;
+        }
+
+        .bilan-footer {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        #loader {
+            position: fixed;
+            z-index: 9999;
+            background: rgba(255, 255, 255, 0.8);
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 8px solid #00008B;
+            border-top: 8px solid #32CD32;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }

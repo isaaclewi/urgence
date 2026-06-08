@@ -1,0 +1,252 @@
+*{
+    border:none;
+    box-sizing:border-box;
+    padding:0;
+    margin:0;
+}
+
+                        /*Corps de la page*/
+body {
+    width:100vw;
+    height:100vh;
+    background:#E6E6FA;
+    position:relative;
+}
+form{
+    width:100%;
+    height:100%;
+}
+.contenairePrincipale{
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-wrap:nowrap;
+}
+.contenaireMenu{
+    width:25%;
+    height:100%;
+    background-color:#00008B;
+}
+.contenaireMenuTitre{
+    width:100%;
+    height:10%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+}
+.contenaireMenuTitre h1{
+    font-family: 'Playfair Display', serif;
+    font-size:2rem;
+    color:white;
+    font-weight:700;
+    text-align:center;
+}
+.contenaireMenu1{
+    width:100%;
+    height:50%;
+}
+.contenaireMenu1 > div{
+    width:80%;
+    height:16%;
+    display:flex;
+    align-items:center;
+    /*justify-content:center;*/
+    column-gap:10px;
+    position:relative;
+    left:21%;
+    border-radius:30px 0 0 30px;
+    border-bottom:solid 2px white;
+    transition:1s;
+    cursor:pointer;
+    &:hover{
+               background-color:#E6E6FA;
+               color:black;
+           }
+    &:hover a{
+               color:black;
+      }
+}
+.logo-entete{
+    width:2.5;
+    height:2.5rem;
+    overflow:hidden;
+    border-radius:50%;
+    cursor:pointer;
+}
+.logo{
+    width:2.5rem;
+    height:2.5rem;
+    overflow:hidden;
+    border-radius:50%;
+    cursor:pointer;
+}
+.contenaireMenu1 > div > a{
+    text-decoration:none;
+    color:white;
+    font-size:0.9rem;
+    font-family: 'Lora', serif;
+}
+.contenaireMenu2{
+    width:100%;
+    height:40%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+.contenaireMenu2 > div{
+    width:50%;
+    height:70%;
+    overflow:hidden;
+    border-radius:30px;
+}
+
+.contenaireInfos{
+    width:75%;
+    height:100%;
+}
+
+.header{
+    width:100%;
+    height:7%;
+    display:flex;
+    justify-content:center;
+}
+.headerFils{
+    width:98%;
+    height:95%;
+    display:flex;
+    justify-content:space-around;
+    background-color:white;
+    border-radius: 0 0 30px 30px;
+    box-shadow:5px 5px 5px rgb(0,0,0,0.3),  /* Ombre en bas à droite */
+                          -5px -5px 5px rgb(0,0,0,0.3), /* Ombre en haut à gauche */
+                          -5px 5px 5px rgb(0,0,0,0.3),  /* Ombre en bas à gauche */
+                           5px -5px 5px rgb(0,0,0,0.3);  /* Ombre en haut à droite */
+}
+.headerFils > div{
+    display:flex;
+    align-items:center;
+}
+.headerFils > div h1{
+    color:#00008B;
+    font-family: 'Playfair Display', serif;
+}
+.main{
+    width:100%;
+    height:80%;
+    display:flex;
+    justify-content:space-around;
+    align-items:center;
+}
+
+
+.urgence-heavy-grid {
+    position:relative;
+    top:12%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2.5rem;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 12px 40px rgba(0, 0, 139, 0.5);
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.urgence-heavy-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 25px;
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
+    background: #00008B;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.urgence-heavy-card img {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+    border-radius: 25px;
+    filter: brightness(0.8);
+}
+
+.urgence-heavy-card:hover img {
+    transform: scale(1.1);
+    filter: brightness(1);
+}
+
+.urgence-overlay {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 1.8rem 2rem;
+    background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.85) 100%);
+    border-radius: 0 0 25px 25px;
+    box-sizing: border-box;
+}
+
+.urgence-overlay h2 {
+    margin: 0 0 0.3rem 0;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.9);
+}
+
+.urgence-overlay p {
+    margin: 0;
+    font-family: 'Lora', serif;
+    font-size: 1rem;
+    font-weight: 400;
+    text-shadow: 1px 1px 5px rgba(0,0,0,0.8);
+}
+
+/* Pour occuper au moins 25-30% de la hauteur de .main */
+.main {
+    min-height: 400px;
+    padding: 1rem 3rem;
+    box-sizing: border-box;
+    background-color: #E6E6FA;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+#loader {
+    position: fixed;
+    z-index: 9999;
+    background: rgba(255, 255, 255, 0.8);
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 8px solid #00008B;
+    border-top: 8px solid #32CD32;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Animation */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

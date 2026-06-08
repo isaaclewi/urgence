@@ -1,0 +1,220 @@
+ *{
+            border:none;
+            box-sizing:border-box;
+            padding:0;
+            margin:0;
+        }
+
+        body {
+            width:100vw;
+            height:100vh;
+            background:#E6E6FA;
+            position:relative;
+        }
+
+        form {
+            width:100%;
+            height:100%;
+        }
+
+        .contenairePrincipale {
+            width:100%;
+            height:100%;
+            display:flex;
+            flex-wrap:nowrap;
+        }
+
+        .contenaireMenu {
+            width:25%;
+            height:100%;
+            background-color:#00008B;
+        }
+
+        .contenaireMenuTitre {
+            width:100%;
+            height:10%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+        }
+
+        .contenaireMenuTitre h1 {
+            font-family: 'Playfair Display', serif;
+            font-size:2rem;
+            color:white;
+            font-weight:700;
+            text-align:center;
+        }
+
+        .contenaireMenu1 {
+            width:100%;
+            height:50%;
+        }
+
+        .contenaireMenu1 > div {
+            width:80%;
+            height:16%;
+            display:flex;
+            align-items:center;
+            column-gap:10px;
+            position:relative;
+            left:21%;
+            border-radius:30px 0 0 30px;
+            border-bottom:solid 2px white;
+            transition:1s;
+            cursor:pointer;
+        }
+
+        .contenaireMenu1 > div:hover {
+            background-color:#E6E6FA;
+            color:black;
+        }
+
+        .contenaireMenu1 > div:hover a {
+            color:black;
+        }
+
+        .logo-entete, .logo {
+            width:2.5rem;
+            height:2.5rem;
+            overflow:hidden;
+            border-radius:50%;
+            cursor:pointer;
+        }
+
+        .contenaireMenu1 > div > a {
+            text-decoration:none;
+            color:white;
+            font-size:0.9rem;
+            font-family: 'Lora', serif;
+        }
+
+        .contenaireMenu2 {
+            width:100%;
+            height:40%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+        }
+
+        .contenaireMenu2 > div {
+            width:50%;
+            height:70%;
+            overflow:hidden;
+            border-radius:30px;
+        }
+
+        .contenaireInfos {
+            width:75%;
+            height:100%;
+        }
+
+        .header {
+            width:100%;
+            height:7%;
+            display:flex;
+            justify-content:center;
+        }
+
+        .headerFils {
+            width:98%;
+            height:95%;
+            display:flex;
+            justify-content:space-around;
+            background-color:white;
+            border-radius: 0 0 30px 30px;
+            box-shadow:5px 5px 5px rgba(0,0,0,0.3),
+                       -5px -5px 5px rgba(0,0,0,0.3),
+                       -5px 5px 5px rgba(0,0,0,0.3),
+                       5px -5px 5px rgba(0,0,0,0.3);
+        }
+
+        .headerFils > div {
+            display:flex;
+            align-items:center;
+        }
+
+        .headerFils > div h1 {
+            color:#00008B;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .main {
+            width:100%;
+            height:90%;
+            display:flex;
+            justify-content:space-around;
+            align-items:center;
+        }
+
+        .vaccination-container {
+    width: 95%;
+    height: 90%;
+    background-color: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    overflow-y: auto;
+}
+
+.section-title {
+    font-family: 'Playfair Display', serif;
+    color: #00008B;
+    margin-bottom: 2rem;
+    text-align: center;
+    font-size: 1.8rem;
+}
+
+.options-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: center;
+}
+
+.option-card {
+    width: 230px;
+    background-color: #f8f8ff;
+    border-radius: 15px;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.option-card:hover {
+    transform: translateY(-5px);
+}
+
+.option-card img {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 1rem;
+}
+
+.option-card h3 {
+    color: #00008B;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.option-card p {
+    font-size: 0.9rem;
+    color: #444;
+    margin-bottom: 1rem;
+}
+
+.option-card button {
+    background-color: #32CD32;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.option-card button:hover {
+    background-color: #228B22;
+}
