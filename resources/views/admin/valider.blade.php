@@ -477,21 +477,17 @@ img.table-photo:hover {
                     </td>
                     <td>{{ $c->created_at->format('d/m/Y') }}</td>
                     <td>
-    @if ($c->piece_identite && is_string($c->piece_identite))
-        <div class="photo-wrapper">
-            <img src="{{ asset($c->piece_identite) }}"
-                 alt="Pièce d'identité"
-                 class="table-photo"
-                 data-src="{{ asset($c->piece_identite) }}"
-                 data-name="{{ $c->nom }} {{ $c->prenom }}">
-            <div class="photo-zoom-icon">
-                <i class="fas fa-search-plus"></i>
-            </div>
-        </div>
-    @else
-        <span style="color:#94a3b8; font-size:12px;">Non disponible</span>
-    @endif
-</td>
+                        <div class="photo-wrapper">
+                            <img src="{{ asset($c->piece_identite) }}"
+                                 alt="Pièce d'identité"
+                                 class="table-photo"
+                                 data-src="{{ asset($c->piece_identite) }}"
+                                 data-name="{{ $c->nom }} {{ $c->prenom }}">
+                            <div class="photo-zoom-icon">
+                                <i class="fas fa-search-plus"></i>
+                            </div>
+                        </div>
+                    </td>
 
                     <td>
                         @if ($c->etat_compte == 'actif')

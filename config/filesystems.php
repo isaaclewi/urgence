@@ -77,4 +77,14 @@ return [
         public_path('storage') => storage_path('app/public'),
     ],
 
+    'supabase' => [
+    'driver'                  => 's3',
+    'key'                     => env('SUPABASE_KEY'),
+    'secret'                  => env('SUPABASE_SECRET'),
+    'region'                  => env('SUPABASE_REGION', 'eu-west-3'),
+    'bucket'                  => env('SUPABASE_BUCKET'),
+    'url'                     => env('SUPABASE_PUBLIC_URL'),
+    'endpoint'                => env('SUPABASE_ENDPOINT'),
+    'use_path_style_endpoint' => true,
+],
 ];
