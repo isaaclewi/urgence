@@ -5,19 +5,28 @@ namespace App\Http\Controllers;
 use App\Models\Actualite;
 use App\Models\Admins;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AdminActualiteController extends Controller
 {
     public function index()
     {
+        if (!session()->has('admin_id')) {
+            return redirect()->route('admin.login')->with('error', 'Vous devez être connecté.');
+        }
+
         $admin = Admins::find(session('admin_id'));
-        $actualites = Actualite::orderBy('created_at', 'desc')->get();
+        $actualites = Actualite::latest()->get();
 
         return view('admin.actualite', compact('admin', 'actualites'));
     }
 
     public function store(Request $request)
     {
+        if (!session()->has('admin_id')) {
+            return redirect()->route('admin.login')->with('error', 'Vous devez être connecté.');
+        }
+
         $admin = Admins::find(session('admin_id'));
 
         $request->validate([
@@ -25,18 +34,18 @@ class AdminActualiteController extends Controller
             'url_media' => 'nullable|file|mimes:jpg,jpeg,png,gif,mp4|max:51200',
         ]);
 
-        $urlMedia = null;
+        $urlMedia  = null;
         $typeMedia = null;
 
         if ($request->hasFile('url_media')) {
-            $file = $request->file('url_media');
+            $file     = $request->file('url_media');
             $filename = time() . '_' . $file->getClientOriginalName();
 
-            // Upload vers /medias/stocke (racine)
-            $file->move('medias/stocke', $filename);
+            // ✅ Upload vers Supabase
+            Storage::disk('supabase')->putFileAs('actualites', $file, $filename);
 
-            $urlMedia  = 'medias/stocke/' . $filename;
-            $typeMedia = $file->getClientOriginalExtension() === 'mp4' ? 'mp4' : 'image';
+            $urlMedia  = env('SUPABASE_PUBLIC_URL') . '/actualites/' . $filename;
+            $typeMedia = strtolower($file->getClientOriginalExtension()) === 'mp4' ? 'mp4' : 'image';
         }
 
         Actualite::create([
@@ -53,8 +62,11 @@ class AdminActualiteController extends Controller
 
     public function edit($id)
     {
-        // ❗ correction Admin -> Admins
-        $admin = Admins::find(session('admin_id'));
+        if (!session()->has('admin_id')) {
+            return redirect()->route('admin.login')->with('error', 'Vous devez être connecté.');
+        }
+
+        $admin     = Admins::find(session('admin_id'));
         $actualite = Actualite::findOrFail($id);
 
         return view('admin.actualite_edit', compact('admin', 'actualite'));
@@ -62,6 +74,10 @@ class AdminActualiteController extends Controller
 
     public function update(Request $request, $id)
     {
+        if (!session()->has('admin_id')) {
+            return redirect()->route('admin.login')->with('error', 'Vous devez être connecté.');
+        }
+
         $actualite = Actualite::findOrFail($id);
 
         $request->validate([
@@ -71,18 +87,20 @@ class AdminActualiteController extends Controller
 
         if ($request->hasFile('url_media')) {
 
-            // Supprimer ancien média
-            if ($actualite->url_media && file_exists($actualite->url_media)) {
-                unlink($actualite->url_media);
+            // ✅ Supprimer l'ancien média sur Supabase
+            if ($actualite->url_media) {
+                $oldFilename = basename($actualite->url_media);
+                Storage::disk('supabase')->delete('actualites/' . $oldFilename);
             }
 
-            $file = $request->file('url_media');
+            $file     = $request->file('url_media');
             $filename = time() . '_' . $file->getClientOriginalName();
 
-            $file->move('medias/stocke', $filename);
+            // ✅ Upload vers Supabase
+            Storage::disk('supabase')->putFileAs('actualites', $file, $filename);
 
-            $actualite->url_media  = 'medias/stocke/' . $filename;
-            $actualite->type_media = $file->getClientOriginalExtension() === 'mp4' ? 'mp4' : 'image';
+            $actualite->url_media  = env('SUPABASE_PUBLIC_URL') . '/actualites/' . $filename;
+            $actualite->type_media = strtolower($file->getClientOriginalExtension()) === 'mp4' ? 'mp4' : 'image';
         }
 
         $actualite->contenu = $request->contenu;
@@ -94,10 +112,16 @@ class AdminActualiteController extends Controller
 
     public function destroy($id)
     {
+        if (!session()->has('admin_id')) {
+            return redirect()->route('admin.login')->with('error', 'Vous devez être connecté.');
+        }
+
         $actualite = Actualite::findOrFail($id);
 
-        if ($actualite->url_media && file_exists($actualite->url_media)) {
-            unlink($actualite->url_media);
+        // ✅ Supprimer le média sur Supabase
+        if ($actualite->url_media) {
+            $oldFilename = basename($actualite->url_media);
+            Storage::disk('supabase')->delete('actualites/' . $oldFilename);
         }
 
         $actualite->delete();
