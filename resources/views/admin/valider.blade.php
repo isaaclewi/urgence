@@ -316,11 +316,11 @@ img.table-photo:hover {
     table {
         font-size: 13px;
     }
-    
+
     th, td {
         padding: 12px 10px;
     }
-    
+
     img.table-photo {
         width: 60px;
         height: 60px;
@@ -331,11 +331,11 @@ img.table-photo:hover {
     .table-container {
         overflow-x: auto;
     }
-    
+
     table {
         min-width: 1000px;
     }
-    
+
     .modal-close {
         top: 15px;
         right: 15px;
@@ -343,7 +343,7 @@ img.table-photo:hover {
         height: 40px;
         font-size: 30px;
     }
-    
+
     .modal-caption {
         bottom: 15px;
         font-size: 12px;
@@ -355,11 +355,11 @@ img.table-photo:hover {
     .page-title {
         font-size: 22px;
     }
-    
+
     .page-title::before {
         height: 24px;
     }
-    
+
     .modal-content {
         max-width: 95%;
         max-height: 85vh;
@@ -471,24 +471,28 @@ img.table-photo:hover {
                     <td>{{ $c->telephone }}</td>
                     <td><strong>{{ $c->matricule }}</strong></td>
                     <td>
-                        <i class="fas fa-{{ $c->sexe == 'M' ? 'mars' : 'venus' }}" 
+                        <i class="fas fa-{{ $c->sexe == 'M' ? 'mars' : 'venus' }}"
                            style="color: {{ $c->sexe == 'M' ? '#3b82f6' : '#ec4899' }};"></i>
                         {{ $c->sexe }}
                     </td>
                     <td>{{ $c->created_at->format('d/m/Y') }}</td>
                     <td>
-                        <div class="photo-wrapper">
-                            <img src="{{ asset($c->piece_identite) }}" 
-                                 alt="Pièce d'identité" 
-                                 class="table-photo" 
-                                 data-src="{{ asset($c->piece_identite) }}"
-                                 data-name="{{ $c->nom }} {{ $c->prenom }}">
-                            <div class="photo-zoom-icon">
-                                <i class="fas fa-search-plus"></i>
-                            </div>
-                        </div>
-                    </td>
-                   
+    @if ($c->piece_identite && is_string($c->piece_identite))
+        <div class="photo-wrapper">
+            <img src="{{ asset($c->piece_identite) }}"
+                 alt="Pièce d'identité"
+                 class="table-photo"
+                 data-src="{{ asset($c->piece_identite) }}"
+                 data-name="{{ $c->nom }} {{ $c->prenom }}">
+            <div class="photo-zoom-icon">
+                <i class="fas fa-search-plus"></i>
+            </div>
+        </div>
+    @else
+        <span style="color:#94a3b8; font-size:12px;">Non disponible</span>
+    @endif
+</td>
+
                     <td>
                         @if ($c->etat_compte == 'actif')
                             <form action="{{ route('admin.desactiver', $c->id) }}" method="POST"
@@ -570,11 +574,11 @@ $(document).ready(function() {
     $('#usersTable').on('click', '.table-photo', function() {
         const src = $(this).data('src');
         const name = $(this).data('name');
-        
+
         modalImg.src = src;
         modalCaption.textContent = "Pièce d'identité - " + name;
         modal.classList.add('show');
-        
+
         // Empêcher le scroll du body
         document.body.style.overflow = 'hidden';
     });
