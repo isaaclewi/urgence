@@ -58,7 +58,19 @@ use App\Http\Controllers\ForumServicesController;
 // ============================================================
 // CITOYENS
 // ============================================================
-
+Route::get('/debug-db', function () {
+    try {
+        $db = DB::select('SELECT current_database(), current_user');
+        $tables = DB::select("SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename");
+        return response()->json([
+            'database' => $db[0]->current_database,
+            'user'     => $db[0]->current_user,
+            'tables'   => array_column($tables, 'tablename'),
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()]);
+    }
+});
 Route::get('/',         [RedirectionController::class, 'accueil'])->name('accueil');
 Route::get('/formulaire', [RedirectionController::class, 'formulaire'])->name('formulaire');
 Route::get('/compte',   [RedirectionController::class, 'compte'])->name('compte');
