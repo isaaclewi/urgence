@@ -17,18 +17,17 @@ class AdminRegisterController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'matricule' => 'required|string|max:50|unique:admins,matricule',
-            'nom'       => 'required|string|max:255',
-            'prenom'    => 'required|string|max:255',
-            'sexe'      => 'required|in:H,F',
-            'adresse'   => 'required|string|max:255',
-            'email'     => 'required|email|unique:admins,email',
-            'telephone' => 'required|string|max:20',
-            'mot_passe' => 'required|min:6',
-            'role'      => 'required|string|max:50',
-            'photo'     => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ]);
-
+    'matricule' => 'required|string|max:50|unique:agents,matricule', // ← admins → agents
+    'nom'       => 'required|string|max:255',
+    'prenom'    => 'required|string|max:255',
+    'sexe'      => 'required|in:H,F',
+    'adresse'   => 'required|string|max:255',
+    'email'     => 'required|email|unique:agents,email',             // ← admins → agents
+    'telephone' => 'required|string|max:20',
+    'mot_passe' => 'required|min:6',
+    'role'      => 'required|string|max:50',
+    'photo'     => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+]);
         $admin = new Admins();
         $admin->matricule   = $validated['matricule'];
         $admin->nom         = $validated['nom'];
