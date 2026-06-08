@@ -169,7 +169,7 @@
                     <p class="text-gray-600">Gérez votre profil et vos paramètres</p>
                 </div>
                 <div class="flex items-center gap-4 bg-gradient-to-r from-blue-50 to-green-50 px-6 py-3 rounded-xl">
-                    <img src="{{ asset($citoyen->photo_profil) }}" alt="Profil" class="w-14 h-14 rounded-full border-3 border-green-500 object-cover shadow-md">
+                    <img src="{{ $citoyen->photo_profil ?? asset('medias/default-avatar.png') }}" alt="Profil" class="w-14 h-14 rounded-full border-3 border-green-500 object-cover shadow-md">
                     <div>
                         <p class="font-bold text-gray-900">{{ $citoyen->nom }} {{ $citoyen->prenom }}</p>
                         <p class="text-sm text-gray-600">Membre actif</p>
@@ -187,10 +187,10 @@
                         <i data-feather="check" class="text-white w-5 h-5"></i>
                     </div>
                 </div>
-                
+
                 <div class="flex-1 text-center md:text-left">
                     <h2 class="text-2xl font-bold text-gray-900 mb-4">{{ $citoyen->nom }} {{ $citoyen->prenom }}</h2>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="flex items-center gap-3 bg-blue-50 p-4 rounded-lg">
                             <div class="bg-blue-100 p-2 rounded-lg">
@@ -316,10 +316,10 @@
             <div class="rounded-xl overflow-hidden shadow-lg mb-4">
                 <iframe
                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.246183956974!2d15.258879!3d-4.259204!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1a6a63f00cf56721%3A0x2de5d3fa47bb3c21!2sBrazzaville%2C%20Congo!5e0!3m2!1sfr!2scg!4v1695822730456!5m2!1sfr!2scg"
-                    width="100%" 
-                    height="400" 
-                    style="border:0;" 
-                    allowfullscreen="" 
+                    width="100%"
+                    height="400"
+                    style="border:0;"
+                    allowfullscreen=""
                     loading="lazy"
                     referrerpolicy="no-referrer-when-downgrade">
                 </iframe>
