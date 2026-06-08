@@ -16,16 +16,16 @@
 <section class="actualites-feed">
     @forelse($actualites as $actu)
     <div class="actualite-card" style="transition:0.3s; border-radius:16px; overflow:hidden; box-shadow:0 6px 20px rgba(0,0,0,0.08); background:#fff;">
-        
+
         <!-- Media -->
         <div class="media" style="width:100%; max-height:350px; display:flex; justify-content:center; align-items:center; overflow:hidden; background:#f0f0f0;">
             @if($actu->url_media)
                 @if($actu->type_media === 'mp4')
                     <video controls style="width:100%; max-height:350px; object-fit:contain;">
-                        <source src="{{ asset($actu->url_media) }}" type="video/mp4">
+                        <source src="{{ $actu->url_media }}" type="video/mp4">
                     </video>
                 @else
-                    <img src="{{ asset($actu->url_media) }}" alt="Image" style="width:auto; max-width:100%; max-height:350px; object-fit:cover;">
+                    <img src="{{ $actu->url_media }}" alt="Image" style="width:auto; max-width:100%; max-height:350px; object-fit:cover;">
                 @endif
             @else
                 <img src="{{ asset('medias/default_news.jpg') }}" alt="Default" style="width:auto; max-width:100%; max-height:350px; object-fit:cover;">
@@ -85,13 +85,13 @@
 <script>
 function voirPlus(btn){
     const p = btn.previousElementSibling;
-    if(btn.innerText==="Voir plus"){ 
-        p.innerText = p.dataset.full; 
-        btn.innerText = "Voir moins"; 
+    if(btn.innerText==="Voir plus"){
+        p.innerText = p.dataset.full;
+        btn.innerText = "Voir moins";
     }
-    else { 
-        p.innerText = p.dataset.truncated; 
-        btn.innerText = "Voir plus"; 
+    else {
+        p.innerText = p.dataset.truncated;
+        btn.innerText = "Voir plus";
     }
 }
 
