@@ -54,6 +54,7 @@ use App\Http\Controllers\ServiceVaccinEnfantController;
 use App\Http\Controllers\UrgenceController;
 use App\Http\Controllers\ActualiteController;
 use App\Http\Controllers\ForumServicesController;
+use Illuminate\Support\Facades\DB;
 
 // ============================================================
 // CITOYENS
