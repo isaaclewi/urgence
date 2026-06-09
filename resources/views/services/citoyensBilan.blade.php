@@ -1,377 +1,478 @@
-@extends('services.master')
+@extends('services.app')
 
 @section('title', ($service->nom ?? 'Service Urgences') . ' — Bilan de Santé')
-
-@section('page-title', 'Gestion des Bilans de Santé')
+@section('page-title', 'Bilans de santé')
 @section('page-subtitle', 'Créez et consultez les bilans de santé des citoyens')
 
+{{-- ══════════════════════════════
+     SIDEBAR
+══════════════════════════════ --}}
 @section('sidebar')
-<div class="space-y-1">
-    <a href="{{ route('services.compte') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 font-semibold">
-        <i data-feather="home" class="w-5 h-5"></i>
-        <span>Tableau de bord</span>
-    </a>
-    <a href="{{ route('services.citoyens') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 font-semibold">
-        <i data-feather="users" class="w-5 h-5"></i>
-        <span>Citoyens</span>
-    </a>
-    <a href="{{ route('services.citoyensBilan') }}" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 font-semibold accent-light-bg accent-text">
-        <i data-feather="activity" class="w-5 h-5"></i>
-        <span>Bilan de Santé</span>
-    </a>
-    <a href="{{ route('services.vaccinationIndex') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 font-semibold">
-        <i data-feather="shield" class="w-5 h-5"></i>
-        <span>Vaccination</span>
-    </a>
-    <div class="pt-4 mt-4 border-t border-gray-200">
-        <a href="{{ route('services.logout') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 font-semibold hover:bg-red-50">
-            <i data-feather="log-out" class="w-5 h-5"></i>
-            <span>Déconnexion</span>
-        </a>
-    </div>
-</div>
+
+<div class="sb-section-label">Principal</div>
+
+<a href="{{ route('services.compte') }}" class="sidebar-link">
+    <i data-feather="home"></i>
+    <span class="sb-lbl">Tableau de bord</span>
+</a>
+
+<a href="{{ route('services.citoyens') }}" class="sidebar-link">
+    <i data-feather="users"></i>
+    <span class="sb-lbl">Citoyens</span>
+</a>
+
+<div class="sb-divider"></div>
+<div class="sb-section-label">Services médicaux</div>
+
+<a href="{{ route('services.citoyensBilan') }}" class="sidebar-link active">
+    <i data-feather="activity"></i>
+    <span class="sb-lbl">Bilan de santé</span>
+</a>
+
+<a href="{{ route('services.vaccinationIndex') }}" class="sidebar-link">
+    <i data-feather="shield"></i>
+    <span class="sb-lbl">Vaccination</span>
+</a>
+
+<div class="sb-divider"></div>
+
+<a href="{{ route('services.logout') }}" class="sidebar-link danger">
+    <i data-feather="log-out"></i>
+    <span class="sb-lbl">Déconnexion</span>
+</a>
+
 @endsection
 
+{{-- ══════════════════════════════
+     CONTENT
+══════════════════════════════ --}}
 @section('content')
-<div class="space-y-6">
-    {{-- Success Message --}}
-    @if(session('success'))
-    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg animate-fade-in flex items-center gap-3">
-        <i data-feather="check-circle" class="w-5 h-5"></i>
-        <span class="font-semibold">{{ session('success') }}</span>
+
+@push('styles')
+<style>
+/* ─── Stats ─── */
+.bilan-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+}
+@media (max-width: 1023px) { .bilan-stats { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 479px)  { .bilan-stats { grid-template-columns: 1fr; } }
+
+.icon-blue   { background: #DBEAFE; color: #2563EB; }
+.icon-green  { background: #D1FAE5; color: #059669; }
+.icon-purple { background: #EDE9FE; color: #7C3AED; }
+.icon-orange { background: #FEF3C7; color: #D97706; }
+
+/* ─── Form card ─── */
+.form-section-title {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 700;
+    color: var(--text); margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+}
+.form-section-title i { font-size: 15px; color: var(--accent); }
+
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+@media (max-width: 639px) { .form-grid-2 { grid-template-columns: 1fr; } }
+
+.form-field { margin-bottom: 14px; }
+.form-field:last-child { margin-bottom: 0; }
+
+.field-label {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 12px; font-weight: 600;
+    color: var(--text); margin-bottom: 6px;
+}
+.field-label i { font-size: 13px; }
+.field-label .req { color: #EF4444; }
+
+.form-input,
+.form-textarea,
+.form-select {
+    width: 100%;
+    padding: 10px 13px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 13.5px; font-family: inherit;
+    color: var(--text); background: var(--surface);
+    outline: none;
+    transition: border-color .17s, box-shadow .17s;
+}
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(29,184,122,.1);
+}
+.form-input::placeholder,
+.form-textarea::placeholder { color: #CBD5E1; }
+.form-textarea { resize: vertical; min-height: 88px; }
+
+/* Search input wrap */
+.search-wrap { position: relative; }
+.search-wrap i {
+    position: absolute; left: 12px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px; color: var(--text-muted);
+    pointer-events: none;
+}
+.search-wrap .form-input { padding-left: 36px; }
+
+/* ─── Table ─── */
+.table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+.citoyen-cell { display: flex; align-items: center; gap: 10px; }
+.citoyen-initials {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #60A5FA, #34D399);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: #fff;
+    flex-shrink: 0;
+}
+.citoyen-name  { font-size: 13px; font-weight: 600; color: var(--text); }
+.citoyen-matri { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+.blood-badge {
+    display: inline-block;
+    padding: 3px 9px; border-radius: 999px;
+    font-size: 11px; font-weight: 700;
+    background: #FEE2E2; color: #991B1B;
+}
+
+.empty-state {
+    text-align: center; padding: 52px 20px;
+}
+.empty-state-icon {
+    width: 68px; height: 68px; border-radius: 50%;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+}
+.empty-state-icon i { font-size: 30px; color: var(--text-muted); }
+.empty-state p { font-size: 14px; font-weight: 600; color: var(--text-sec); }
+</style>
+@endpush
+
+{{-- Flash --}}
+@if(session('success'))
+<div class="alert alert-success anim-fade" style="margin-bottom:16px;">
+    <i data-feather="check-circle"></i>
+    <span>{{ session('success') }}</span>
+</div>
+@endif
+
+{{-- ── Stat Cards ── --}}
+<div class="bilan-stats anim-fade">
+
+    <div class="stat-card blue">
+        <div class="sc-icon icon-blue"><i data-feather="file-text"></i></div>
+        <div class="sc-value">{{ $bilans->count() }}</div>
+        <div class="sc-label">Total bilans</div>
     </div>
-    @endif
 
-    {{-- Stats Cards --}}
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 animate-fade-in">
-        <div class="bg-white rounded-2xl p-6 shadow-lg card-hover border-l-4 border-blue-500">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600 font-semibold mb-1">Total bilans</p>
-                    <p class="text-3xl font-bold text-gray-900">{{ $bilans->count() }}</p>
-                </div>
-                <div class="bg-blue-100 p-3 rounded-xl">
-                    <i data-feather="file-text" class="w-8 h-8 text-blue-600"></i>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-2xl p-6 shadow-lg card-hover border-l-4 border-green-500">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600 font-semibold mb-1">Citoyens</p>
-                    <p class="text-3xl font-bold text-gray-900">{{ $citoyens->count() }}</p>
-                </div>
-                <div class="bg-green-100 p-3 rounded-xl">
-                    <i data-feather="users" class="w-8 h-8 text-green-600"></i>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-2xl p-6 shadow-lg card-hover border-l-4 border-purple-500">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600 font-semibold mb-1">Allergies</p>
-                    <p class="text-3xl font-bold text-gray-900">{{ $bilans->whereNotNull('allergies')->count() }}</p>
-                </div>
-                <div class="bg-purple-100 p-3 rounded-xl">
-                    <i data-feather="alert-circle" class="w-8 h-8 text-purple-600"></i>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-2xl p-6 shadow-lg card-hover border-l-4 border-orange-500">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600 font-semibold mb-1">Chroniques</p>
-                    <p class="text-3xl font-bold text-gray-900">{{ $bilans->whereNotNull('maladies_chroniques')->count() }}</p>
-                </div>
-                <div class="bg-orange-100 p-3 rounded-xl">
-                    <i data-feather="trending-up" class="w-8 h-8 text-orange-600"></i>
-                </div>
-            </div>
-        </div>
+    <div class="stat-card green">
+        <div class="sc-icon icon-green"><i data-feather="users"></i></div>
+        <div class="sc-value">{{ $citoyens->count() }}</div>
+        <div class="sc-label">Citoyens</div>
     </div>
 
-    {{-- Form Card --}}
-    <div class="bg-white rounded-2xl shadow-lg p-6 animate-slide-in">
-        <div class="flex items-center gap-3 mb-6">
-            <div class="accent-light-bg p-3 rounded-xl">
-                <i data-feather="file-plus" class="w-6 h-6 accent-text"></i>
-            </div>
-            <div>
-                <h3 class="text-xl font-bold text-gray-900">Créer un Bilan de Santé</h3>
-                <p class="text-sm text-gray-600">Remplissez les informations médicales du citoyen</p>
-            </div>
-        </div>
+    <div class="stat-card purple">
+        <div class="sc-icon icon-purple"><i data-feather="alert-circle"></i></div>
+        <div class="sc-value">{{ $bilans->whereNotNull('allergies')->count() }}</div>
+        <div class="sc-label">Avec allergies</div>
+    </div>
 
-        <form action="{{ route('services.citoyensBilanStore') }}" method="POST" class="space-y-6">
+    <div class="stat-card orange">
+        <div class="sc-icon icon-orange"><i data-feather="trending-up"></i></div>
+        <div class="sc-value">{{ $bilans->whereNotNull('maladies_chroniques')->count() }}</div>
+        <div class="sc-label">Chroniques</div>
+    </div>
+
+</div>
+
+{{-- ── Formulaire ── --}}
+<div class="content-card anim-slide" style="margin-bottom:20px;">
+    <div class="cc-header">
+        <div>
+            <div class="cc-title">
+                <i data-feather="file-plus"></i>
+                Créer un bilan de santé
+            </div>
+            <div class="cc-subtitle">Remplissez les informations médicales du citoyen</div>
+        </div>
+    </div>
+    <div class="cc-body">
+        <form action="{{ route('services.citoyensBilanStore') }}" method="POST">
             @csrf
 
-            {{-- Search Citoyen --}}
-            <div>
-                <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                    <i data-feather="search" class="w-4 h-4 accent-text"></i>
-                    Rechercher un citoyen par matricule
-                </label>
-                <input type="text" id="citoyenSearch" placeholder="Tapez le numéro matricule..."
-                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition">
+            {{-- Recherche + sélection citoyen --}}
+            <div class="form-section-title">
+                <i data-feather="user"></i>
+                Identification du citoyen
             </div>
 
-            {{-- Select Citoyen --}}
-            <div>
-                <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                    <i data-feather="user" class="w-4 h-4 accent-text"></i>
-                    Citoyen <span class="text-red-500">*</span>
-                </label>
-                <select name="citoyen_id" id="citoyenSelect" required
-                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition">
-                    <option value="">-- Sélectionner un citoyen --</option>
-                    @foreach($citoyens as $citoyen)
-                    <option value="{{ $citoyen->id }}" data-matricule="{{ $citoyen->matricule }}">
-                        {{ $citoyen->matricule }} — {{ $citoyen->nom }} {{ $citoyen->prenom }}
-                    </option>
-                    @endforeach
-                </select>
+            <div class="form-grid-2">
+                <div class="form-field">
+                    <div class="field-label">
+                        <i data-feather="search"></i>
+                        Rechercher par matricule
+                    </div>
+                    <div class="search-wrap">
+                        <i data-feather="search"></i>
+                        <input type="text" id="citoyenSearch" placeholder="Tapez le matricule..."
+                            class="form-input">
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <div class="field-label">
+                        <i data-feather="user"></i>
+                        Citoyen <span class="req">*</span>
+                    </div>
+                    <select name="citoyen_id" id="citoyenSelect" required class="form-select">
+                        <option value="">-- Sélectionner un citoyen --</option>
+                        @foreach($citoyens as $citoyen)
+                        <option value="{{ $citoyen->id }}" data-matricule="{{ $citoyen->matricule }}">
+                            {{ $citoyen->matricule }} — {{ $citoyen->nom }} {{ $citoyen->prenom }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
 
-            {{-- Grid 2 columns --}}
-            <div class="grid md:grid-cols-2 gap-6">
-                {{-- Groupe sanguin --}}
-                <div>
-                    <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                        <i data-feather="droplet" class="w-4 h-4 text-red-500"></i>
+            {{-- Informations biométriques --}}
+            <div class="form-section-title" style="margin-top:6px;">
+                <i data-feather="thermometer"></i>
+                Données biométriques
+            </div>
+
+            <div class="form-grid-2">
+                <div class="form-field">
+                    <div class="field-label">
+                        <i data-feather="droplet" style="color:#EF4444;"></i>
                         Groupe sanguin
-                    </label>
-                    <input type="text" name="groupe_sanguin" placeholder="Ex: A+"
-                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition">
+                    </div>
+                    <input type="text" name="groupe_sanguin" placeholder="Ex: A+" class="form-input">
                 </div>
-
-                {{-- Taille --}}
-                <div>
-                    <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                        <i data-feather="maximize-2" class="w-4 h-4 text-blue-500"></i>
+                <div class="form-field">
+                    <div class="field-label">
+                        <i data-feather="maximize-2" style="color:#2563EB;"></i>
                         Taille (cm)
-                    </label>
-                    <input type="number" name="taille" placeholder="Ex: 175"
-                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition">
+                    </div>
+                    <input type="number" name="taille" placeholder="Ex: 175" class="form-input">
                 </div>
-
-                {{-- Poids --}}
-                <div>
-                    <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                        <i data-feather="award" class="w-4 h-4 text-green-500"></i>
+                <div class="form-field">
+                    <div class="field-label">
+                        <i data-feather="award" style="color:#059669;"></i>
                         Poids (kg)
-                    </label>
-                    <input type="number" name="poids" placeholder="Ex: 70"
-                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition">
+                    </div>
+                    <input type="number" name="poids" placeholder="Ex: 70" class="form-input">
                 </div>
-
-                {{-- Allergies --}}
-                <div>
-                    <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                        <i data-feather="alert-triangle" class="w-4 h-4 text-orange-500"></i>
+                <div class="form-field">
+                    <div class="field-label">
+                        <i data-feather="alert-triangle" style="color:#D97706;"></i>
                         Allergies
-                    </label>
-                    <input type="text" name="allergies" placeholder="Ex: Arachides, Pénicilline"
-                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition">
+                    </div>
+                    <input type="text" name="allergies" placeholder="Ex: Arachides, Pénicilline" class="form-input">
                 </div>
             </div>
 
-            {{-- Full width fields --}}
-            <div class="space-y-4">
-                <div>
-                    <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                        <i data-feather="heart" class="w-4 h-4 text-red-500"></i>
-                        Maladies chroniques
-                    </label>
-                    <input type="text" name="maladies_chroniques" placeholder="Ex: Diabète, Hypertension"
-                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition">
-                </div>
-
-                <div>
-                    <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                        <i data-feather="clock" class="w-4 h-4 text-purple-500"></i>
-                        Maladies passées importantes
-                    </label>
-                    <input type="text" name="maladies_passees_importantes" placeholder="Ex: Tuberculose (2020)"
-                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition">
-                </div>
-
-                <div>
-                    <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                        <i data-feather="scissors" class="w-4 h-4 text-teal-500"></i>
-                        Interventions chirurgicales
-                    </label>
-                    <textarea name="interventions_chirurgicales" rows="3" placeholder="Décrivez les opérations subies..."
-                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"></textarea>
-                </div>
-
-                <div>
-                    <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                        <i data-feather="users" class="w-4 h-4 text-indigo-500"></i>
-                        Antécédents familiaux
-                    </label>
-                    <textarea name="antecedents_familiaux" rows="3" placeholder="Ex: Père diabétique, Mère cardiaque..."
-                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"></textarea>
-                </div>
-
-                <div>
-                    <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                        <i data-feather="home" class="w-4 h-4 text-pink-500"></i>
-                        Antécédents d'hospitalisation
-                    </label>
-                    <textarea name="antecedents_hospitalisation" rows="3" placeholder="Listez les hospitalisations..."
-                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"></textarea>
-                </div>
-
-                <div>
-                    <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                        <i data-feather="package" class="w-4 h-4 text-cyan-500"></i>
-                        Médicaments pris actuellement
-                    </label>
-                    <textarea name="medicaments_pris_actuellement" rows="3" placeholder="Ex: Aspirine 100mg/jour..."
-                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"></textarea>
-                </div>
-
-                <div>
-                    <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                        <i data-feather="shield" class="w-4 h-4 text-green-500"></i>
-                        Liste des vaccins reçus
-                    </label>
-                    <textarea name="listez_vaccins_reçus" rows="3" placeholder="Ex: BCG, DTC, Hépatite B..."
-                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"></textarea>
-                </div>
-
-                <div>
-                    <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-                        <i data-feather="coffee" class="w-4 h-4 text-amber-500"></i>
-                        Mode de vie
-                    </label>
-                    <textarea name="mode_de_vie" rows="3" placeholder="Ex: Non-fumeur, Sport régulier..."
-                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"></textarea>
-                </div>
+            {{-- Antécédents --}}
+            <div class="form-section-title" style="margin-top:6px;">
+                <i data-feather="book-open"></i>
+                Antécédents médicaux
             </div>
 
-            {{-- Submit Button --}}
-            <button type="submit" class="w-full accent-bg text-white px-6 py-4 rounded-xl font-bold text-lg hover:opacity-90 transition flex items-center justify-center gap-2 card-hover">
-                <i data-feather="save" class="w-5 h-5"></i>
-                Enregistrer le Bilan
+            <div class="form-field">
+                <div class="field-label">
+                    <i data-feather="heart" style="color:#EF4444;"></i>
+                    Maladies chroniques
+                </div>
+                <input type="text" name="maladies_chroniques" placeholder="Ex: Diabète, Hypertension" class="form-input">
+            </div>
+
+            <div class="form-field">
+                <div class="field-label">
+                    <i data-feather="clock" style="color:#7C3AED;"></i>
+                    Maladies passées importantes
+                </div>
+                <input type="text" name="maladies_passees_importantes" placeholder="Ex: Tuberculose (2020)" class="form-input">
+            </div>
+
+            <div class="form-field">
+                <div class="field-label">
+                    <i data-feather="scissors" style="color:#0891B2;"></i>
+                    Interventions chirurgicales
+                </div>
+                <textarea name="interventions_chirurgicales" placeholder="Décrivez les opérations subies..." class="form-textarea"></textarea>
+            </div>
+
+            <div class="form-field">
+                <div class="field-label">
+                    <i data-feather="users" style="color:#4F46E5;"></i>
+                    Antécédents familiaux
+                </div>
+                <textarea name="antecedents_familiaux" placeholder="Ex: Père diabétique, Mère cardiaque..." class="form-textarea"></textarea>
+            </div>
+
+            <div class="form-field">
+                <div class="field-label">
+                    <i data-feather="home" style="color:#DB2777;"></i>
+                    Antécédents d'hospitalisation
+                </div>
+                <textarea name="antecedents_hospitalisation" placeholder="Listez les hospitalisations..." class="form-textarea"></textarea>
+            </div>
+
+            {{-- Traitement & mode de vie --}}
+            <div class="form-section-title" style="margin-top:6px;">
+                <i data-feather="package"></i>
+                Traitement & mode de vie
+            </div>
+
+            <div class="form-field">
+                <div class="field-label">
+                    <i data-feather="package" style="color:#0891B2;"></i>
+                    Médicaments pris actuellement
+                </div>
+                <textarea name="medicaments_pris_actuellement" placeholder="Ex: Aspirine 100mg/jour..." class="form-textarea"></textarea>
+            </div>
+
+            <div class="form-field">
+                <div class="field-label">
+                    <i data-feather="shield" style="color:#059669;"></i>
+                    Liste des vaccins reçus
+                </div>
+                <textarea name="listez_vaccins_reçus" placeholder="Ex: BCG, DTC, Hépatite B..." class="form-textarea"></textarea>
+            </div>
+
+            <div class="form-field">
+                <div class="field-label">
+                    <i data-feather="coffee" style="color:#D97706;"></i>
+                    Mode de vie
+                </div>
+                <textarea name="mode_de_vie" placeholder="Ex: Non-fumeur, sport régulier..." class="form-textarea"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-accent" style="width:100%;justify-content:center;padding:12px;font-size:14px;margin-top:6px;">
+                <i data-feather="save"></i>
+                Enregistrer le bilan
             </button>
         </form>
     </div>
+</div>
 
-    {{-- Table Card --}}
-    <div class="bg-white rounded-2xl shadow-lg overflow-hidden animate-fade-in">
-        <div class="p-6 border-b border-gray-100">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-                <div class="flex items-center gap-3">
-                    <div class="accent-light-bg p-3 rounded-xl">
-                        <i data-feather="clipboard" class="w-6 h-6 accent-text"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-900">Bilans enregistrés</h3>
-                        <p class="text-sm text-gray-600">{{ $bilans->count() }} bilan(s) au total</p>
-                    </div>
-                </div>
+{{-- ── Table bilans ── --}}
+<div class="content-card anim-fade">
+    <div class="cc-header">
+        <div>
+            <div class="cc-title">
+                <i data-feather="clipboard"></i>
+                Bilans enregistrés
             </div>
-
-            <input type="text" id="tableSearch" placeholder="Rechercher dans le tableau..."
-                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition">
+            <div class="cc-subtitle">{{ $bilans->count() }} bilan(s) au total</div>
         </div>
-
-        <div class="overflow-x-auto">
-            <table id="bilansTable" class="w-full">
-                <thead class="accent-light-bg">
-                    <tr>
-                        <th class="px-6 py-4 text-left text-xs font-bold uppercase accent-text">ID</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold uppercase accent-text">Citoyen</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold uppercase accent-text">Groupe</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold uppercase accent-text">Taille</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold uppercase accent-text">Poids</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold uppercase accent-text">Allergies</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold uppercase accent-text">Chroniques</th>
-                        <th class="px-6 py-4 text-center text-xs font-bold uppercase accent-text">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    @forelse($bilans as $bilan)
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="px-6 py-4 font-semibold text-gray-900">#{{ $bilan->id }}</td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-green-400 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                    {{ strtoupper(substr($bilan->citoyen->nom ?? '', 0, 1)) }}{{ strtoupper(substr($bilan->citoyen->prenom ?? '', 0, 1)) }}
-                                </div>
-                                <div>
-                                    <p class="font-semibold text-gray-900">{{ $bilan->citoyen->nom ?? '' }} {{ $bilan->citoyen->prenom ?? '' }}</p>
-                                    <p class="text-xs text-gray-500">{{ $bilan->citoyen->matricule ?? '' }}</p>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-bold">{{ $bilan->groupe_sanguin ?? '—' }}</span>
-                        </td>
-                        <td class="px-6 py-4 text-gray-700">{{ $bilan->taille ?? '—' }} cm</td>
-                        <td class="px-6 py-4 text-gray-700">{{ $bilan->poids ?? '—' }} kg</td>
-                        <td class="px-6 py-4 text-gray-700 text-sm">{{ Str::limit($bilan->allergies ?? '—', 30) }}</td>
-                        <td class="px-6 py-4 text-gray-700 text-sm">{{ Str::limit($bilan->maladies_chroniques ?? '—', 30) }}</td>
-                        <td class="px-6 py-4 text-center">
-                            <form action="{{ route('services.citoyensBilanDestroy', $bilan->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Supprimer ce bilan ?')">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="w-9 h-9 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg flex items-center justify-center transition mx-auto">
-                                    <i data-feather="trash-2" class="w-4 h-4"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="8" class="px-6 py-12 text-center">
-                            <div class="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <i data-feather="inbox" class="w-10 h-10 text-gray-400"></i>
-                            </div>
-                            <p class="text-gray-500 font-semibold">Aucun bilan enregistré</p>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+        <div class="search-wrap" style="width:240px;">
+            <i data-feather="search"></i>
+            <input type="text" id="tableSearch" placeholder="Rechercher..." class="form-input">
         </div>
+    </div>
+
+    <div class="table-wrap">
+        <table class="data-table" id="bilansTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Citoyen</th>
+                    <th>Groupe</th>
+                    <th>Taille</th>
+                    <th>Poids</th>
+                    <th>Allergies</th>
+                    <th>Chroniques</th>
+                    <th style="text-align:center;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($bilans as $bilan)
+                <tr>
+                    <td><span style="font-weight:700;">#{{ $bilan->id }}</span></td>
+
+                    <td>
+                        <div class="citoyen-cell">
+                            <div class="citoyen-initials">
+                                {{ strtoupper(substr($bilan->citoyen->nom ?? '', 0, 1)) }}{{ strtoupper(substr($bilan->citoyen->prenom ?? '', 0, 1)) }}
+                            </div>
+                            <div>
+                                <div class="citoyen-name">{{ $bilan->citoyen->nom ?? '' }} {{ $bilan->citoyen->prenom ?? '' }}</div>
+                                <div class="citoyen-matri">{{ $bilan->citoyen->matricule ?? '' }}</div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td>
+                        <span class="blood-badge">{{ $bilan->groupe_sanguin ?? '—' }}</span>
+                    </td>
+
+                    <td style="font-size:13px;color:var(--text-sec);">{{ $bilan->taille ? $bilan->taille.' cm' : '—' }}</td>
+                    <td style="font-size:13px;color:var(--text-sec);">{{ $bilan->poids  ? $bilan->poids.' kg'  : '—' }}</td>
+
+                    <td style="font-size:12.5px;color:var(--text-sec);">{{ Str::limit($bilan->allergies ?? '—', 30) }}</td>
+                    <td style="font-size:12.5px;color:var(--text-sec);">{{ Str::limit($bilan->maladies_chroniques ?? '—', 30) }}</td>
+
+                    <td style="text-align:center;">
+                        <form action="{{ route('services.citoyensBilanDestroy', $bilan->id) }}" method="POST"
+                            onsubmit="return confirm('Supprimer ce bilan ?')">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-sm btn-icon" title="Supprimer" style="margin:0 auto;">
+                                <i data-feather="trash-2"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="8">
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i data-feather="inbox"></i></div>
+                            <p>Aucun bilan enregistré</p>
+                        </div>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 </div>
 
+@endsection
+
 @push('scripts')
 <script>
-// Filtre pour le select des citoyens
-const citoyenSearch = document.getElementById('citoyenSearch');
-const citoyenSelect = document.getElementById('citoyenSelect');
+feather.replace({ width: 14, height: 14 });
 
-citoyenSearch.addEventListener('input', function() {
-    const search = this.value.toLowerCase();
-    Array.from(citoyenSelect.options).forEach(option => {
-        if (option.value === "") return;
-        const matricule = option.getAttribute('data-matricule')?.toLowerCase() || '';
-        option.style.display = matricule.includes(search) ? '' : 'none';
+/* Filtre select citoyen par matricule */
+document.getElementById('citoyenSearch').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    Array.from(document.getElementById('citoyenSelect').options).forEach(opt => {
+        if (!opt.value) return;
+        opt.style.display = (opt.dataset.matricule || '').toLowerCase().includes(q) ? '' : 'none';
     });
 });
 
-// Filtre pour le tableau
-const tableSearch = document.getElementById('tableSearch');
-const bilansTable = document.getElementById('bilansTable').getElementsByTagName('tbody')[0];
-
-tableSearch.addEventListener('input', function() {
-    const search = this.value.toLowerCase();
-    Array.from(bilansTable.rows).forEach(row => {
-        const rowText = row.textContent.toLowerCase();
-        row.style.display = rowText.includes(search) ? '' : 'none';
+/* Filtre tableau */
+document.getElementById('tableSearch').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    Array.from(document.getElementById('bilansTable').tBodies[0].rows).forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
     });
-});
-
-// Réinitialiser les icônes Feather
-document.addEventListener('DOMContentLoaded', function() {
-    feather.replace();
 });
 </script>
 @endpush
-@endsection
