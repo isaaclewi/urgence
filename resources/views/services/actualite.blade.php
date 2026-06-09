@@ -68,10 +68,10 @@
             <div class="relative bg-gray-100 flex items-center justify-center" style="max-height: 400px; overflow: hidden;">
                 @if($actu->type_media === 'mp4')
                 <video controls class="w-full h-auto">
-                    <source src="{{ asset($actu->url_media) }}" type="video/mp4">
+                    <source src="{{ $actu->url_media }}" type="video/mp4">
                 </video>
                 @else
-                <img src="{{ asset($actu->url_media) }}" alt="Actualité" class="w-full h-auto object-cover">
+                <img src="{{ $actu->url_media }}" alt="Actualité" class="w-full h-auto object-cover">
                 @endif
             </div>
             @else
@@ -228,7 +228,7 @@
         const p = document.querySelector(`.contenu-${id}`);
         const btn = document.querySelector(`.btn-voir-plus-${id} span`);
         const icon = document.querySelector(`.btn-voir-plus-${id} i`);
-        
+
         if (btn.textContent === 'Voir plus') {
             p.textContent = p.dataset.full;
             btn.textContent = 'Voir moins';

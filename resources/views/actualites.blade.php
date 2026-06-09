@@ -428,10 +428,10 @@
             <div class="card-media">
                 @if($actu->type_media === 'mp4')
                     <video controls>
-                        <source src="{{ asset($actu->url_media) }}" type="video/mp4">
+                        <source src="{{ $actu->url_media }}" type="video/mp4">
                     </video>
                 @else
-                    <img src="{{ asset($actu->url_media) }}" alt="Illustration">
+                    <img src="{{ $actu->url_media }}" alt="Illustration">
                 @endif
             </div>
         @else
@@ -439,7 +439,7 @@
         @endif
 
         <div class="card-actions">
-           
+
         </div>
 
     </article>
