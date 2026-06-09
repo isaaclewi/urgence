@@ -517,7 +517,7 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script> --}}
-    <script>
+    {{-- <script>
 let deferredPrompt;
 
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -547,7 +547,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
     });
   });
 });
-</script>
+</script> --}}
 
 
 {{-- ══ PWA install button ══ --}}
