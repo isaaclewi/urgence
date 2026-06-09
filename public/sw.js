@@ -1,4 +1,4 @@
-const CACHE_NAME = "congoassist-v2";
+const CACHE_NAME = "congoassist-v3";
 const OFFLINE_URL = "/";
 
 const STATIC_ASSETS = [
