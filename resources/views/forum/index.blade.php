@@ -26,7 +26,7 @@
         @forelse($spaces as $space)
             <a href="{{ route('forum.group', $space->id) }}" class="space-card">
                 <div class="space-card-inner">
-                    
+
                     {{-- Avatar --}}
                     <div class="space-avatar {{ $space->type === 'public' ? 'avatar-public' : 'avatar-private' }}">
                         {{ $space->type === 'public' ? '🌐' : '🔒' }}
@@ -38,7 +38,7 @@
                             <h4 class="space-title">{{ $space->title }}</h4>
                             <i class="fas fa-arrow-right space-arrow"></i>
                         </div>
-                        
+
                         <p class="space-description">
                             {{ \Illuminate\Support\Str::limit($space->description, 100) }}
                         </p>
