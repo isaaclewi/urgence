@@ -5,10 +5,37 @@ use App\Http\Controllers\RedirectionController;
 use App\Http\Controllers\UrgenceController;
 
 use App\Http\Controllers\ForumController;
+use App\Http\Controllers\EquipeDashboardController;
 
 Route::delete('/forum/message/{id}', [ForumController::class, 'deleteMessage'])->name('forum.message.delete');
 
 
+Route::prefix('equipe')->name('equipe.')->group(function () {
+
+    // Dashboard principal
+    Route::get('/dashboard', [EquipeDashboardController::class, 'index'])
+        ->name('dashboard');
+
+    // Liste des alertes affectées
+    Route::get('/alertes', [EquipeDashboardController::class, 'alertes'])
+        ->name('alertes');
+
+    // Détail d'une alerte avec carte
+    Route::get('/alertes/{id}', [EquipeDashboardController::class, 'alerteDetail'])
+        ->name('alerte.detail');
+
+    // Mise à jour statut affectation
+    Route::post('/affectation/{id}/statut', [EquipeDashboardController::class, 'updateStatut'])
+        ->name('affectation.statut');
+
+    // Profil équipe
+    Route::get('/profil', [EquipeDashboardController::class, 'profil'])
+        ->name('profil');
+
+    // Déconnexion équipe (réutilise ServicesLoginController)
+    Route::post('/logout', [App\Http\Controllers\ServicesLoginController::class, 'logout'])
+        ->name('logout');
+});
 
 
 Route::get('/forum', [ForumController::class, 'index'])
