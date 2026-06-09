@@ -9,7 +9,7 @@ class Citoyens extends Model
 {
     use HasFactory;
 
-      protected $table = 'citoyens'; 
+      protected $table = 'citoyens';
 
     protected $fillable = [
         'matricule',
@@ -29,4 +29,12 @@ class Citoyens extends Model
     protected $hidden = [
         'password',
     ];
+
+    public function alertes()
+{
+    return $this->hasMany(
+        Alertes::class,
+        'citoyen_id'
+    );
+}
 }

@@ -16,6 +16,18 @@
     <span class="sb-lbl">Tableau de bord</span>
 </a>
 
+<div class="sb-section-label">Gestion des services</div>
+
+<a href="{{ route('services.equipes.index') }}" class="sidebar-link">
+    <i data-feather="list"></i>
+    <span class="sb-lbl">Liste des équipes</span>
+</a>
+
+<a href="{{ route('services.equipes.create') }}" class="sidebar-link">
+    <i data-feather="plus-circle"></i>
+    <span class="sb-lbl">Créer une équipe</span>
+</a>
+
 <a href="{{ route('services.urgenceSignalee') }}" class="sidebar-link">
     <i data-feather="bell"></i>
     <span class="sb-lbl">Urgences signalées</span>
@@ -65,6 +77,7 @@
     <i data-feather="log-out"></i>
     <span class="sb-lbl">Déconnexion</span>
 </a>
+
 
 @endsection
 

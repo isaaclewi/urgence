@@ -21,6 +21,68 @@ Route::post('/forum/groupe/{id}/send', [ForumController::class, 'sendMessage'])
     ->name('forum.group.send');
 
 
+    use App\Http\Controllers\ServiceEquipeController;
+
+
+
+Route::prefix('services/equipes')
+->group(function(){
+
+
+
+Route::get('/',[
+ServiceEquipeController::class,
+'index'
+])
+->name('services.equipes.index');
+
+
+
+Route::get('/create',[
+ServiceEquipeController::class,
+'create'
+])
+->name('services.equipes.create');
+
+
+
+Route::post('/',[
+ServiceEquipeController::class,
+'store'
+])
+->name('services.equipes.store');
+
+
+
+Route::get('/{id}/edit',[
+ServiceEquipeController::class,
+'edit'
+])
+->name('services.equipes.edit');
+
+
+
+Route::put('/{id}',[
+ServiceEquipeController::class,
+'update'
+])
+->name('services.equipes.update');
+
+
+
+Route::delete('/{id}',[
+ServiceEquipeController::class,
+'destroy'
+])
+->name('services.equipes.destroy');
+
+
+
+});
+
+
+
+
 use App\Http\Controllers\ForumServicesController;
 
 Route::get('/services/forum', [ForumServicesController::class, 'index'])

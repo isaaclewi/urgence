@@ -29,4 +29,12 @@ class Admins extends Model
    {
       return $this->hasMany(DiscussionSpace::class, 'created_by');
    }
+
+   public function affectations()
+{
+    return $this->hasMany(
+        AlerteAffectation::class,
+        'affecte_par'
+    );
+}
 }
