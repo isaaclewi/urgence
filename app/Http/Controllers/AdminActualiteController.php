@@ -39,13 +39,13 @@ class AdminActualiteController extends Controller
 
         if ($request->hasFile('url_media')) {
             $file     = $request->file('url_media');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $ext      = strtolower($file->getClientOriginalExtension());
+            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $file->getClientOriginalName());
 
-            // ✅ Upload vers Supabase
             Storage::disk('supabase')->putFileAs('actualites', $file, $filename);
 
             $urlMedia  = env('SUPABASE_PUBLIC_URL') . '/actualites/' . $filename;
-            $typeMedia = strtolower($file->getClientOriginalExtension()) === 'mp4' ? 'mp4' : 'image';
+            $typeMedia = $ext === 'mp4' ? 'mp4' : 'image';
         }
 
         Actualite::create([
@@ -86,21 +86,19 @@ class AdminActualiteController extends Controller
         ]);
 
         if ($request->hasFile('url_media')) {
-
-            // ✅ Supprimer l'ancien média sur Supabase
             if ($actualite->url_media) {
                 $oldFilename = basename($actualite->url_media);
                 Storage::disk('supabase')->delete('actualites/' . $oldFilename);
             }
 
             $file     = $request->file('url_media');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $ext      = strtolower($file->getClientOriginalExtension());
+            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $file->getClientOriginalName());
 
-            // ✅ Upload vers Supabase
             Storage::disk('supabase')->putFileAs('actualites', $file, $filename);
 
             $actualite->url_media  = env('SUPABASE_PUBLIC_URL') . '/actualites/' . $filename;
-            $actualite->type_media = strtolower($file->getClientOriginalExtension()) === 'mp4' ? 'mp4' : 'image';
+            $actualite->type_media = $ext === 'mp4' ? 'mp4' : 'image';
         }
 
         $actualite->contenu = $request->contenu;
@@ -118,7 +116,6 @@ class AdminActualiteController extends Controller
 
         $actualite = Actualite::findOrFail($id);
 
-        // ✅ Supprimer le média sur Supabase
         if ($actualite->url_media) {
             $oldFilename = basename($actualite->url_media);
             Storage::disk('supabase')->delete('actualites/' . $oldFilename);
