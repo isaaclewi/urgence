@@ -33,7 +33,7 @@
            onmouseover="this.style.borderColor='var(--accent)';this.style.boxShadow='var(--shadow)';this.style.transform='translateY(-2px)'"
            onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='none';this.style.transform='translateY(0)'">
             @if($service->image)
-            <img src="{{ asset($service->image) }}" alt="{{ $service->nom_service }}"
+            <img src="{{ $service->image ?? asset('medias/default-service.jpg') }}"
                  style="width:52px;height:52px;border-radius:10px;object-fit:cover;flex-shrink:0;">
             @else
             <div style="width:52px;height:52px;border-radius:10px;background:var(--accent-light);
