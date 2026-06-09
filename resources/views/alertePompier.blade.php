@@ -168,7 +168,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-4 bg-gradient-to-r from-blue-50 to-green-50 px-6 py-3 rounded-xl">
-                    <img src="{{ asset($citoyen->photo_profil ?? 'medias/default.png') }}" alt="Profil"
+                    <img src="{{ $citoyen->photo_profil ?? asset('medias/default.png') }}" alt="Profil"
                         class="w-12 h-12 rounded-full border-2 border-green-500 object-cover shadow-md">
                     <div>
                         <p class="font-bold text-gray-900">{{ $citoyen->nom ?? 'Utilisateur' }}
