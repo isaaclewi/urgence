@@ -272,6 +272,10 @@
     </div>
 
     <div class="table-wrap">
+        <a href="{{ route('services.interventions.journalieres') }}" class="btn btn-accent btn-sm">
+    <i data-feather="activity"></i>
+    Daily interventions
+</a>
         <table class="data-table">
             <thead>
                 <tr>
@@ -284,6 +288,7 @@
                     <th style="text-align:center;"><div class="th-icon-center"><i data-feather="info"></i> Statut</div></th>
                     <th style="text-align:center;"><div class="th-icon-center"><i data-feather="eye"></i> Alerte</div></th>
                     <th><div class="th-icon"><i data-feather="sliders"></i> Action</div></th>
+                    <th><div class="th-icon"><i data-feather="git-branch"></i> Affectation</div></th>
                 </tr>
             </thead>
             <tbody>
@@ -368,6 +373,15 @@
                             </select>
                         </form>
                     </td>
+
+                    {{-- Affectation --}}
+                    <td style="text-align:center;">
+    <button class="btn btn-warning btn-sm"
+        onclick="openAffectModal({{ $alerte->id }})">
+        <i data-feather="share-2"></i>
+        Affecter
+    </button>
+</td>
                 </tr>
                 @empty
                 <tr>
@@ -473,7 +487,38 @@
         </div>
     </div>
 </div>
+<div id="affectModal" class="modal-backdrop">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div class="modal-title">Affecter une équipe</div>
+            <button onclick="closeAffectModal()" class="btn btn-outline btn-icon">
+                <i data-feather="x"></i>
+            </button>
+        </div>
 
+        <form id="affectForm" method="POST">
+            @csrf
+
+            <div class="modal-body">
+
+                <label>Équipe</label>
+                <select name="service_destination_id" class="status-select" required>
+                    @foreach(\App\Models\Services::all() as $s)
+                        <option value="{{ $s->id }}">{{ $s->nom }}</option>
+                    @endforeach
+                </select>
+
+                <label style="margin-top:10px;">Commentaire</label>
+                <textarea name="commentaire" class="status-select"></textarea>
+
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-accent">Affecter</button>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -529,5 +574,14 @@ document.querySelectorAll('.modal-backdrop').forEach(m => {
 document.addEventListener('keydown', e => {
     if (e.key === 'Escape') document.querySelectorAll('.modal-backdrop.open').forEach(m => m.classList.remove('open'));
 });
+
+function openAffectModal(id) {
+    document.getElementById('affectForm').action = '/services/urgence/affecter/' + id;
+    document.getElementById('affectModal').classList.add('open');
+}
+
+function closeAffectModal() {
+    document.getElementById('affectModal').classList.remove('open');
+}
 </script>
 @endpush

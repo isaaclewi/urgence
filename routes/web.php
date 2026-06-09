@@ -81,7 +81,11 @@ ServiceEquipeController::class,
 });
 
 
+Route::post('/services/urgence/affecter/{id}', [UrgenceController::class, 'affecter'])
+    ->name('services.urgence.affecter');
 
+Route::get('/services/interventions-journalieres', [UrgenceController::class, 'interventionsJournalieres'])
+    ->name('services.interventions.journalieres');
 
 use App\Http\Controllers\ForumServicesController;
 
