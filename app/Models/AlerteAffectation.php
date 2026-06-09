@@ -44,7 +44,7 @@ protected $casts = [
 public function alerte()
 {
     return $this->belongsTo(
-        Alertes::class,
+        alertes::class,
         'alerte_id'
     );
 }
