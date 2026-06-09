@@ -45,7 +45,7 @@
     <i data-feather="calendar"></i>
     <span class="sb-lbl">Programmes Vaccination</span>
 </a>
-<a href="{{ route('services.vaccinationEnfants') }}" class="sidebar-link active">
+<a href="{{ route('services.vaccinationEnfantsIndex') }}" class="sidebar-link active">
     <i data-feather="activity"></i>
     <span class="sb-lbl">Vaccins Enfants</span>
 </a>
