@@ -5,242 +5,149 @@
 @section('page-title', 'Citoyens actifs')
 @section('page-subtitle', 'Liste des utilisateurs inscrits sur la plateforme')
 
+@section('page-actions')
+    <button class="btn btn-outline btn-sm">
+        <i data-feather="filter"></i> Filtrer
+    </button>
+    <button class="btn btn-accent btn-sm">
+        <i data-feather="download"></i> Exporter
+    </button>
+@endsection
+
 @section('sidebar')
-<div class="space-y-1">
-    <a href="{{ route('services.compte') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 font-semibold">
-        <i data-feather="home" class="w-5 h-5"></i>
-        <span>Tableau de bord</span>
-    </a>
-    <a href="{{ route('services.urgenceSignalee') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 font-semibold">
-        <i data-feather="bell" class="w-5 h-5"></i>
-        <span>Urgences signalées</span>
-    </a>
-    <a href="{{ route('services.citoyens') }}" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 font-semibold accent-light-bg accent-text">
-        <i data-feather="users" class="w-5 h-5"></i>
-        <span>Citoyens</span>
-    </a>
-    <a href="#" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 font-semibold">
-        <i data-feather="message-square" class="w-5 h-5"></i>
-        <span>Forum</span>
-    </a>
-    <a href="{{ route('services.actualite') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 font-semibold">
-        <i data-feather="newspaper" class="w-5 h-5"></i>
-        <span>Actualités</span>
-    </a>
-    <a href="{{ route('services.profil') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 font-semibold">
-        <i data-feather="settings" class="w-5 h-5"></i>
-        <span>Gestion interne</span>
-    </a>
-    <div class="pt-4 mt-4 border-t border-gray-200">
-        <a href="{{ route('services.logout') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 font-semibold hover:bg-red-50">
-            <i data-feather="log-out" class="w-5 h-5"></i>
-            <span>Déconnexion</span>
-        </a>
-    </div>
-</div>
+<div class="sb-section-label">Navigation</div>
+<a href="{{ route('services.compte') }}" class="sidebar-link">
+    <i data-feather="home"></i><span class="sb-lbl">Tableau de bord</span>
+</a>
+<a href="{{ route('services.urgenceSignalee') }}" class="sidebar-link">
+    <i data-feather="bell"></i><span class="sb-lbl">Urgences signalées</span>
+</a>
+<a href="{{ route('services.citoyens') }}" class="sidebar-link active">
+    <i data-feather="users"></i><span class="sb-lbl">Citoyens</span>
+</a>
+<a href="{{ route('services.forum.index') }}" class="sidebar-link">
+    <i data-feather="message-square"></i><span class="sb-lbl">Forum</span>
+</a>
+<a href="{{ route('services.actualite') }}" class="sidebar-link">
+    <i data-feather="newspaper"></i><span class="sb-lbl">Actualités</span>
+</a>
+<a href="{{ route('services.profil') }}" class="sidebar-link">
+    <i data-feather="settings"></i><span class="sb-lbl">Gestion interne</span>
+</a>
+<div class="sb-divider"></div>
+<a href="{{ route('services.logout') }}" class="sidebar-link danger">
+    <i data-feather="log-out"></i><span class="sb-lbl">Déconnexion</span>
+</a>
 @endsection
 
 @section('content')
-<div class="space-y-6">
-    {{-- Stats Cards --}}
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 animate-fade-in">
-        <div class="bg-white rounded-2xl p-6 shadow-lg card-hover border-l-4 border-green-500">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600 font-semibold mb-1">Total citoyens</p>
-                    <p class="text-3xl font-bold text-gray-900">{{ $citoyens->total() }}</p>
-                </div>
-                <div class="bg-green-100 p-3 rounded-xl">
-                    <i data-feather="users" class="w-8 h-8 text-green-600"></i>
-                </div>
-            </div>
-        </div>
+<div style="display:flex; flex-direction:column; gap:24px;">
 
-        <div class="bg-white rounded-2xl p-6 shadow-lg card-hover border-l-4 border-blue-500">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600 font-semibold mb-1">Comptes actifs</p>
-                    <p class="text-3xl font-bold text-gray-900">{{ $citoyens->where('etat_compte', 'actif')->count() }}</p>
-                </div>
-                <div class="bg-blue-100 p-3 rounded-xl">
-                    <i data-feather="user-check" class="w-8 h-8 text-blue-600"></i>
-                </div>
+    {{-- Stat cards --}}
+    <div class="grid-4 anim-fade">
+        <div class="stat-card green">
+            <div class="sc-icon" style="background:#D1FAE5;">
+                <i data-feather="users" style="color:#10B981;"></i>
             </div>
+            <div class="sc-value">{{ $citoyens->total() }}</div>
+            <div class="sc-label">Total citoyens</div>
         </div>
-
-        <div class="bg-white rounded-2xl p-6 shadow-lg card-hover border-l-4 border-purple-500">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600 font-semibold mb-1">Hommes</p>
-                    <p class="text-3xl font-bold text-gray-900">{{ $citoyens->where('sexe', 'M')->count() }}</p>
-                </div>
-                <div class="bg-purple-100 p-3 rounded-xl">
-                    <i data-feather="user" class="w-8 h-8 text-purple-600"></i>
-                </div>
+        <div class="stat-card blue">
+            <div class="sc-icon" style="background:#DBEAFE;">
+                <i data-feather="user-check" style="color:#3B82F6;"></i>
             </div>
+            <div class="sc-value">{{ $citoyens->where('etat_compte', 'actif')->count() }}</div>
+            <div class="sc-label">Comptes actifs</div>
         </div>
-
-        <div class="bg-white rounded-2xl p-6 shadow-lg card-hover border-l-4 border-pink-500">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600 font-semibold mb-1">Femmes</p>
-                    <p class="text-3xl font-bold text-gray-900">{{ $citoyens->where('sexe', 'F')->count() }}</p>
-                </div>
-                <div class="bg-pink-100 p-3 rounded-xl">
-                    <i data-feather="user" class="w-8 h-8 text-pink-600"></i>
-                </div>
+        <div class="stat-card purple">
+            <div class="sc-icon" style="background:#EDE9FE;">
+                <i data-feather="user" style="color:#8B5CF6;"></i>
             </div>
+            <div class="sc-value">{{ $citoyens->where('sexe', 'M')->count() }}</div>
+            <div class="sc-label">Hommes</div>
+        </div>
+        <div class="stat-card accent">
+            <div class="sc-icon" style="background:rgba(29,184,122,.1);">
+                <i data-feather="user" style="color:var(--accent);"></i>
+            </div>
+            <div class="sc-value">{{ $citoyens->where('sexe', 'F')->count() }}</div>
+            <div class="sc-label">Femmes</div>
         </div>
     </div>
 
-    {{-- Table Card --}}
-    <div class="bg-white rounded-2xl shadow-lg overflow-hidden animate-slide-in">
-        {{-- Table Header --}}
-        <div class="p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <div class="accent-light-bg p-3 rounded-xl">
-                    <i data-feather="users" class="w-6 h-6 accent-text"></i>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold text-gray-900">Liste des citoyens</h3>
-                    <p class="text-sm text-gray-600">{{ $citoyens->where('etat_compte', 'actif')->count() }} comptes actifs</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-3">
-                <button class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-semibold transition flex items-center gap-2">
-                    <i data-feather="filter" class="w-4 h-4"></i>
-                    Filtrer
-                </button>
-                <button class="px-4 py-2 accent-bg text-white rounded-xl font-semibold hover:opacity-90 transition flex items-center gap-2">
-                    <i data-feather="download" class="w-4 h-4"></i>
-                    Exporter
-                </button>
+    {{-- Table --}}
+    <div class="content-card anim-slide">
+        <div class="cc-header">
+            <div>
+                <div class="cc-title"><i data-feather="users"></i> Liste des citoyens</div>
+                <div class="cc-subtitle">{{ $citoyens->where('etat_compte', 'actif')->count() }} comptes actifs</div>
             </div>
         </div>
 
-        {{-- Table --}}
-        <div class="overflow-x-auto">
-            <table id="citoyensTable" class="w-full">
-                <thead class="accent-light-bg">
+        <div class="table-wrap">
+            <table id="citoyensTable" class="data-table">
+                <thead>
                     <tr>
-                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider accent-text">
-                            <div class="flex items-center gap-2">
-                                <i data-feather="hash" class="w-4 h-4"></i>
-                                ID
-                            </div>
-                        </th>
-                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider accent-text">
-                            <div class="flex items-center gap-2">
-                                <i data-feather="user" class="w-4 h-4"></i>
-                                Noms et Prénoms
-                            </div>
-                        </th>
-                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider accent-text">
-                            <div class="flex items-center gap-2">
-                                <i data-feather="mail" class="w-4 h-4"></i>
-                                Email
-                            </div>
-                        </th>
-                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider accent-text">
-                            <div class="flex items-center gap-2">
-                                <i data-feather="map-pin" class="w-4 h-4"></i>
-                                Adresse
-                            </div>
-                        </th>
-                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider accent-text">
-                            <div class="flex items-center gap-2">
-                                <i data-feather="phone" class="w-4 h-4"></i>
-                                Contact
-                            </div>
-                        </th>
-                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider accent-text">
-                            <div class="flex items-center gap-2">
-                                <i data-feather="credit-card" class="w-4 h-4"></i>
-                                Matricule
-                            </div>
-                        </th>
-                        <th class="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider accent-text">
-                            <div class="flex items-center justify-center gap-2">
-                                <i data-feather="check-circle" class="w-4 h-4"></i>
-                                État
-                            </div>
-                        </th>
-                        <th class="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider accent-text">
-                            <div class="flex items-center justify-center gap-2">
-                                <i data-feather="users" class="w-4 h-4"></i>
-                                Genre
-                            </div>
-                        </th>
-                        <th class="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider accent-text">
-                            <div class="flex items-center justify-center gap-2">
-                                <i data-feather="calendar" class="w-4 h-4"></i>
-                                Inscription
-                            </div>
-                        </th>
+                        <th><i data-feather="hash" style="width:13px;height:13px;"></i> ID</th>
+                        <th><i data-feather="user" style="width:13px;height:13px;"></i> Noms et Prénoms</th>
+                        <th><i data-feather="mail" style="width:13px;height:13px;"></i> Email</th>
+                        <th><i data-feather="map-pin" style="width:13px;height:13px;"></i> Adresse</th>
+                        <th><i data-feather="phone" style="width:13px;height:13px;"></i> Contact</th>
+                        <th><i data-feather="credit-card" style="width:13px;height:13px;"></i> Matricule</th>
+                        <th style="text-align:center;">État</th>
+                        <th style="text-align:center;">Genre</th>
+                        <th style="text-align:center;">Inscription</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
+                <tbody>
                     @foreach ($citoyens->where('etat_compte', 'actif') as $c)
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="px-6 py-4 text-center">
-                            <span class="font-semibold text-gray-900">#{{ $c->id }}</span>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-green-400 rounded-full flex items-center justify-center text-white font-bold">
-                                    {{ strtoupper(substr($c->nom, 0, 1)) }}{{ strtoupper(substr($c->prenom, 0, 1)) }}
+                    <tr>
+                        <td><span style="font-weight:600;">#{{ $c->id }}</span></td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div class="avatar-initials">
+                                    {{ strtoupper(substr($c->nom,0,1)) }}{{ strtoupper(substr($c->prenom,0,1)) }}
                                 </div>
                                 <div>
-                                    <p class="font-semibold text-gray-900">{{ $c->nom }} {{ $c->prenom }}</p>
-                                    <p class="text-xs text-gray-500">Citoyen</p>
+                                    <div style="font-weight:600;">{{ $c->nom }} {{ $c->prenom }}</div>
+                                    <div style="font-size:11px; color:var(--text-muted);">Citoyen</div>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-2 text-gray-700">
-                                <i data-feather="mail" class="w-4 h-4 text-gray-400"></i>
-                                <span class="text-sm">{{ $c->email }}</span>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-sec);">
+                                <i data-feather="mail" style="width:13px;height:13px;color:var(--border-mid);"></i>
+                                {{ $c->email }}
                             </div>
                         </td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-2 text-gray-700">
-                                <i data-feather="map-pin" class="w-4 h-4 text-gray-400"></i>
-                                <span class="text-sm">{{ $c->adresse }}</span>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-sec);">
+                                <i data-feather="map-pin" style="width:13px;height:13px;color:var(--border-mid);"></i>
+                                {{ $c->adresse }}
                             </div>
                         </td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-2 text-gray-700">
-                                <i data-feather="phone" class="w-4 h-4 text-gray-400"></i>
-                                <span class="text-sm">{{ $c->telephone }}</span>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-sec);">
+                                <i data-feather="phone" style="width:13px;height:13px;color:var(--border-mid);"></i>
+                                {{ $c->telephone }}
                             </div>
                         </td>
-                        <td class="px-6 py-4">
-                            <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-mono">{{ $c->matricule }}</span>
+                        <td>
+                            <span class="pill pill-gray" style="font-family:monospace;">{{ $c->matricule }}</span>
                         </td>
-                        <td class="px-6 py-4 text-center">
-                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">
-                                <i data-feather="check" class="w-3 h-3"></i>
-                                Activé
-                            </span>
+                        <td style="text-align:center;">
+                            <span class="pill pill-green"><i data-feather="check"></i> Actif</span>
                         </td>
-                        <td class="px-6 py-4 text-center">
+                        <td style="text-align:center;">
                             @if($c->sexe === 'M')
-                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">
-                                <i data-feather="user" class="w-3 h-3"></i>
-                                M
-                            </span>
+                                <span class="pill pill-blue">M</span>
                             @else
-                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-bold">
-                                <i data-feather="user" class="w-3 h-3"></i>
-                                F
-                            </span>
+                                <span class="pill" style="background:#FCE7F3; color:#9D174D;">F</span>
                             @endif
                         </td>
-                        <td class="px-6 py-4 text-center">
-                            <div class="flex flex-col items-center">
-                                <span class="text-sm font-semibold text-gray-900">{{ $c->created_at->format('d/m/Y') }}</span>
-                                <span class="text-xs text-gray-500">{{ $c->created_at->format('H:i') }}</span>
-                            </div>
+                        <td style="text-align:center;">
+                            <div style="font-size:12.5px; font-weight:600; color:var(--text);">{{ $c->created_at->format('d/m/Y') }}</div>
+                            <div style="font-size:11px; color:var(--text-muted);">{{ $c->created_at->format('H:i') }}</div>
                         </td>
                     </tr>
                     @endforeach
@@ -248,8 +155,7 @@
             </table>
         </div>
 
-        {{-- Pagination --}}
-        <div class="p-6 border-t border-gray-100">
+        <div style="padding:16px 20px; border-top:1px solid var(--border);">
             {!! $citoyens->links('pagination::bootstrap-5') !!}
         </div>
     </div>
@@ -257,6 +163,34 @@
 
 @push('styles')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+<style>
+    /* Intégration DataTables avec le design système */
+    .dataTables_wrapper { font-size: 13px; color: var(--text-sec); }
+    .dataTables_filter input,
+    .dataTables_length select {
+        border: 1.5px solid var(--border);
+        border-radius: 7px;
+        padding: 6px 10px;
+        font-family: inherit;
+        font-size: 13px;
+        color: var(--text);
+        outline: none;
+        background: var(--surface);
+    }
+    .dataTables_filter input:focus,
+    .dataTables_length select:focus { border-color: var(--accent); }
+    table.dataTable thead th { font-size: 10.5px !important; }
+    .dataTables_paginate .paginate_button {
+        border-radius: 6px !important;
+        padding: 4px 10px !important;
+        font-size: 12.5px !important;
+    }
+    .dataTables_paginate .paginate_button.current {
+        background: var(--accent) !important;
+        color: #fff !important;
+        border: none !important;
+    }
+</style>
 @endpush
 
 @push('scripts')
@@ -265,35 +199,24 @@
 <script>
 $(document).ready(function() {
     $('#citoyensTable').DataTable({
-        "pageLength": 10,
-        "lengthMenu": [5, 10, 15, 25, 50],
-        "responsive": true,
-        "autoWidth": false,
-        "order": [[0, 'desc']],
-        "language": {
-            "search": "Rechercher :",
-            "lengthMenu": "Afficher _MENU_ citoyens",
-            "paginate": {
-                "first": "Début",
-                "last": "Fin",
-                "next": "Suivant",
-                "previous": "Précédent"
-            },
-            "info": "Affichage _START_ à _END_ sur _TOTAL_ citoyens",
-            "infoEmpty": "Aucun citoyen",
-            "infoFiltered": "(filtré depuis _MAX_ total)",
-            "zeroRecords": "Aucun citoyen trouvé"
+        pageLength: 10,
+        lengthMenu: [5, 10, 15, 25, 50],
+        responsive: true,
+        autoWidth: false,
+        order: [[0, 'desc']],
+        language: {
+            search:     "Rechercher :",
+            lengthMenu: "Afficher _MENU_ citoyens",
+            paginate:   { first:"Début", last:"Fin", next:"Suivant", previous:"Précédent" },
+            info:           "Affichage _START_ à _END_ sur _TOTAL_ citoyens",
+            infoEmpty:      "Aucun citoyen",
+            infoFiltered:   "(filtré depuis _MAX_ total)",
+            zeroRecords:    "Aucun citoyen trouvé"
         },
-        "columnDefs": [
-            { "orderable": false, "targets": [6] }
-        ],
-        "drawCallback": function() {
-            feather.replace();
-        }
+        columnDefs: [{ orderable: false, targets: [6, 7] }],
+        drawCallback: () => feather.replace({ width: 16, height: 16 })
     });
-
-    // Réinitialiser les icônes après le chargement
-    feather.replace();
+    feather.replace({ width: 16, height: 16 });
 });
 </script>
 @endpush
