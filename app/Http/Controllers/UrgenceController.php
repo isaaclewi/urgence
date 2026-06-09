@@ -23,59 +23,32 @@ class UrgenceController extends Controller
 {
 
     public function index()
-
-    {
-
-        if (!session()->has('service_id')) {
-
-            return redirect()->route('services.login')->with('error', 'Veuillez vous connecter.');
-
-        }
-
-
-
-        $serviceId = session('service_id');
-
-
-
-        // On récupère le service connecté
-
-        $service = Services::find($serviceId);
-
-
-
-        // 🔹 Récupération des alertes selon le rôle
-
-        // Exemple : si le service est police, on prend uniquement les alertes de type 'police'
-
-        $alertes = alertes::with('citoyen')
-
-    ->where(function ($query) use ($service) {
-
-
-
-        // alertes du service OU non catégorisées
-
-        $query->where('type_alerte', $service->role)
-
-              ->orWhereNull('type_alerte')
-
-              ->orWhere('type_alerte', '');
-
-    })
-
-    ->orderByDesc('created_at')
-
-    ->get();
-
-
-
-
-
-        return view('services.urgenceSignalee', compact('service', 'alertes'));
-
+{
+    if (!session()->has('service_id')) {
+        return redirect()->route('services.login')->with('error', 'Veuillez vous connecter.');
     }
 
+    $serviceId = session('service_id');
+    $service = Services::find($serviceId);
+
+    // Récupérer tous les rôles connus pour détecter les alertes "orphelines"
+    $rolesConnus = Services::whereNotNull('role')->pluck('role')->toArray();
+
+    $alertes = alertes::with('citoyen')
+        ->where(function ($query) use ($service, $rolesConnus) {
+            // Alertes correspondant au rôle de ce service
+            $query->where('type_alerte', $service->role)
+                  // OU alertes sans type (envoyées depuis l'accueil sans catégorie)
+                  ->orWhereNull('type_alerte')
+                  ->orWhere('type_alerte', '')
+                  // OU alertes dont le type ne correspond à aucun rôle de service connu
+                  ->orWhereNotIn('type_alerte', $rolesConnus);
+        })
+        ->orderByDesc('created_at')
+        ->get();
+
+    return view('services.urgenceSignalee', compact('service', 'alertes'));
+}
 
 
     public function updateStatut(Request $request, $id)
