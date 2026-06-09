@@ -1,19 +1,21 @@
 <?php
 
-namespace App\Models;
+namespace App\Http\Controllers;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
+use App\Models\servicesProposes;
 
-class servicesProposes extends Model
+class MesAlertesController extends Controller
 {
-    //
-    protected $table = 'services_proposes';
+    public function index()
+    {
+        if (session()->has('citoyen_id')) {
+            $citoyen  = \App\Models\Citoyens::find(session('citoyen_id'));
+            $services = servicesProposes::all();
 
-    protected $fillable = [
-        'nom_service', 'description','lien', 'image', 'admin_id'
-    ];
+            return view('MesAlertes', compact('citoyen', 'services'));
+        }
 
-    public function admin() {
-        return $this->belongsTo(Admins::class, 'admin_id');
+        return redirect()->route('login')->with('error', 'Vous devez être connecté pour accéder à cette page.');
     }
 }
