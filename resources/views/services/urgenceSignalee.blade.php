@@ -1,4 +1,4 @@
-@extends('services.app')
+@extends('services.master')
 
 @section('title', ($service->nom ?? 'CongoAssist') . ' — Urgences signalées')
 @section('page-title', 'Urgences signalées')
