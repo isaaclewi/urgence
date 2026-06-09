@@ -1,481 +1,533 @@
-@extends('services.master')
+@extends('services.app')
 
 @section('title', ($service->nom ?? 'CongoAssist') . ' — Urgences signalées')
-
 @section('page-title', 'Urgences signalées')
 @section('page-subtitle', 'Gérez et suivez toutes les alertes en temps réel')
 
+{{-- ══════════════════════════════
+     SIDEBAR
+══════════════════════════════ --}}
 @section('sidebar')
-    <div class="space-y-1">
-        <a href="{{ route('services.compte') }}"
-            class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 font-semibold">
-            <i data-feather="home" class="w-5 h-5"></i>
-            <span>Tableau de bord</span>
-        </a>
-        <a href="{{ route('services.urgenceSignalee') }}"
-            class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 font-semibold accent-light-bg accent-text">
-            <i data-feather="bell" class="w-5 h-5"></i>
-            <span>Urgences signalées</span>
-            @if ($alertes->where('statut', 'en attente')->count() > 0)
-                <span class="ml-auto px-2 py-1 text-xs font-bold text-white bg-red-500 rounded-full">
-                    {{ $alertes->where('statut', 'en attente')->count() }}
-                </span>
-            @endif
-        </a>
-        <a href="{{ route('services.citoyens') }}"
-            class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 font-semibold">
-            <i data-feather="users" class="w-5 h-5"></i>
-            <span>Citoyens</span>
-        </a>
-        <a href="#" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 font-semibold">
-            <i data-feather="message-square" class="w-5 h-5"></i>
-            <span>Forum</span>
-        </a>
-        <a href="{{ route('services.actualite') }}"
-            class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 font-semibold">
-            <i data-feather="newspaper" class="w-5 h-5"></i>
-            <span>Actualités</span>
-        </a>
-        <a href="{{ route('services.profil') }}"
-            class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 font-semibold">
-            <i data-feather="settings" class="w-5 h-5"></i>
-            <span>Gestion interne</span>
-        </a>
-        <div class="pt-4 mt-4 border-t border-gray-200">
-            <a href="{{ route('services.logout') }}"
-                class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 font-semibold hover:bg-red-50">
-                <i data-feather="log-out" class="w-5 h-5"></i>
-                <span>Déconnexion</span>
-            </a>
-        </div>
-    </div>
+
+<div class="sb-section-label">Principal</div>
+
+<a href="{{ route('services.compte') }}" class="sidebar-link">
+    <i data-feather="home"></i>
+    <span class="sb-lbl">Tableau de bord</span>
+</a>
+
+<a href="{{ route('services.urgenceSignalee') }}" class="sidebar-link active">
+    <i data-feather="bell"></i>
+    <span class="sb-lbl">Urgences signalées</span>
+    @if($alertes->where('statut', 'en attente')->count() > 0)
+        <span class="sb-badge">{{ $alertes->where('statut', 'en attente')->count() }}</span>
+    @endif
+</a>
+
+<a href="{{ route('services.citoyens') }}" class="sidebar-link">
+    <i data-feather="users"></i>
+    <span class="sb-lbl">Citoyens</span>
+</a>
+
+<a href="{{ route('services.forum.index') }}" class="sidebar-link">
+    <i data-feather="message-square"></i>
+    <span class="sb-lbl">Forum</span>
+</a>
+
+<a href="{{ route('services.actualite') }}" class="sidebar-link">
+    <i data-feather="rss"></i>
+    <span class="sb-lbl">Actualités</span>
+</a>
+
+<a href="{{ route('services.profil') }}" class="sidebar-link">
+    <i data-feather="settings"></i>
+    <span class="sb-lbl">Gestion interne</span>
+</a>
+
+<div class="sb-divider"></div>
+
+<a href="{{ route('services.logout') }}" class="sidebar-link danger">
+    <i data-feather="log-out"></i>
+    <span class="sb-lbl">Déconnexion</span>
+</a>
+
 @endsection
 
+{{-- ══════════════════════════════
+     CONTENT
+══════════════════════════════ --}}
 @section('content')
-    <div class="space-y-6">
-        {{-- Success Message --}}
-        @if (session('success'))
-            <div
-                class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg animate-fade-in flex items-center gap-3">
-                <i data-feather="check-circle" class="w-5 h-5"></i>
-                <span class="font-semibold">{{ session('success') }}</span>
-            </div>
-        @endif
 
-        {{-- Stats Cards --}}
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 animate-fade-in">
-            <div class="bg-white rounded-2xl p-6 shadow-lg card-hover border-l-4 border-red-500">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-600 font-semibold mb-1">En attente</p>
-                        <p class="text-3xl font-bold text-gray-900">{{ $alertes->where('statut', 'en attente')->count() }}
-                        </p>
-                    </div>
-                    <div class="bg-red-100 p-3 rounded-xl">
-                        <i data-feather="alert-circle" class="w-8 h-8 text-red-600"></i>
-                    </div>
-                </div>
-            </div>
+@push('styles')
+<style>
+/* ─── Stats ─── */
+.urg-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+}
+@media (max-width: 1023px) { .urg-stats { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 479px)  { .urg-stats { grid-template-columns: 1fr; } }
 
-            <div class="bg-white rounded-2xl p-6 shadow-lg card-hover border-l-4 border-yellow-500">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-600 font-semibold mb-1">En cours</p>
-                        <p class="text-3xl font-bold text-gray-900">
-                            {{ $alertes->where('statut', 'pris en charge')->count() }}</p>
-                    </div>
-                    <div class="bg-yellow-100 p-3 rounded-xl">
-                        <i data-feather="clock" class="w-8 h-8 text-yellow-600"></i>
-                    </div>
-                </div>
-            </div>
+.icon-red    { background: #FEE2E2; color: #DC2626; }
+.icon-yellow { background: #FEF3C7; color: #D97706; }
+.icon-green  { background: #D1FAE5; color: #059669; }
+.icon-blue   { background: #DBEAFE; color: #2563EB; }
 
-            <div class="bg-white rounded-2xl p-6 shadow-lg card-hover border-l-4 border-green-500">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-600 font-semibold mb-1">Terminées</p>
-                        <p class="text-3xl font-bold text-gray-900">{{ $alertes->where('statut', 'terminee')->count() }}
-                        </p>
-                    </div>
-                    <div class="bg-green-100 p-3 rounded-xl">
-                        <i data-feather="check-circle" class="w-8 h-8 text-green-600"></i>
-                    </div>
-                </div>
-            </div>
+/* ─── Table ─── */
+.table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
-            <div class="bg-white rounded-2xl p-6 shadow-lg card-hover border-l-4 border-blue-500">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-600 font-semibold mb-1">Total</p>
-                        <p class="text-3xl font-bold text-gray-900">{{ $alertes->count() }}</p>
-                    </div>
-                    <div class="bg-blue-100 p-3 rounded-xl">
-                        <i data-feather="list" class="w-8 h-8 text-blue-600"></i>
-                    </div>
-                </div>
-            </div>
+.data-table .th-icon {
+    display: flex; align-items: center; gap: 5px;
+}
+.data-table .th-icon-center {
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+
+/* Type badge */
+.type-badge {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 700;
+    background: #DBEAFE;
+    color: #1E40AF;
+    white-space: nowrap;
+}
+
+/* Location cell */
+.loc-cell {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; color: var(--text-sec);
+}
+.loc-cell i { font-size: 13px; color: #EF4444; flex-shrink: 0; }
+
+/* Date cell */
+.date-cell-main { font-size: 13px; font-weight: 600; color: var(--text); }
+.date-cell-sub  { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+/* Status select */
+.status-select {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--surface);
+    outline: none;
+    cursor: pointer;
+    transition: border-color .17s, box-shadow .17s;
+}
+.status-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(29,184,122,.1);
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 52px 20px;
+}
+.empty-state-icon {
+    width: 68px; height: 68px;
+    border-radius: 50%;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+}
+.empty-state-icon i { font-size: 30px; color: var(--text-muted); }
+.empty-state p { font-size: 14px; font-weight: 600; color: var(--text-sec); margin-bottom: 4px; }
+.empty-state span { font-size: 12.5px; color: var(--text-muted); }
+
+/* ─── Modals ─── */
+.modal-backdrop {
+    position: fixed; inset: 0; z-index: 80;
+    background: rgba(0,0,0,.45);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 16px;
+}
+.modal-backdrop.open { display: flex; }
+
+/* Modal citoyen — avatar + info rows */
+.cit-avatar {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--accent);
+    margin: 0 auto 12px;
+    display: block;
+}
+.cit-name {
+    font-family: 'Sora', sans-serif;
+    font-size: 18px; font-weight: 700;
+    color: var(--text); text-align: center;
+    margin-bottom: 20px;
+}
+.cit-info-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 13px;
+    background: var(--surface2);
+    border-radius: 9px;
+    margin-bottom: 8px;
+}
+.cit-info-row:last-child { margin-bottom: 0; }
+.cit-info-icon {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.cit-info-icon i { font-size: 15px; }
+.cit-info-label { font-size: 10.5px; font-weight: 600; color: var(--text-muted); }
+.cit-info-value { font-size: 13px; font-weight: 600; color: var(--text); margin-top: 1px; }
+
+/* Modal alerte — media */
+.alerte-titre {
+    font-family: 'Sora', sans-serif;
+    font-size: 17px; font-weight: 700;
+    color: var(--text); margin-bottom: 8px;
+}
+.alerte-desc {
+    font-size: 13.5px; color: var(--text-sec);
+    line-height: 1.65; margin-bottom: 16px;
+}
+.alerte-photo {
+    width: 100%; max-height: 240px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin-bottom: 12px;
+}
+.alerte-audio {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 4px;
+}
+</style>
+@endpush
+
+{{-- Flash success --}}
+@if(session('success'))
+<div class="alert alert-success anim-fade" style="margin-bottom:16px;">
+    <i data-feather="check-circle"></i>
+    <span>{{ session('success') }}</span>
+</div>
+@endif
+
+{{-- ── Stat Cards ── --}}
+<div class="urg-stats anim-fade">
+
+    <div class="stat-card red">
+        <div class="sc-icon icon-red">
+            <i data-feather="alert-circle"></i>
         </div>
+        <div class="sc-value">{{ $alertes->where('statut', 'en attente')->count() }}</div>
+        <div class="sc-label">En attente</div>
+    </div>
 
-        {{-- Table Card --}}
-        <div class="bg-white rounded-2xl shadow-lg overflow-hidden animate-slide-in">
-            <div class="p-6 border-b border-gray-100">
-                <div class="flex items-center gap-3">
-                    <div class="accent-light-bg p-3 rounded-xl">
-                        <i data-feather="alert-triangle" class="w-6 h-6 accent-text"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-900">Liste des urgences</h3>
-                        <p class="text-sm text-gray-600">{{ $alertes->count() }} alerte(s) au total</p>
-                    </div>
-                </div>
+    <div class="stat-card yellow">
+        <div class="sc-icon icon-yellow">
+            <i data-feather="clock"></i>
+        </div>
+        <div class="sc-value">{{ $alertes->where('statut', 'pris en charge')->count() }}</div>
+        <div class="sc-label">Pris en charge</div>
+    </div>
+
+    <div class="stat-card green">
+        <div class="sc-icon icon-green">
+            <i data-feather="check-circle"></i>
+        </div>
+        <div class="sc-value">{{ $alertes->where('statut', 'terminee')->count() }}</div>
+        <div class="sc-label">Terminées</div>
+    </div>
+
+    <div class="stat-card blue">
+        <div class="sc-icon icon-blue">
+            <i data-feather="list"></i>
+        </div>
+        <div class="sc-value">{{ $alertes->count() }}</div>
+        <div class="sc-label">Total</div>
+    </div>
+
+</div>
+
+{{-- ── Table Card ── --}}
+<div class="content-card anim-slide">
+
+    <div class="cc-header">
+        <div>
+            <div class="cc-title">
+                <i data-feather="alert-triangle"></i>
+                Liste des urgences
             </div>
-
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="accent-light-bg">
-                        <tr>
-                            <th class="px-6 py-4 text-left text-xs font-bold uppercase accent-text">
-                                <div class="flex items-center gap-2">
-                                    <i data-feather="hash" class="w-4 h-4"></i>
-                                    ID
-                                </div>
-                            </th>
-                            <th class="px-6 py-4 text-left text-xs font-bold uppercase accent-text">
-                                <div class="flex items-center gap-2">
-                                    <i data-feather="file-text" class="w-4 h-4"></i>
-                                    Titre
-                                </div>
-                            </th>
-                            <th class="px-6 py-4 text-left text-xs font-bold uppercase accent-text">
-                                <div class="flex items-center gap-2">
-                                    <i data-feather="tag" class="w-4 h-4"></i>
-                                    Type
-                                </div>
-                            </th>
-                            <th class="px-6 py-4 text-left text-xs font-bold uppercase accent-text">
-                                <div class="flex items-center gap-2">
-                                    <i data-feather="map-pin" class="w-4 h-4"></i>
-                                    Localisation
-                                </div>
-                            </th>
-                            <th class="px-6 py-4 text-left text-xs font-bold uppercase accent-text">
-                                <div class="flex items-center gap-2">
-                                    <i data-feather="calendar" class="w-4 h-4"></i>
-                                    Date
-                                </div>
-                            </th>
-                            <th class="px-6 py-4 text-center text-xs font-bold uppercase accent-text">
-                                <div class="flex items-center justify-center gap-2">
-                                    <i data-feather="user" class="w-4 h-4"></i>
-                                    Citoyen
-                                </div>
-                            </th>
-                            <th class="px-6 py-4 text-center text-xs font-bold uppercase accent-text">
-                                <div class="flex items-center justify-center gap-2">
-                                    <i data-feather="info" class="w-4 h-4"></i>
-                                    Statut
-                                </div>
-                            </th>
-                            <th class="px-6 py-4 text-center text-xs font-bold uppercase accent-text" colspan="2">
-                                <div class="flex items-center justify-center gap-2">
-                                    <i data-feather="settings" class="w-4 h-4"></i>
-                                    Action
-                                </div>
-                            </th>
-
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        @forelse($alertes as $alerte)
-                            <tr class="hover:bg-gray-50 transition">
-                                <td class="px-6 py-4">
-                                    <span class="font-semibold text-gray-900">#{{ $alerte->id }}</span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <p class="font-semibold text-gray-900">{{ $alerte->titre }}</p>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">
-                                        {{ $alerte->type_alerte }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center gap-2 text-gray-700">
-                                        <i data-feather="map-pin" class="w-4 h-4 text-red-500"></i>
-                                        <span class="text-sm">{{ $alerte->localisation }}</span>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <div class="flex flex-col">
-                                        <span class="text-sm font-semibold text-gray-900">
-                                            {{ \Carbon\Carbon::parse($alerte->created_at)->format('d/m/Y') }}
-                                        </span>
-                                        <span class="text-xs text-gray-500">
-                                            {{ \Carbon\Carbon::parse($alerte->created_at)->format('H:i') }}
-                                        </span>
-                                    </div>
-                                <td class="px-6 py-4 text-center">
-                                    @if ($alerte->citoyen)
-                                        <button
-                                            onclick="showModal(
-                '{{ $alerte->citoyen->nom }}',
-                '{{ $alerte->citoyen->prenom }}',
-                '{{ $alerte->citoyen->email }}',
-                '{{ $alerte->citoyen->telephone }}',
-                '{{ $alerte->citoyen->adresse ?? 'Adresse non renseignée' }}',
-                '{{ asset($alerte->citoyen->photo_profil ?? 'medias/default.jpg') }}'
-            )"
-                                            class="px-4 py-2 accent-bg text-white rounded-lg font-semibold hover:opacity-90 transition flex items-center justify-center gap-2 mx-auto">
-                                            <i data-feather="eye" class="w-4 h-4"></i>
-                                            Voir
-                                        </button>
-                                    @else
-                                        <span class="text-gray-400 italic text-sm">Anonyme</span>
-                                    @endif
-                                </td>
-
-                                <td class="px-6 py-4 text-center">
-                                    @if ($alerte->statut == 'en attente')
-                                        <span
-                                            class="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold">
-                                            <i data-feather="alert-circle" class="w-3 h-3"></i>
-                                            En attente
-                                        </span>
-                                    @elseif($alerte->statut == 'pris en charge')
-                                        <span
-                                            class="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-bold">
-                                            <i data-feather="clock" class="w-3 h-3"></i>
-                                            Pris en charge
-                                        </span>
-                                    @else
-                                        <span
-                                            class="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">
-                                            <i data-feather="check-circle" class="w-3 h-3"></i>
-                                            Terminée
-                                        </span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 text-center">
-    <button
-        onclick="showAlerteModal(
-            '{{ addslashes($alerte->titre) }}',
-            '{{ addslashes($alerte->description) }}',
-            '{{ $alerte->media_photo ? asset($alerte->media_photo) : '' }}',
-            '{{ $alerte->media_vocal ? asset($alerte->media_vocal) : '' }}'
-        )"
-        class="px-4 py-2 accent-bg text-white rounded-lg font-semibold hover:opacity-90 transition flex items-center justify-center gap-2 mx-auto">
-        <i data-feather="eye" class="w-4 h-4"></i>
-        Voir
-    </button>
-</td>
-
-
-                                <td class="px-6 py-4">
-                                    <form method="POST"
-                                        action="{{ route('services.urgenceSignaleeUpdate', $alerte->id) }}">
-                                        @csrf
-                                        <select name="statut" onchange="this.form.submit()"
-                                            class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-sm font-semibold">
-                                            <option value="en attente"
-                                                {{ $alerte->statut == 'en attente' ? 'selected' : '' }}>En attente</option>
-                                            <option value="pris en charge"
-                                                {{ $alerte->statut == 'pris en charge' ? 'selected' : '' }}>Pris en charge
-                                            </option>
-                                            <option value="terminee"
-                                                {{ $alerte->statut == 'terminee' ? 'selected' : '' }}>Terminée</option>
-                                        </select>
-                                    </form>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="8" class="px-6 py-12 text-center">
-                                    <div
-                                        class="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <i data-feather="inbox" class="w-10 h-10 text-gray-400"></i>
-                                    </div>
-                                    <p class="text-gray-500 font-semibold mb-2">Aucune alerte signalée</p>
-                                    <p class="text-gray-400 text-sm">Les nouvelles urgences apparaîtront ici</p>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+            <div class="cc-subtitle">{{ $alertes->count() }} alerte(s) au total</div>
         </div>
     </div>
 
-    {{-- Modal Citoyen --}}
-    <div id="citoyenModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md animate-fade-in">
-            <div class="p-6 border-b border-gray-100 flex items-center justify-between">
-                <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-                    <i data-feather="user" class="w-6 h-6 accent-text"></i>
-                    Informations Citoyen
-                </h3>
-                <button onclick="closeModal()"
-                    class="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-center transition">
-                    <i data-feather="x" class="w-5 h-5 text-gray-600"></i>
-                </button>
-            </div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th><div class="th-icon"><i data-feather="hash"></i> ID</div></th>
+                    <th><div class="th-icon"><i data-feather="file-text"></i> Titre</div></th>
+                    <th><div class="th-icon"><i data-feather="tag"></i> Type</div></th>
+                    <th><div class="th-icon"><i data-feather="map-pin"></i> Localisation</div></th>
+                    <th><div class="th-icon"><i data-feather="calendar"></i> Date</div></th>
+                    <th style="text-align:center;"><div class="th-icon-center"><i data-feather="user"></i> Citoyen</div></th>
+                    <th style="text-align:center;"><div class="th-icon-center"><i data-feather="info"></i> Statut</div></th>
+                    <th style="text-align:center;"><div class="th-icon-center"><i data-feather="eye"></i> Alerte</div></th>
+                    <th><div class="th-icon"><i data-feather="sliders"></i> Action</div></th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($alertes as $alerte)
+                <tr>
+                    {{-- ID --}}
+                    <td><span style="font-weight:700;color:var(--text);">#{{ $alerte->id }}</span></td>
 
-            <div class="p-6 text-center">
-                <div class="relative inline-block mb-4">
-                    <img id="photoCitoyen" src="" alt="Photo citoyen"
-                        class="w-24 h-24 rounded-full border-4 border-blue-500 object-cover shadow-lg mx-auto">
-                </div>
+                    {{-- Titre --}}
+                    <td><span style="font-weight:600;font-size:13px;">{{ $alerte->titre }}</span></td>
 
-                <h4 id="nomComplet" class="text-2xl font-bold text-gray-900 mb-6"></h4>
+                    {{-- Type --}}
+                    <td><span class="type-badge">{{ $alerte->type_alerte }}</span></td>
 
-                <div class="space-y-3 text-left">
-                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div class="bg-blue-100 p-2 rounded-lg">
-                            <i data-feather="mail" class="w-5 h-5 text-blue-600"></i>
+                    {{-- Localisation --}}
+                    <td>
+                        <div class="loc-cell">
+                            <i data-feather="map-pin"></i>
+                            {{ $alerte->localisation }}
                         </div>
-                        <div class="flex-1">
-                            <p class="text-xs text-gray-500 font-semibold">Email</p>
-                            <p id="emailCitoyen" class="text-sm font-semibold text-gray-900"></p>
-                        </div>
-                    </div>
+                    </td>
 
-                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div class="bg-green-100 p-2 rounded-lg">
-                            <i data-feather="phone" class="w-5 h-5 text-green-600"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-xs text-gray-500 font-semibold">Téléphone</p>
-                            <p id="telCitoyen" class="text-sm font-semibold text-gray-900"></p>
-                        </div>
-                    </div>
+                    {{-- Date --}}
+                    <td>
+                        <div class="date-cell-main">{{ \Carbon\Carbon::parse($alerte->created_at)->format('d/m/Y') }}</div>
+                        <div class="date-cell-sub">{{ \Carbon\Carbon::parse($alerte->created_at)->format('H:i') }}</div>
+                    </td>
 
-                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div class="bg-purple-100 p-2 rounded-lg">
-                            <i data-feather="map-pin" class="w-5 h-5 text-purple-600"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-xs text-gray-500 font-semibold">Adresse</p>
-                            <p id="adresseCitoyen" class="text-sm font-semibold text-gray-900"></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                    {{-- Citoyen --}}
+                    <td style="text-align:center;">
+                        @if($alerte->citoyen)
+                            <button class="btn btn-accent btn-sm"
+                                onclick="showCitoyenModal(
+                                    '{{ addslashes($alerte->citoyen->nom) }}',
+                                    '{{ addslashes($alerte->citoyen->prenom) }}',
+                                    '{{ addslashes($alerte->citoyen->email) }}',
+                                    '{{ addslashes($alerte->citoyen->telephone) }}',
+                                    '{{ addslashes($alerte->citoyen->adresse ?? 'Adresse non renseignée') }}',
+                                    '{{ asset($alerte->citoyen->photo_profil ?? 'medias/default.jpg') }}'
+                                )">
+                                <i data-feather="eye"></i>
+                                Voir
+                            </button>
+                        @else
+                            <span style="font-size:12px;color:var(--text-muted);font-style:italic;">Anonyme</span>
+                        @endif
+                    </td>
 
-            <div class="p-6 border-t border-gray-100">
-                <button onclick="closeModal()"
-                    class="w-full accent-bg text-white px-6 py-3 rounded-xl font-bold hover:opacity-90 transition">
-                    Fermer
-                </button>
-            </div>
-        </div>
+                    {{-- Statut --}}
+                    <td style="text-align:center;">
+                        @if($alerte->statut === 'en attente')
+                            <span class="pill pill-red"><i data-feather="alert-circle"></i> En attente</span>
+                        @elseif($alerte->statut === 'pris en charge')
+                            <span class="pill pill-yellow"><i data-feather="clock"></i> Pris en charge</span>
+                        @else
+                            <span class="pill pill-green"><i data-feather="check-circle"></i> Terminée</span>
+                        @endif
+                    </td>
+
+                    {{-- Voir alerte --}}
+                    <td style="text-align:center;">
+                        <button class="btn btn-outline btn-sm"
+                            onclick="showAlerteModal(
+                                '{{ addslashes($alerte->titre) }}',
+                                '{{ addslashes($alerte->description) }}',
+                                '{{ $alerte->media_photo ? asset($alerte->media_photo) : '' }}',
+                                '{{ $alerte->media_vocal ? asset($alerte->media_vocal) : '' }}'
+                            )">
+                            <i data-feather="file-text"></i>
+                            Détail
+                        </button>
+                    </td>
+
+                    {{-- Changer statut --}}
+                    <td>
+                        <form method="POST" action="{{ route('services.urgenceSignaleeUpdate', $alerte->id) }}">
+                            @csrf
+                            <select name="statut" class="status-select" onchange="this.form.submit()">
+                                <option value="en attente"    {{ $alerte->statut === 'en attente'    ? 'selected' : '' }}>En attente</option>
+                                <option value="pris en charge" {{ $alerte->statut === 'pris en charge' ? 'selected' : '' }}>Pris en charge</option>
+                                <option value="terminee"      {{ $alerte->statut === 'terminee'      ? 'selected' : '' }}>Terminée</option>
+                            </select>
+                        </form>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="9">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i data-feather="inbox"></i>
+                            </div>
+                            <p>Aucune alerte signalée</p>
+                            <span>Les nouvelles urgences apparaîtront ici</span>
+                        </div>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
+</div>
 
-    {{-- Modal Alerte --}}
-    <div id="alerteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg animate-fade-in">
-        <div class="p-6 border-b border-gray-100 flex items-center justify-between">
-            <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <i data-feather="alert-triangle" class="w-6 h-6 accent-text"></i>
-                Informations de l'alerte
-            </h3>
-            <button onclick="closeAlerteModal()"
-                class="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-center transition">
-                <i data-feather="x" class="w-5 h-5 text-gray-600"></i>
+{{-- ══════════════════════════════
+     MODAL — Citoyen
+══════════════════════════════ --}}
+<div id="citoyenModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="cit-modal-title">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div class="modal-title" id="cit-modal-title">
+                <span style="display:flex;align-items:center;gap:8px;">
+                    <i data-feather="user" style="color:var(--accent);"></i>
+                    Informations citoyen
+                </span>
+            </div>
+            <button class="btn btn-outline btn-icon" onclick="closeCitoyenModal()" aria-label="Fermer">
+                <i data-feather="x"></i>
             </button>
         </div>
+        <div class="modal-body">
+            <img id="photoCitoyen" src="" alt="Photo citoyen" class="cit-avatar">
+            <div id="nomComplet" class="cit-name"></div>
 
-        <div class="p-6 space-y-4">
-            <h4 id="alerteTitre" class="text-2xl font-bold text-gray-900"></h4>
-            <p id="alerteDescription" class="text-gray-700 text-sm"></p>
-
-            <div id="alertePhotoContainer" class="w-full flex justify-center">
-                <img id="alertePhoto" src="" alt="Photo alerte" class="rounded-xl max-h-64 object-cover hidden">
+            <div class="cit-info-row">
+                <div class="cit-info-icon icon-blue">
+                    <i data-feather="mail"></i>
+                </div>
+                <div>
+                    <div class="cit-info-label">Email</div>
+                    <div id="emailCitoyen" class="cit-info-value"></div>
+                </div>
             </div>
 
-            <div id="alerteVocalContainer" class="w-full flex justify-center">
-                <audio id="alerteVocal" controls class="w-full mt-2 hidden">
-                    <source id="alerteVocalSource" src="" type="audio/webm">
-                    Votre navigateur ne supporte pas l'audio.
-                </audio>
+            <div class="cit-info-row">
+                <div class="cit-info-icon icon-green">
+                    <i data-feather="phone"></i>
+                </div>
+                <div>
+                    <div class="cit-info-label">Téléphone</div>
+                    <div id="telCitoyen" class="cit-info-value"></div>
+                </div>
+            </div>
+
+            <div class="cit-info-row">
+                <div class="cit-info-icon icon-purple" style="background:#EDE9FE;color:#7C3AED;">
+                    <i data-feather="map-pin"></i>
+                </div>
+                <div>
+                    <div class="cit-info-label">Adresse</div>
+                    <div id="adresseCitoyen" class="cit-info-value"></div>
+                </div>
             </div>
         </div>
-
-        <div class="p-6 border-t border-gray-100">
-            <button onclick="closeAlerteModal()"
-                class="w-full accent-bg text-white px-6 py-3 rounded-xl font-bold hover:opacity-90 transition">
-                Fermer
-            </button>
+        <div class="modal-footer">
+            <button class="btn btn-accent" onclick="closeCitoyenModal()">Fermer</button>
         </div>
     </div>
 </div>
 
+{{-- ══════════════════════════════
+     MODAL — Alerte
+══════════════════════════════ --}}
+<div id="alerteModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="alerte-modal-title">
+    <div class="modal-box" style="max-width:540px;">
+        <div class="modal-header">
+            <div class="modal-title" id="alerte-modal-title">
+                <span style="display:flex;align-items:center;gap:8px;">
+                    <i data-feather="alert-triangle" style="color:var(--accent);"></i>
+                    Détail de l'alerte
+                </span>
+            </div>
+            <button class="btn btn-outline btn-icon" onclick="closeAlerteModal()" aria-label="Fermer">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div id="alerteTitre" class="alerte-titre"></div>
+            <p id="alerteDescription" class="alerte-desc"></p>
+            <img id="alertePhoto" src="" alt="Photo alerte" class="alerte-photo" style="display:none;">
+            <audio id="alerteVocal" controls class="alerte-audio" style="display:none;">
+                <source id="alerteVocalSource" src="" type="audio/webm">
+                Votre navigateur ne supporte pas la lecture audio.
+            </audio>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-accent" onclick="closeAlerteModal()">Fermer</button>
+        </div>
+    </div>
+</div>
 
+@endsection
 
-    @push('scripts')
-        <script>
+@push('scripts')
+<script>
+feather.replace({ width: 14, height: 14 });
+
+/* ── Modal Citoyen ── */
+function showCitoyenModal(nom, prenom, email, tel, adresse, photo) {
+    document.getElementById('nomComplet').textContent    = nom + ' ' + prenom;
+    document.getElementById('emailCitoyen').textContent  = email;
+    document.getElementById('telCitoyen').textContent    = tel;
+    document.getElementById('adresseCitoyen').textContent = adresse;
+    document.getElementById('photoCitoyen').src          = photo;
+    document.getElementById('citoyenModal').classList.add('open');
+    feather.replace({ width: 14, height: 14 });
+}
+function closeCitoyenModal() {
+    document.getElementById('citoyenModal').classList.remove('open');
+}
+
+/* ── Modal Alerte ── */
 function showAlerteModal(titre, description, photo, vocal) {
-    // Texte
-    document.getElementById('alerteTitre').textContent = titre;
+    document.getElementById('alerteTitre').textContent      = titre;
     document.getElementById('alerteDescription').textContent = description;
 
-    // Image
     const photoEl = document.getElementById('alertePhoto');
-    if(photo) {
-        photoEl.src = photo;
-        photoEl.classList.remove('hidden');
-    } else {
-        photoEl.classList.add('hidden');
-    }
+    if (photo) { photoEl.src = photo; photoEl.style.display = 'block'; }
+    else        { photoEl.style.display = 'none'; }
 
-    // Audio
-    const vocalEl = document.getElementById('alerteVocal');
+    const vocalEl     = document.getElementById('alerteVocal');
     const vocalSource = document.getElementById('alerteVocalSource');
-    if(vocal) {
+    if (vocal) {
         vocalSource.src = vocal;
-        vocalEl.load(); // recharge la source
-        vocalEl.classList.remove('hidden');
+        vocalEl.load();
+        vocalEl.style.display = 'block';
     } else {
-        vocalEl.classList.add('hidden');
+        vocalEl.style.display = 'none';
     }
 
-    // Afficher modal
-    const modal = document.getElementById('alerteModal');
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-
-    feather.replace();
+    document.getElementById('alerteModal').classList.add('open');
+    feather.replace({ width: 14, height: 14 });
 }
-
 function closeAlerteModal() {
-    const modal = document.getElementById('alerteModal');
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-
-    const vocalEl = document.getElementById('alerteVocal');
-    vocalEl.pause();
-    vocalEl.currentTime = 0;
+    document.getElementById('alerteModal').classList.remove('open');
+    const v = document.getElementById('alerteVocal');
+    v.pause(); v.currentTime = 0;
 }
 
-function showModal(nom, prenom, email, telephone, adresse, photo) {
-    document.getElementById('nomComplet').textContent = nom + ' ' + prenom;
-    document.getElementById('emailCitoyen').textContent = email;
-    document.getElementById('telCitoyen').textContent = telephone;
-    document.getElementById('adresseCitoyen').textContent = adresse;
-    document.getElementById('photoCitoyen').src = photo;
-
-    const modal = document.getElementById('citoyenModal');
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-
-    feather.replace(); // Pour les icônes Feather
-}
-
-function closeModal() {
-    const modal = document.getElementById('citoyenModal');
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-}
-
+/* Fermer modals avec ESC ou clic backdrop */
+document.querySelectorAll('.modal-backdrop').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') document.querySelectorAll('.modal-backdrop.open').forEach(m => m.classList.remove('open'));
+});
 </script>
-
-    @endpush
-@endsection
+@endpush
