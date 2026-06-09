@@ -1,412 +1,178 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion d'Alertes - CongoAssist</title>
-    <link rel="icon" href="medias/Clogo.jpg" type="image/png">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
-    <style>
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+@extends('citoyen')
 
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+@section('title', 'Signaler une urgence — CongoAssist')
 
-        .animate-fade-in {
-            animation: fadeIn 0.6s ease-out forwards;
-        }
+@push('head-styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+@endpush
 
-        .animate-slide-up {
-            animation: slideInUp 0.5s ease-out forwards;
-        }
+@section('content')
 
-        .sidebar {
-            background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%);
-        }
+<div class="page-header anim-fade">
+    <div class="page-header-left">
+        <h1>Signaler une urgence</h1>
+        <p>Choisissez le service et remplissez le formulaire — l'alerte sera transmise immédiatement.</p>
+    </div>
+</div>
 
-        .sidebar-link {
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
+{{-- Info banner --}}
+<div class="alert alert-info anim-fade" style="margin-bottom:24px;">
+    <i data-feather="info" style="width:16px;height:16px;flex-shrink:0;"></i>
+    <span>Votre alerte est transmise de façon confidentielle aux services compétents. N'utilisez ce service qu'en cas de réelle urgence.</span>
+</div>
 
-        .sidebar-link::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 4px;
-            background: #10b981;
-            transform: scaleY(0);
-            transition: transform 0.3s ease;
-        }
-
-        .sidebar-link:hover::before,
-        .sidebar-link.active::before {
-            transform: scaleY(1);
-        }
-
-        .sidebar-link:hover {
-            background: rgba(255, 255, 255, 0.1);
-            padding-left: 24px;
-        }
-
-        .card-hover {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .card-hover:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        .service-card {
-            position: relative;
-            overflow: hidden;
-            border-radius: 1rem;
-            height: 350px;
-            cursor: pointer;
-        }
-
-        .service-card img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-            filter: brightness(0.75);
-        }
-
-        .service-card:hover img {
-            transform: scale(1.1);
-            filter: brightness(0.9);
-        }
-
-        .service-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 2rem;
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.95), transparent);
-            color: white;
-        }
-
-        .service-card:hover .service-overlay {
-            background: linear-gradient(to top, rgba(16, 185, 129, 0.95), rgba(0, 0, 0, 0.5));
-        }
-
-        .quick-link {
-            background: white;
-            transition: all 0.3s ease;
-        }
-
-        .quick-link:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1));
-        }
-    </style>
-</head>
-<body class="bg-gradient-to-br from-blue-50 to-green-50 flex">
-    <!-- Sidebar -->
-    <aside class="sidebar hidden lg:flex flex-col w-64 min-h-screen sticky top-0 text-white p-6 shadow-xl">
-        <!-- Logo -->
-        <div class="flex items-center gap-3 mb-10">
-            <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center shadow-lg">
-                <span class="text-white font-bold text-xl">C</span>
+{{-- Services d'urgence --}}
+<div style="margin-bottom:28px;">
+    <h2 style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:16px;">Choisir un service d'urgence</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;">
+        @foreach($services as $service)
+        <a href="{{ $service->lien }}"
+           style="display:flex;align-items:center;gap:14px;padding:18px 16px;
+                  background:var(--surface);border:1.5px solid var(--border);
+                  border-radius:var(--radius-lg);text-decoration:none;
+                  transition:border-color .15s,box-shadow .15s,transform .15s;"
+           onmouseover="this.style.borderColor='#2563eb';this.style.boxShadow='var(--shadow)';this.style.transform='translateY(-2px)'"
+           onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='none';this.style.transform='translateY(0)'">
+            <div style="width:42px;height:42px;border-radius:10px;background:var(--accent-light);
+                        display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i data-feather="alert-triangle" style="width:18px;height:18px;color:var(--accent);"></i>
             </div>
             <div>
-                <h1 class="text-xl font-bold">Congo<span class="text-green-400">Assist</span></h1>
-                <p class="text-xs text-blue-200">Tableau de bord</p>
+                <div style="font-size:13.5px;font-weight:700;color:var(--text);">{{ $service->nom_service }}</div>
+                <div style="font-size:12px;color:var(--text-sec);margin-top:2px;">Signaler →</div>
             </div>
-        </div>
-
-        <!-- Navigation -->
-        <nav class="flex-1 space-y-2">
-            <a href="{{ route('bilanController') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-white hover:text-green-300 transition">
-                <i data-feather="activity" class="w-5 h-5"></i>
-                <span>Mon bilan</span>
-            </a>
-            <a href="{{ route('vaccinationMenuController') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-white hover:text-green-300 transition">
-                <i data-feather="shield" class="w-5 h-5"></i>
-                <span>Vaccinations</span>
-            </a>
-            <a href="{{ route('actualitesController') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-white hover:text-green-300 transition">
-                <i data-feather="newspaper" class="w-5 h-5"></i>
-                <span>Actualités</span>
-            </a>
-            <a href="{{ route('MesAlertesController') }}" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-lg text-white hover:text-green-300 transition bg-white bg-opacity-10">
-                <i data-feather="bell" class="w-5 h-5"></i>
-                <span>Urgences</span>
-            </a>
-            <a href="{{ route('forumCitoyen') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-white hover:text-green-300 transition">
-                <i data-feather="message-square" class="w-5 h-5"></i>
-                <span>Forum</span>
-            </a>
-            <a href="{{ route('compteController') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-white hover:text-green-300 transition">
-                <i data-feather="user" class="w-5 h-5"></i>
-                <span>Mon Compte</span>
-            </a>
-        </nav>
-
-        <!-- Logout -->
-        <a href="{{ route('accueil') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-red-500 hover:bg-red-600 transition text-white mt-6">
-            <i data-feather="log-out" class="w-5 h-5"></i>
-            <span>Déconnexion</span>
         </a>
-    </aside>
+        @endforeach
+    </div>
+</div>
 
-    <!-- Main Content -->
-    <main class="flex-1 p-4 lg:p-8 overflow-y-auto">
-        <!-- Mobile Header -->
-        <div class="lg:hidden bg-white rounded-xl shadow-md p-4 mb-6 flex items-center justify-between">
-            <button id="mobile-menu-btn" class="text-gray-700">
-                <i data-feather="menu" class="w-6 h-6"></i>
-            </button>
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-green-500 rounded-lg flex items-center justify-center">
-                    <span class="text-white font-bold text-sm">C</span>
+{{-- Formulaire rapide --}}
+<div class="card anim-fade" style="animation-delay:.1s;margin-bottom:28px;">
+    <div class="card-header" style="padding-bottom:16px;border-bottom:1px solid var(--border);">
+        <span class="card-title" style="font-size:15px;">Signalement rapide depuis l'accueil</span>
+        <span class="pill pill-green">
+            <i data-feather="zap" style="width:11px;height:11px;"></i>
+            Envoi immédiat
+        </span>
+    </div>
+    <div class="card-body">
+        <form action="{{ route('enregistrerAlerte') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Type d'urgence <span style="color:var(--red)">*</span></label>
+                    <select name="type_alerte" class="form-control" required>
+                        <option value="">— Sélectionnez —</option>
+                        @foreach($services as $service)
+                        <option value="{{ $service->nom_service }}">{{ $service->nom_service }}</option>
+                        @endforeach
+                    </select>
                 </div>
-                <span class="font-bold text-blue-800">Congo<span class="text-green-500">Assist</span></span>
-            </div>
-            <div class="w-6"></div>
-        </div>
-
-        <!-- Header -->
-        <header class="bg-white rounded-2xl shadow-md p-6 mb-8 animate-fade-in">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div>
-                    <h1 class="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
-                        <i data-feather="alert-triangle" class="w-8 h-8 text-red-500"></i>
-                        Gestion d'Alertes
-                    </h1>
-                    <p class="text-gray-600">Sélectionnez un service d'urgence pour signaler un incident</p>
-                </div>
-                <div class="flex items-center gap-4 bg-gradient-to-r from-blue-50 to-green-50 px-6 py-3 rounded-xl">
-                    <img src="{{ asset($citoyen->photo_profil) }}" alt="Profil" class="w-14 h-14 rounded-full border-3 border-green-500 object-cover shadow-md">
-                    <div>
-                        <p class="font-bold text-gray-900">{{ $citoyen->nom }} {{ $citoyen->prenom }}</p>
-                        <p class="text-sm text-gray-600">Membre actif</p>
-                    </div>
+                <div class="form-group">
+                    <label class="form-label">Localisation <span style="color:var(--red)">*</span></label>
+                    <input type="text" name="localisation" class="form-control"
+                           placeholder="Ex : Avenue de l'O.U.A, Bacongo" required>
                 </div>
             </div>
-        </header>
-
-        <!-- Info Banner -->
-        <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 mb-8 text-white animate-fade-in">
-            <div class="flex items-start gap-4">
-                <div class="bg-white bg-opacity-20 p-3 rounded-lg">
-                    <i data-feather="info" class="w-6 h-6"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-lg mb-2">Comment signaler une urgence ?</h3>
-                    <p class="text-blue-100">Choisissez le type de service d'urgence ci-dessous, puis remplissez le formulaire de signalement. Votre alerte sera immédiatement transmise aux autorités compétentes.</p>
-                </div>
+            <div class="form-group">
+                <label class="form-label">Description de la situation</label>
+                <textarea name="description" rows="4" class="form-control"
+                          placeholder="Décrivez brièvement ce que vous observez..."></textarea>
             </div>
-        </div>
 
-        <!-- Services Grid -->
-        <div class="mb-8">
-            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <i data-feather="grid" class="w-6 h-6 text-blue-600"></i>
-                Services d'urgence disponibles
-            </h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @php
-                    use App\Models\servicesProposes;
-                    $services = servicesProposes::all();
-                @endphp
-                @foreach ($services as $index => $service)
-                <a href="{{ $service->lien }}" class="block animate-slide-up" style="animation-delay: {{ $index * 0.1 }}s">
-                    <div class="service-card card-hover shadow-lg">
-                        <img src="{{ $service->image ?? asset('medias/default-service.jpg') }}" alt="{{ $service->titre }}">
-                        <div class="service-overlay">
-                            <div class="flex items-center gap-2 mb-2">
-                                <i data-feather="alert-circle" class="w-5 h-5"></i>
-                                <span class="text-xs font-semibold uppercase tracking-wider">Service d'urgence</span>
-                            </div>
-                            <h2 class="text-2xl font-bold mb-2">{{ $service->titre }}</h2>
-                            <p class="text-sm text-gray-200">{{ $service->description }}</p>
-                            <div class="mt-4 flex items-center gap-2 text-green-400">
-                                <span class="font-semibold">Signaler →</span>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-                @endforeach
-            </div>
-        </div>
-
-        <!-- Quick Links -->
-        <div class="mb-8">
-            <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <i data-feather="zap" class="w-5 h-5 text-yellow-500"></i>
-                Accès rapide
-            </h3>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                <a href="{{ route('bilanController') }}" class="quick-link p-4 rounded-xl shadow-md text-center">
-                    <i data-feather="activity" class="w-6 h-6 mx-auto mb-2 text-blue-600"></i>
-                    <p class="text-sm font-semibold text-gray-800">Bilan</p>
-                </a>
-                <a href="{{ route('vaccinationMenuController') }}" class="quick-link p-4 rounded-xl shadow-md text-center">
-                    <i data-feather="shield" class="w-6 h-6 mx-auto mb-2 text-green-600"></i>
-                    <p class="text-sm font-semibold text-gray-800">Vaccinations</p>
-                </a>
-                <a href="{{ route('actualitesController') }}" class="quick-link p-4 rounded-xl shadow-md text-center">
-                    <i data-feather="newspaper" class="w-6 h-6 mx-auto mb-2 text-purple-600"></i>
-                    <p class="text-sm font-semibold text-gray-800">Actualités</p>
-                </a>
-                <a href="{{ route('MesAlertesController') }}" class="quick-link p-4 rounded-xl shadow-md text-center">
-                    <i data-feather="bell" class="w-6 h-6 mx-auto mb-2 text-red-600"></i>
-                    <p class="text-sm font-semibold text-gray-800">Urgences</p>
-                </a>
-                <a href="{{ route('compteController') }}" class="quick-link p-4 rounded-xl shadow-md text-center">
-                    <i data-feather="user" class="w-6 h-6 mx-auto mb-2 text-indigo-600"></i>
-                    <p class="text-sm font-semibold text-gray-800">Compte</p>
-                </a>
-                <a href="{{ route('accueil') }}" class="quick-link p-4 rounded-xl shadow-md text-center">
-                    <i data-feather="log-out" class="w-6 h-6 mx-auto mb-2 text-gray-600"></i>
-                    <p class="text-sm font-semibold text-gray-800">Déconnexion</p>
-                </a>
-            </div>
-        </div>
-
-        <!-- Emergency Tips -->
-        <div class="bg-white rounded-2xl shadow-lg p-6 card-hover">
-            <div class="flex items-start gap-4">
-                <div class="bg-red-100 p-4 rounded-xl">
-                    <i data-feather="alert-octagon" class="w-8 h-8 text-red-600"></i>
+            {{-- Message vocal --}}
+            <div class="form-group">
+                <label class="form-label">Message vocal <span style="font-weight:400;color:var(--text-muted)">(optionnel)</span></label>
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                    <button type="button" id="recordBtn" class="btn btn-secondary">
+                        <i data-feather="mic" style="width:14px;height:14px;"></i> Enregistrer
+                    </button>
+                    <button type="button" id="stopBtn" class="btn btn-secondary" disabled
+                            style="opacity:.5;cursor:not-allowed;">
+                        <i data-feather="square" style="width:14px;height:14px;"></i> Arrêter
+                    </button>
+                    <span id="recordingStatus" style="display:none;align-items:center;gap:6px;font-size:12.5px;color:var(--red);font-weight:600;">
+                        <span style="width:7px;height:7px;border-radius:50%;background:var(--red);animation:pulse 1.4s ease-in-out infinite;display:inline-block;"></span>
+                        Enregistrement…
+                    </span>
                 </div>
-                <div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-3">Conseils en cas d'urgence</h3>
-                    <ul class="space-y-2 text-gray-700">
-                        <li class="flex items-start gap-2">
-                            <i data-feather="check-circle" class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5"></i>
-                            <span>Gardez votre calme et évaluez la situation</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <i data-feather="check-circle" class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5"></i>
-                            <span>Fournissez des informations précises sur votre localisation</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <i data-feather="check-circle" class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5"></i>
-                            <span>Restez en sécurité en attendant l'intervention des secours</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <i data-feather="check-circle" class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5"></i>
-                            <span>Ne déplacez pas les personnes blessées sauf danger immédiat</span>
-                        </li>
-                    </ul>
-                </div>
+                <audio id="audioPreview" controls style="margin-top:10px;display:none;width:100%;border-radius:var(--radius);"></audio>
+                <input type="file" name="audio" id="audioInput" style="display:none;" accept="audio/*">
             </div>
-        </div>
-    </main>
 
-    <!-- Mobile Sidebar -->
-    <div id="mobile-sidebar" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden lg:hidden">
-        <div class="sidebar w-64 min-h-screen p-6 transform -translate-x-full transition-transform duration-300" id="sidebar-content">
-            <div class="flex justify-between items-center mb-8">
-                <div class="flex items-center gap-2">
-                    <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center">
-                        <span class="text-white font-bold">C</span>
-                    </div>
-                    <h1 class="text-lg font-bold">Congo<span class="text-green-400">Assist</span></h1>
-                </div>
-                <button id="close-sidebar" class="text-white">
-                    <i data-feather="x" class="w-6 h-6"></i>
+            <div style="display:flex;justify-content:flex-end;padding-top:8px;border-top:1px solid var(--border);">
+                <button type="submit" class="btn btn-primary">
+                    <i data-feather="send" style="width:14px;height:14px;"></i>
+                    Envoyer l'alerte
                 </button>
             </div>
+        </form>
+    </div>
+</div>
 
-            <nav class="space-y-2">
-                <a href="{{ route('bilanController') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-white">
-                    <i data-feather="activity" class="w-5 h-5"></i>
-                    <span>Mon bilan</span>
-                </a>
-                <a href="{{ route('vaccinationMenuController') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-white">
-                    <i data-feather="shield" class="w-5 h-5"></i>
-                    <span>Vaccinations</span>
-                </a>
-                <a href="{{ route('actualitesController') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-white">
-                    <i data-feather="newspaper" class="w-5 h-5"></i>
-                    <span>Actualités</span>
-                </a>
-                <a href="{{ route('MesAlertesController') }}" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-lg text-white bg-white bg-opacity-10">
-                    <i data-feather="bell" class="w-5 h-5"></i>
-                    <span>Urgences</span>
-                </a>
-                <a href="#" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-white">
-                    <i data-feather="message-square" class="w-5 h-5"></i>
-                    <span>Forum</span>
-                </a>
-                <a href="{{ route('compteController') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-white">
-                    <i data-feather="user" class="w-5 h-5"></i>
-                    <span>Mon Compte</span>
-                </a>
-            </nav>
-
-            <a href="{{ route('accueil') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-red-500 hover:bg-red-600 transition text-white mt-6">
-                <i data-feather="log-out" class="w-5 h-5"></i>
-                <span>Déconnexion</span>
-            </a>
+{{-- Numéros d'urgence --}}
+<div class="card anim-fade" style="animation-delay:.18s;">
+    <div class="card-header" style="padding-bottom:14px;border-bottom:1px solid var(--border);">
+        <span class="card-title" style="font-size:15px;">Numéros d'urgence nationaux</span>
+    </div>
+    <div class="card-body">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;">
+            @foreach([['15','SAMU','Urgences médicales','bg-red-soft'],['18','Pompiers','Incendie & secours','bg-amber-soft'],['17','Police','Forces de l\'ordre','bg-blue-soft'],['112','Urgence univ.','Tout type','bg-green-soft']] as $num)
+            <div style="padding:16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);text-align:center;">
+                <div style="font-size:26px;font-weight:800;color:var(--text);line-height:1;">{{ $num[0] }}</div>
+                <div style="font-size:12px;font-weight:700;color:var(--text);margin-top:4px;">{{ $num[1] }}</div>
+                <div style="font-size:11px;color:var(--text-sec);margin-top:2px;">{{ $num[2] }}</div>
+            </div>
+            @endforeach
         </div>
     </div>
+</div>
 
-    <script>
-        feather.replace();
+@push('styles')
+<style>
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} }
+</style>
+@endpush
 
-        // Mobile menu toggle
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileSidebar = document.getElementById('mobile-sidebar');
-        const sidebarContent = document.getElementById('sidebar-content');
-        const closeSidebar = document.getElementById('close-sidebar');
+@push('scripts')
+<script>
+let mediaRecorder, audioChunks = [];
+const recordBtn = document.getElementById('recordBtn');
+const stopBtn   = document.getElementById('stopBtn');
+const preview   = document.getElementById('audioPreview');
+const input     = document.getElementById('audioInput');
+const status    = document.getElementById('recordingStatus');
 
-        if (mobileMenuBtn) {
-            mobileMenuBtn.addEventListener('click', () => {
-                mobileSidebar.classList.remove('hidden');
-                setTimeout(() => {
-                    sidebarContent.classList.remove('-translate-x-full');
-                }, 10);
-            });
-        }
+recordBtn.addEventListener('click', async () => {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+        mediaRecorder.addEventListener('dataavailable', e => audioChunks.push(e.data));
+        mediaRecorder.addEventListener('stop', () => {
+            const blob = new Blob(audioChunks, { type: 'audio/webm' });
+            preview.src = URL.createObjectURL(blob);
+            preview.style.display = 'block';
+            const file = new File([blob], 'alerte_audio.webm', { type: 'audio/webm' });
+            const dt = new DataTransfer(); dt.items.add(file);
+            input.files = dt.files;
+            recordBtn.disabled = false;
+            stopBtn.disabled = true;
+            stopBtn.style.opacity = '.5';
+            status.style.display = 'none';
+            feather.replace({ 'stroke-width': 1.75 });
+        });
+        mediaRecorder.start();
+        recordBtn.disabled = true;
+        stopBtn.disabled = false;
+        stopBtn.style.opacity = '1';
+        stopBtn.style.cursor = 'pointer';
+        status.style.display = 'flex';
+    } catch(e) { alert('Impossible d\'accéder au microphone.'); }
+});
+stopBtn.addEventListener('click', () => { if(mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop(); });
+</script>
+@endpush
 
-        if (closeSidebar) {
-            closeSidebar.addEventListener('click', () => {
-                sidebarContent.classList.add('-translate-x-full');
-                setTimeout(() => {
-                    mobileSidebar.classList.add('hidden');
-                }, 300);
-            });
-        }
-
-        if (mobileSidebar) {
-            mobileSidebar.addEventListener('click', (e) => {
-                if (e.target === mobileSidebar) {
-                    sidebarContent.classList.add('-translate-x-full');
-                    setTimeout(() => {
-                        mobileSidebar.classList.add('hidden');
-                    }, 300);
-                }
-            });
-        }
-    </script>
-</body>
-</html>
+@endsection
