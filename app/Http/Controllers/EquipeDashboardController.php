@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Services;
-use App\Models\Alertes;
+use App\Models\alertes;
 use App\Models\AlerteAffectation;
 
 class EquipeDashboardController extends Controller
