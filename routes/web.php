@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RedirectionController;
-
+use App\Http\Controllers\UrgenceController;
 
 use App\Http\Controllers\ForumController;
 
@@ -388,8 +388,6 @@ Route::prefix('services')->group(function () {
 });
 
 
-use App\Http\Controllers\UrgenceController;
-
 Route::get('/services/urgences', [UrgenceController::class, 'index'])->name('services.urgenceSignalee');
 Route::post('/services/urgences/{id}/update', [UrgenceController::class, 'updateStatut'])->name('services.urgenceSignaleeUpdate');
 
@@ -401,3 +399,9 @@ Route::post('/actualites', [ActualiteController::class, 'store'])->name('service
 Route::get('/actualites/{id}/edit', [ActualiteController::class, 'edit'])->name('services.actualiteEdit');
 Route::put('/actualites/{id}', [ActualiteController::class, 'update'])->name('services.actualiteUpdate');
 Route::delete('/actualites/{id}', [ActualiteController::class, 'destroy'])->name('services.actualiteDestroy');
+
+
+
+
+Route::post('/services/urgence/affecter/{id}', [UrgenceController::class, 'affecter'])
+    ->name('services.urgence.affecter');
