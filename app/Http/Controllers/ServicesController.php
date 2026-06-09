@@ -2,76 +2,72 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Admins;
 use App\Models\Services;
+use App\Models\ServicesProposes;
+use Illuminate\Http\Request;
 
 class ServicesController extends Controller
 {
-    // Afficher le formulaire et la liste des services
     public function index()
     {
-        if (! session()->has('admin_id')) {
+        if (!session()->has('admin_id')) {
             return redirect()->route('admin.login')->with('error', 'Vous devez être connecté.');
         }
 
-        // Pagination : 5 services par page
+        $admin    = Admins::find(session('admin_id'));
         $services = Services::paginate(5);
-
-        $admin = Admins::find(session('admin_id'));
 
         return view('admin.serviceCreate', compact('admin', 'services'));
     }
 
-    // Enregistrer un nouveau service
+    // Ajouter un service proposé
     public function store(Request $request)
     {
-        if (! session()->has('admin_id')) {
+        if (!session()->has('admin_id')) {
             return redirect()->route('admin.login')->with('error', 'Vous devez être connecté.');
         }
 
         $request->validate([
-            'nom' => 'required|string|max:255',
-            'adresse' => 'required|string|max:255',
-            'role' => 'required|string|max:255',
-            'disponible' => 'required|boolean',
-            'email' => 'nullable|email|max:255',
-            'etat_compte' => 'required|string|max:50',
-            'telephone' => 'nullable|string|max:20',
-            'password' => 'required|string|min:6',
+            'nom_service' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'image'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'lien'        => 'required|string|max:255',
         ]);
 
-        Services::create([
-            'nom' => $request->nom,
-            'adresse' => $request->adresse,
-            'role' => $request->role,
-            'disponible' => $request->disponible,
-            'email' => $request->email,
-            'etat_compte' => $request->etat_compte,
-            'telephone' => $request->telephone,
-            'password' => bcrypt($request->password),
+        $imageData = null;
+        if ($request->hasFile('image')) {
+            $file      = $request->file('image');
+            $imageData = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file));
+        }
+
+        ServicesProposes::create([
+            'nom_service' => $request->nom_service,
+            'description' => $request->description,
+            'lien'        => $request->lien,
+            'image'       => $imageData,
+            'admin_id'    => session('admin_id'),
         ]);
 
-        return redirect()->route('admin.serviceCreate')->with('success', 'Service ajouté avec succès !');
+        return redirect()->route('admin.services')->with('success', 'Service proposé créé avec succès.');
     }
 
-    // Activer un service
+    // Supprimer un service proposé
+    public function destroy($id)
+    {
+        ServicesProposes::findOrFail($id)->delete();
+        return redirect()->route('admin.services')->with('success', 'Service proposé supprimé.');
+    }
+
     public function activer($id)
     {
-        $service = Services::findOrFail($id);
-        $service->disponible = 1;
-        $service->save();
-
+        Services::findOrFail($id)->update(['disponible' => 1]);
         return back()->with('success', 'Le service est maintenant disponible.');
     }
 
-    // Désactiver un service
     public function desactiver($id)
     {
-        $service = Services::findOrFail($id);
-        $service->disponible = 0;
-        $service->save();
-
+        Services::findOrFail($id)->update(['disponible' => 0]);
         return back()->with('success', 'Le service a été désactivé.');
     }
 }

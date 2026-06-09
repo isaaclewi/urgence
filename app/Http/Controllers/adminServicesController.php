@@ -3,59 +3,62 @@
 namespace App\Http\Controllers;
 
 use App\Models\Admins;
-use App\Models\servicesProposes;
+use App\Models\Services;
+use App\Models\ServicesProposes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class adminServicesController extends Controller
 {
-    // Afficher la liste des services
     public function index()
     {
         if (!session()->has('admin_id')) {
             return redirect()->route('admin.login')->with('error', 'Veuillez vous connecter.');
         }
 
-        $admin = Admins::find(session('admin_id'));
-        $services = servicesProposes::all();
+        $admin            = Admins::find(session('admin_id'));
+        $services         = Services::orderBy('created_at', 'desc')->get();
+        $servicesProposes = ServicesProposes::orderBy('created_at', 'desc')->get();
 
-        return view('admin.services', compact('admin', 'services'));
+        return view('admin.services', compact('admin', 'services', 'servicesProposes'));
     }
 
-    // Ajouter un nouveau service
+    // Ajouter un service d'urgence
     public function store(Request $request)
     {
-        $request->validate([
-            'nom_service' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'lien' => 'required|string|max:255',
-        ]);
-
-        $imageData = null;
-
-        if ($request->hasFile('image')) {
-            // Lire le fichier et le convertir en base64
-            $file = $request->file('image');
-            $imageData = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file));
+        if (!session()->has('admin_id')) {
+            return redirect()->route('admin.login')->with('error', 'Veuillez vous connecter.');
         }
 
-        ServicesProposes::create([
-            'nom_service' => $request->nom_service,
-            'description' => $request->description,
-            'lien' => $request->lien,
-            'image' => $imageData, // on stocke directement en base64
-            'admin_id' => session('admin_id') ?? null,
+        $request->validate([
+            'nom'         => 'required|string|max:255',
+            'adresse'     => 'required|string|max:255',
+            'role'        => 'required|in:pompier,police,hopital',
+            'disponible'  => 'required|boolean',
+            'email'       => 'nullable|email|unique:services,email',
+            'telephone'   => 'nullable|string|max:20',
+            'etat_compte' => 'required|string|max:50',
+            'password'    => 'required|string|min:6',
         ]);
 
-        return redirect()->route('admin.services')->with('success', 'Service créé avec succès');
+        Services::create([
+            'nom'         => $request->nom,
+            'adresse'     => $request->adresse,
+            'role'        => $request->role,
+            'disponible'  => $request->disponible,
+            'email'       => $request->email,
+            'telephone'   => $request->telephone,
+            'etat_compte' => $request->etat_compte,
+            'password'    => Hash::make($request->password),
+        ]);
+
+        return redirect()->route('admin.services')->with('success', 'Service d\'urgence ajouté avec succès.');
     }
 
-    // Supprimer un service
+    // Supprimer un service d'urgence
     public function destroy($id)
     {
-        $service = ServicesProposes::findOrFail($id);
-        $service->delete(); // plus besoin de Storage
-
-        return redirect()->back()->with('success', 'Service supprimé avec succès.');
+        Services::findOrFail($id)->delete();
+        return redirect()->back()->with('success', 'Service d\'urgence supprimé avec succès.');
     }
 }
