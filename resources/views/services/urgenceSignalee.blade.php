@@ -503,9 +503,9 @@
 
                 <label>Équipe</label>
                 <select name="service_destination_id" class="status-select" required>
-                    @foreach(\App\Models\Services::all() as $s)
-                        <option value="{{ $s->id }}">{{ $s->nom }}</option>
-                    @endforeach
+                   @foreach(\App\Models\Services::where('parent_service_id', session('service_id'))->get() as $s)
+    <option value="{{ $s->id }}">{{ $s->nom }}</option>
+@endforeach
                 </select>
 
                 <label style="margin-top:10px;">Commentaire</label>
