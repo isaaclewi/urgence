@@ -508,7 +508,7 @@
             mobileMenu.classList.toggle('hidden');
         });
     </script>
-< <script>
+{{-- < <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
@@ -516,7 +516,7 @@ if ('serviceWorker' in navigator) {
       .catch(err => console.log('SW erreur', err));
   });
 }
-</script>
+</script> --}}
     <script>
 let deferredPrompt;
 
@@ -550,6 +550,125 @@ window.addEventListener('beforeinstallprompt', (e) => {
 </script>
 
 
+{{-- ══ PWA install button ══ --}}
+<button id="pwa-fab" style="
+    display:none; position:fixed; bottom:max(1.5rem,env(safe-area-inset-bottom));
+    right:1.5rem; z-index:9990; align-items:center; gap:.6rem;
+    background:linear-gradient(135deg,#10b981,#059669); color:#fff;
+    font-size:.72rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+    padding:.75rem 1.4rem; border-radius:100px; border:none;
+    box-shadow:0 8px 28px rgba(16,185,129,.45); cursor:pointer;
+    transition:transform .2s,box-shadow .2s;" aria-label="Installer l'application">
+  ⬇ Installer l'app
+</button>
+
+{{-- ══ PWA modal guide ══ --}}
+<div id="pwa-modal-overlay" style="
+    display:none; position:fixed; inset:0; z-index:9995;
+    background:rgba(0,0,0,.55); backdrop-filter:blur(6px);
+    align-items:flex-end; justify-content:center; padding:1rem;">
+  <div style="
+      background:#fff; border-radius:24px 24px 0 0;
+      padding:2rem 1.8rem max(2rem,env(safe-area-inset-bottom));
+      width:100%; max-width:480px;">
+    <h3 id="pwa-modal-title" style="font-size:1rem;font-weight:800;color:#0f172a;margin-bottom:.75rem;"></h3>
+    <p id="pwa-modal-body" style="font-size:.85rem;color:#64748b;line-height:1.7;"></p>
+    <button id="pwa-modal-close" style="
+        display:block; width:100%; margin-top:1.5rem;
+        background:linear-gradient(135deg,#10b981,#059669); color:#fff;
+        font-weight:700; font-size:.78rem; letter-spacing:.08em; text-transform:uppercase;
+        padding:.85rem; border-radius:100px; border:none; cursor:pointer;">
+      Fermer
+    </button>
+  </div>
+</div>
+
+<script>
+// Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js', { scope: '/' })
+      .then(reg => console.log('SW OK', reg.scope))
+      .catch(err => console.warn('SW erreur:', err));
+  });
+}
+
+// PWA Install
+(function () {
+  const fab     = document.getElementById('pwa-fab');
+  const overlay = document.getElementById('pwa-modal-overlay');
+  const title   = document.getElementById('pwa-modal-title');
+  const body    = document.getElementById('pwa-modal-body');
+  const close   = document.getElementById('pwa-modal-close');
+
+  const ua         = navigator.userAgent.toLowerCase();
+  const isIOS      = /iphone|ipad|ipod/.test(ua);
+  const isAndroid  = /android/.test(ua);
+  const isSamsung  = /samsungbrowser/.test(ua);
+  const isStandalone = window.navigator.standalone === true
+    || window.matchMedia('(display-mode: standalone)').matches;
+
+  if (isStandalone) return;
+
+  let deferredPrompt = null;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    fab.style.display = 'flex';
+  });
+
+  // iOS : pas de beforeinstallprompt, on affiche quand même
+  if (isIOS) fab.style.display = 'flex';
+
+  window.addEventListener('appinstalled', () => {
+    fab.style.display = 'none';
+    deferredPrompt = null;
+  });
+
+  fab.addEventListener('mouseenter', () => {
+    fab.style.transform = 'translateY(-3px)';
+    fab.style.boxShadow = '0 14px 36px rgba(16,185,129,.55)';
+  });
+  fab.addEventListener('mouseleave', () => {
+    fab.style.transform = '';
+    fab.style.boxShadow = '0 8px 28px rgba(16,185,129,.45)';
+  });
+
+  fab.addEventListener('click', async () => {
+    if (deferredPrompt) {
+      try {
+        await deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') fab.style.display = 'none';
+      } catch (err) { showGuide(); }
+      deferredPrompt = null;
+      return;
+    }
+    showGuide();
+  });
+
+  function showGuide() {
+    if (isIOS) {
+      title.textContent = 'Installer sur iPhone / iPad';
+      body.innerHTML = `Dans <strong>Safari</strong>, appuyez sur <strong>⎙ Partager</strong> en bas, puis <strong>Sur l'écran d'accueil</strong>.`;
+    } else if (isSamsung) {
+      title.textContent = 'Installer sur Samsung';
+      body.innerHTML = `Dans <strong>Samsung Internet</strong>, menu <strong>⋮</strong> → <strong>Ajouter page à</strong> → <strong>Écran d'accueil</strong>.`;
+    } else if (isAndroid) {
+      title.textContent = 'Installer sur Android';
+      body.innerHTML = `Dans <strong>Chrome</strong>, menu <strong>⋮</strong> en haut à droite → <strong>Installer l'application</strong>.`;
+    } else {
+      title.textContent = 'Installer CongoAssist';
+      body.innerHTML = `Dans <strong>Chrome</strong> ou <strong>Edge</strong>, menu <strong>⋮</strong> → <strong>Installer l'application</strong>.`;
+    }
+    overlay.style.display = 'flex';
+  }
+
+  close.addEventListener('click', () => overlay.style.display = 'none');
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.style.display = 'none'; });
+})();
+</script>
 </body>
 
 </html>
