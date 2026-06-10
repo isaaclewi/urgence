@@ -16,13 +16,13 @@
     {{-- Indicateurs visuels --}}
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:24px;">
         @php
-        $indicators = [
-            ['label'=>'Groupe sanguin', 'value'=>$bilan->groupe_sanguin ?? 'N/R', 'icon'=>'droplet', 'color'=>'bg-red-soft'],
-            ['label'=>'Taille', 'value'=>($bilan->taille ?? '—') . ($bilan->taille ? ' cm' : ''), 'icon'=>'maximize-2', 'color'=>'bg-blue-soft'],
-            ['label'=>'Poids', 'value'=>($bilan->poids ?? '—') . ($bilan->poids ? ' kg' : ''), 'icon'=>'activity', 'color'=>'bg-green-soft'],
-            ['label'=>'Allergies', 'value'=>$bilan->allergies ?? 'Aucune', 'icon'=>'alert-circle', 'color'=>'bg-amber-soft'],
-        ];
-        @endphp
+$indicators = [
+    ['label'=>'Groupe sanguin', 'value'=>$bilan?->groupe_sanguin ?? 'N/R',  'icon'=>'droplet',     'color'=>'bg-red-soft'],
+    ['label'=>'Taille',         'value'=>$bilan?->taille  ? $bilan->taille  . ' cm' : '—',          'icon'=>'maximize-2',  'color'=>'bg-blue-soft'],
+    ['label'=>'Poids',          'value'=>$bilan?->poids   ? $bilan->poids   . ' kg' : '—',          'icon'=>'activity',    'color'=>'bg-green-soft'],
+    ['label'=>'Allergies',      'value'=>$bilan?->allergies ?? 'Aucune',    'icon'=>'alert-circle', 'color'=>'bg-amber-soft'],
+];
+@endphp
         @foreach($indicators as $item)
         <div class="stat-card anim-fade">
             <div class="stat-icon {{ $item['color'] }}">
@@ -44,15 +44,15 @@
         <div class="card-body">
             <div class="form-grid">
                 @php
-                $fields = [
-                    ['label'=>'Maladies chroniques', 'value'=>$bilan->maladies_chroniques ?? 'Aucune', 'icon'=>'clipboard'],
-                    ['label'=>'Maladies passées importantes', 'value'=>$bilan->maladies_passees_importantes ?? 'Aucune', 'icon'=>'file-text'],
-                    ['label'=>'Interventions chirurgicales', 'value'=>$bilan->interventions_chirurgicales ?? 'Aucune', 'icon'=>'crosshair'],
-                    ['label'=>'Antécédents d\'hospitalisation', 'value'=>$bilan->antecedents_hospitalisation ?? 'Aucun', 'icon'=>'home'],
-                    ['label'=>'Antécédents familiaux', 'value'=>$bilan->antecedents_familiaux ?? 'Aucun', 'icon'=>'users'],
-                    ['label'=>'Mode de vie', 'value'=>$bilan->mode_de_vie ?? 'Non renseigné', 'icon'=>'smile'],
-                ];
-                @endphp
+$fields = [
+    ['label'=>'Maladies chroniques',           'value'=>$bilan?->maladies_chroniques            ?? 'Aucune',          'icon'=>'clipboard'],
+    ['label'=>'Maladies passées importantes',  'value'=>$bilan?->maladies_passees_importantes   ?? 'Aucune',          'icon'=>'file-text'],
+    ['label'=>'Interventions chirurgicales',   'value'=>$bilan?->interventions_chirurgicales    ?? 'Aucune',          'icon'=>'crosshair'],
+    ['label'=>'Antécédents d\'hospitalisation','value'=>$bilan?->antecedents_hospitalisation    ?? 'Aucun',           'icon'=>'home'],
+    ['label'=>'Antécédents familiaux',         'value'=>$bilan?->antecedents_familiaux          ?? 'Aucun',           'icon'=>'users'],
+    ['label'=>'Mode de vie',                   'value'=>$bilan?->mode_de_vie                    ?? 'Non renseigné',   'icon'=>'smile'],
+];
+@endphp
                 @foreach($fields as $f)
                 <div>
                     <label class="form-label">
@@ -70,7 +70,7 @@
                     Médicaments actuels
                 </label>
                 <div class="form-control" style="background:var(--surface2);color:var(--text-sec);">
-                    {{ $bilan->medicaments_pris_actuellement ?? 'Aucun' }}
+                    {{ $bilan?->medicaments_pris_actuellement ?? 'Aucun' }}
                 </div>
             </div>
 
@@ -80,7 +80,7 @@
                     Vaccins reçus
                 </label>
                 <textarea class="form-control" rows="4" readonly
-                          style="background:var(--surface2);color:var(--text-sec);resize:none;">{{ $bilan->listez_vaccins_reçus ?? 'Aucun' }}</textarea>
+                          style="background:var(--surface2);color:var(--text-sec);resize:none;">{{ $bilan?->listez_vaccins_reçus ?? 'Aucun' }}</textarea>
             </div>
         </div>
     </div>
