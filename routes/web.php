@@ -276,3 +276,11 @@ Route::prefix('services/equipes')->group(function () {
     Route::put('/{id}', [ServiceEquipeController::class, 'update'])->name('services.equipes.update');
     Route::delete('/{id}', [ServiceEquipeController::class, 'destroy'])->name('services.equipes.destroy');
 });
+
+// Dans la section SERVICES
+Route::get('/services/urgences/stream', [UrgenceController::class, 'stream'])
+    ->name('services.urgences.stream');
+
+// Dans la section EQUIPE
+Route::get('/equipe/affectations/stream', [UrgenceController::class, 'streamAffectations'])
+    ->name('equipe.affectations.stream');

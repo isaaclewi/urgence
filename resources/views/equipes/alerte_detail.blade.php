@@ -27,7 +27,11 @@
     width: 36px; height: 36px; border-radius: 8px;
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
-.info-label { font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; }
+.info-label {
+    font-size: 10.5px; font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: .04em;
+}
 .info-value { font-size: 13.5px; font-weight: 600; color: var(--text); margin-top: 2px; }
 
 #detailMap { height: 480px; border-radius: 0 0 var(--radius) var(--radius); }
@@ -44,6 +48,33 @@
     width: 100%; max-height: 180px; object-fit: cover;
     border-radius: 9px; border: 1px solid var(--border); margin-top: 12px;
 }
+
+/* ── Geocoding status banner ── */
+#geocodingBanner {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 12px 14px;
+    font-size: 12.5px;
+    color: var(--text-sec);
+    margin-bottom: 0;
+}
+#geocodingBanner.show  { display: flex; }
+#geocodingBanner.error { background: #FEF3C7; border-color: #FCD34D; color: #92400E; }
+#geocodingBanner.success { background: #D1FAE5; border-color: #6EE7B7; color: #065F46; }
+
+/* Spinner */
+.geo-spinner {
+    width: 18px; height: 18px; flex-shrink: 0;
+    border: 2.5px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* ── Live distance bar ── */
 #liveBar {
@@ -80,7 +111,6 @@
     50%      { opacity: .4; transform: scale(1.5); }
 }
 
-/* Barre de progression (distance restante visuellement) */
 .lb-progress-wrap {
     background: rgba(255,255,255,.1);
     border-radius: 100px; height: 6px; overflow: hidden; margin-top: 8px;
@@ -93,17 +123,12 @@
 
 .lb-arrived {
     display: none;
-    background: #10B981;
-    color: #fff;
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 13px; font-weight: 700;
-    text-align: center;
-    margin-top: 10px;
+    background: #10B981; color: #fff;
+    border-radius: 8px; padding: 10px 14px;
+    font-size: 13px; font-weight: 700; text-align: center; margin-top: 10px;
 }
 .lb-arrived.show { display: block; }
 
-/* GPS refusé */
 #gpsWarning {
     background: #FEF3C7; border: 1px solid #FCD34D;
     border-radius: 9px; padding: 12px 14px;
@@ -163,9 +188,20 @@
                     <div class="info-icon" style="background:#D1FAE5;"><i data-feather="crosshair" style="stroke:#10B981;"></i></div>
                     <div>
                         <div class="info-label">Coordonnées GPS</div>
-                        <div class="info-value">
+                        <div class="info-value" id="coordsDisplay">
                             {{ number_format($affectation->alerte->latitude, 6) }},
                             {{ number_format($affectation->alerte->longitude, 6) }}
+                        </div>
+                    </div>
+                </div>
+                @else
+                {{-- Pas de coordonnées GPS → sera géocodé --}}
+                <div class="info-row">
+                    <div class="info-icon" style="background:#D1FAE5;"><i data-feather="crosshair" style="stroke:#10B981;"></i></div>
+                    <div>
+                        <div class="info-label">Coordonnées GPS</div>
+                        <div class="info-value" id="coordsDisplay" style="color:var(--text-muted);font-style:italic;">
+                            Géocodage en cours…
                         </div>
                     </div>
                 </div>
@@ -186,7 +222,7 @@
                     <div class="info-icon" style="background:#F1F5F9;"><i data-feather="file-text" style="stroke:#64748B;"></i></div>
                     <div>
                         <div class="info-label">Description</div>
-                        <div class="info-value" style="font-weight:400; line-height:1.6;">
+                        <div class="info-value" style="font-weight:400;line-height:1.6;">
                             {{ $affectation->alerte->description }}
                         </div>
                     </div>
@@ -198,7 +234,7 @@
                     <div class="info-icon" style="background:#FFF7ED;"><i data-feather="message-circle" style="stroke:#F97316;"></i></div>
                     <div>
                         <div class="info-label">Note du service</div>
-                        <div class="info-value" style="font-weight:400; color:var(--text-sec); font-style:italic;">
+                        <div class="info-value" style="font-weight:400;color:var(--text-sec);font-style:italic;">
                             {{ $affectation->commentaire }}
                         </div>
                     </div>
@@ -227,7 +263,7 @@
                         <div class="info-label">Téléphone</div>
                         <div class="info-value">
                             <a href="tel:{{ $affectation->alerte->citoyen->telephone }}"
-                               style="color:var(--accent); text-decoration:none; font-size:15px;">
+                               style="color:var(--accent);text-decoration:none;font-size:15px;">
                                 📞 {{ $affectation->alerte->citoyen->telephone }}
                             </a>
                         </div>
@@ -245,7 +281,7 @@
             <div class="cc-body">
                 <form method="POST" action="{{ route('equipe.affectation.statut', $affectation->id) }}">
                     @csrf
-                    <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Mettre à jour</label>
+                    <label style="font-size:12px;font-weight:600;color:var(--text-muted);">Mettre à jour</label>
                     <select name="statut" class="status-select" onchange="this.form.submit()">
                         <option value="transmise" {{ $affectation->statut === 'transmise' ? 'selected' : '' }}>⏳ En attente</option>
                         <option value="en_cours"  {{ $affectation->statut === 'en_cours'  ? 'selected' : '' }}>🔥 En cours d'intervention</option>
@@ -271,10 +307,17 @@
                     Itinéraire
                 </a>
             </div>
+
+            {{-- Bannière géocodage --}}
+            <div id="geocodingBanner" style="padding:0 16px 12px;">
+                <div class="geo-spinner" id="geoSpinner"></div>
+                <span id="geoText">Géocodage de l'adresse en cours…</span>
+            </div>
+
             <div id="detailMap"></div>
         </div>
 
-        {{-- Barre de distance live --}}
+        {{-- Live distance bar --}}
         <div id="liveBar">
             <div class="lb-header">
                 <div>
@@ -294,11 +337,12 @@
             </div>
         </div>
 
-        {{-- Warning GPS refusé --}}
+        {{-- GPS refusé --}}
         <div id="gpsWarning">
-            <i data-feather="alert-triangle" style="stroke:#D97706; flex-shrink:0; margin-top:1px;"></i>
+            <i data-feather="alert-triangle" style="stroke:#D97706;flex-shrink:0;margin-top:1px;"></i>
             <div>
-                <strong>GPS non disponible.</strong> Activez la géolocalisation dans votre navigateur pour le suivi en temps réel et le calcul de distance.
+                <strong>GPS non disponible.</strong> Activez la géolocalisation dans votre navigateur
+                pour le suivi en temps réel et le calcul de distance.
             </div>
         </div>
 
@@ -307,7 +351,7 @@
         <div class="content-card" style="margin-top:16px;">
             <div class="cc-header"><div class="cc-title"><i data-feather="mic"></i> Message vocal</div></div>
             <div class="cc-body">
-                <audio controls style="width:100%; border-radius:8px;">
+                <audio controls style="width:100%;border-radius:8px;">
                     <source src="{{ asset($affectation->alerte->media_vocal) }}" type="audio/webm">
                 </audio>
             </div>
@@ -321,219 +365,310 @@
 <script>
 feather.replace({ width: 14, height: 14 });
 
-// ── Données urgence (PHP → JS) ──────────────────────────────
-const ALERTE_LAT  = {{ $affectation->alerte?->latitude  ?? 'null' }};
-const ALERTE_LNG  = {{ $affectation->alerte?->longitude ?? 'null' }};
-const ALERTE_TITRE = @json($affectation->alerte?->titre       ?? 'Urgence');
-const ALERTE_LOC   = @json($affectation->alerte?->localisation ?? '');
-const ALERTE_TYPE  = @json($affectation->alerte?->type_alerte  ?? '');
-const CITOYEN_TEL  = @json($affectation->alerte?->citoyen?->telephone ?? '');
-const EQUIPE_NOM   = @json(session('equipe_nom') ?? 'Équipe');
+// ── Données urgence (PHP → JS) ──────────────────────────────────
+let ALERTE_LAT  = {{ $affectation->alerte?->latitude  ?? 'null' }};
+let ALERTE_LNG  = {{ $affectation->alerte?->longitude ?? 'null' }};
+const ALERTE_LOC    = @json($affectation->alerte?->localisation ?? '');
+const ALERTE_TITRE  = @json($affectation->alerte?->titre        ?? 'Urgence');
+const ALERTE_TYPE   = @json($affectation->alerte?->type_alerte  ?? '');
+const CITOYEN_TEL   = @json($affectation->alerte?->citoyen?->telephone ?? '');
+const EQUIPE_NOM    = @json(session('equipe_nom') ?? 'Équipe');
 
-// ── Init carte Leaflet ──────────────────────────────────────
+// ── Init carte ──────────────────────────────────────────────────
 const map = L.map('detailMap');
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     maxZoom: 19
 }).addTo(map);
 
-// ── Icônes ──────────────────────────────────────────────────
+// ── Icônes ──────────────────────────────────────────────────────
 const iconUrgence = L.divIcon({
     className: '',
-    html: `<div style="
-        width:24px; height:24px; background:#EF4444; border-radius:50%;
-        border:3px solid #fff;
-        box-shadow:0 0 0 4px rgba(239,68,68,.35);
-        animation:urgPulse 1.6s infinite;
-    "></div>`,
-    iconSize: [24, 24], iconAnchor: [12, 12]
+    html: `<div style="width:24px;height:24px;background:#EF4444;border-radius:50%;
+        border:3px solid #fff;box-shadow:0 0 0 4px rgba(239,68,68,.35);
+        animation:urgPulse 1.6s infinite;"></div>`,
+    iconSize: [24,24], iconAnchor: [12,12]
 });
-
 const iconEquipe = L.divIcon({
     className: '',
-    html: `<div style="
-        width:20px; height:20px; background:#F97316; border-radius:50%;
-        border:3px solid #fff;
-        box-shadow:0 2px 10px rgba(249,115,22,.7);
-    "></div>`,
-    iconSize: [20, 20], iconAnchor: [10, 10]
+    html: `<div style="width:20px;height:20px;background:#F97316;border-radius:50%;
+        border:3px solid #fff;box-shadow:0 2px 10px rgba(249,115,22,.7);"></div>`,
+    iconSize: [20,20], iconAnchor: [10,10]
 });
 
-// ── Variables globales ───────────────────────────────────────
-let markerAlerte  = null;
-let markerEquipe  = null;
-let polylinePath  = null;
-let labelDist     = null;
-let distanceInitiale = null; // pour la barre de progression
+// ── Variables map ───────────────────────────────────────────────
+let markerAlerte     = null;
+let markerEquipe     = null;
+let polylinePath     = null;
+let labelDist        = null;
+let distanceInitiale = null;
 
-// Distance entre deux LatLng Leaflet (en km)
-function distanceKm(lat1, lng1, lat2, lng2) {
-    return L.latLng(lat1, lng1).distanceTo(L.latLng(lat2, lng2)) / 1000;
+function distanceKm(lat1,lng1,lat2,lng2) {
+    return L.latLng(lat1,lng1).distanceTo(L.latLng(lat2,lng2)) / 1000;
 }
-
-// Formater km en texte lisible
 function formatDist(km) {
-    if (km < 1) return Math.round(km * 1000) + ' m';
-    return km.toFixed(2) + ' km';
+    return km < 1 ? Math.round(km * 1000) + ' m' : km.toFixed(2) + ' km';
 }
 
-// ── Placer le marqueur urgence ───────────────────────────────
-if (ALERTE_LAT && ALERTE_LNG) {
+// ════════════════════════════════════════════════════════════════
+//  GÉOCODAGE Nominatim : adresse → lat/lng
+//  Appelé si ALERTE_LAT est null (pas de coordonnées GPS enregistrées)
+// ════════════════════════════════════════════════════════════════
+async function geocodeAddress(address) {
+    showGeocodingBanner('loading', 'Géocodage de l\'adresse en cours…');
+
+    // Ajouter "Brazzaville, Congo" comme contexte géographique par défaut
+    const query = encodeURIComponent(address + ', Brazzaville, Congo');
+    const url   = `https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1&addressdetails=1`;
+
+    try {
+        const res  = await fetch(url, {
+            headers: {
+                'Accept-Language': 'fr',
+                'User-Agent': 'CongoAssist/1.0'
+            }
+        });
+        const data = await res.json();
+
+        if (data.length === 0) {
+            // 2ème tentative sans "Brazzaville" (au cas où l'adresse est ailleurs)
+            const url2  = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`;
+            const res2  = await fetch(url2, { headers: { 'Accept-Language': 'fr' } });
+            const data2 = await res2.json();
+
+            if (data2.length === 0) {
+                showGeocodingBanner('error', 'Adresse introuvable — carte centrée sur Brazzaville');
+                fallbackBrazzaville();
+                return;
+            }
+            return applyGeocoderResult(data2[0]);
+        }
+
+        applyGeocoderResult(data[0]);
+
+    } catch(e) {
+        showGeocodingBanner('error', 'Erreur de géocodage — vérifiez la connexion');
+        fallbackBrazzaville();
+    }
+}
+
+function applyGeocoderResult(result) {
+    ALERTE_LAT = parseFloat(result.lat);
+    ALERTE_LNG = parseFloat(result.lon);
+
+    // Mettre à jour l'affichage des coordonnées dans le panel gauche
+    const coordsEl = document.getElementById('coordsDisplay');
+    if (coordsEl) {
+        coordsEl.textContent = ALERTE_LAT.toFixed(6) + ', ' + ALERTE_LNG.toFixed(6);
+        coordsEl.style.fontStyle = 'normal';
+        coordsEl.style.color = 'var(--text)';
+    }
+
+    showGeocodingBanner('success',
+        'Adresse géocodée : ' + (result.display_name?.split(',').slice(0,2).join(',') || '')
+    );
+
+    // Maintenant qu'on a les coordonnées, initialiser la carte
+    initMapWithCoords();
+
+    // Masquer la bannière après 4s
+    setTimeout(() => {
+        document.getElementById('geocodingBanner').classList.remove('show');
+    }, 4000);
+}
+
+// ════════════════════════════════════════════════════════════════
+//  INIT CARTE avec coordonnées (GPS ou géocodées)
+// ════════════════════════════════════════════════════════════════
+function initMapWithCoords() {
+    if (!ALERTE_LAT || !ALERTE_LNG) return;
+
+    // Construire le popup citoyen
+    const citoyenBtn = CITOYEN_TEL
+        ? `<a href="tel:${CITOYEN_TEL}" style="display:inline-flex;align-items:center;gap:5px;
+            margin-top:8px;padding:6px 12px;background:#F97316;color:#fff;
+            border-radius:7px;font-size:12px;font-weight:700;text-decoration:none;">
+            📞 Appeler le citoyen</a>`
+        : '';
 
     markerAlerte = L.marker([ALERTE_LAT, ALERTE_LNG], { icon: iconUrgence })
         .addTo(map)
         .bindPopup(`
-            <div style="font-family:'Inter',sans-serif; min-width:190px;">
+            <div style="font-family:'Inter',sans-serif;min-width:190px;">
                 <div style="font-weight:700;color:#EF4444;font-size:13px;margin-bottom:6px;">
                     🚨 ${ALERTE_TITRE}
                 </div>
                 <div style="font-size:12px;color:#475569;margin-bottom:3px;"><b>Type :</b> ${ALERTE_TYPE}</div>
                 <div style="font-size:12px;color:#475569;margin-bottom:3px;"><b>Lieu :</b> ${ALERTE_LOC}</div>
-                ${CITOYEN_TEL ? `
-                <a href="tel:${CITOYEN_TEL}" style="
-                    display:inline-flex;align-items:center;gap:5px;
-                    margin-top:8px;padding:6px 12px;
-                    background:#F97316;color:#fff;
-                    border-radius:7px;font-size:12px;font-weight:700;
-                    text-decoration:none;">
-                    📞 Appeler le citoyen
-                </a>` : ''}
+                ${citoyenBtn}
             </div>
         `);
 
     map.setView([ALERTE_LAT, ALERTE_LNG], 14);
     markerAlerte.openPopup();
-    document.getElementById('mapSubtitle').textContent = 'Urgence localisée — En attente de votre position GPS';
+    document.getElementById('mapSubtitle').textContent =
+        'Urgence localisée — En attente de votre position GPS';
 
-    // ── Suivi GPS en temps réel ──────────────────────────────
-    if (navigator.geolocation) {
+    // Activer le bouton Google Maps (urgence uniquement pour l'instant)
+    document.getElementById('gmapsBtn').href =
+        `https://www.google.com/maps/search/?api=1&query=${ALERTE_LAT},${ALERTE_LNG}`;
+    document.getElementById('gmapsBtn').style.display = 'inline-flex';
+    feather.replace({ width: 14, height: 14 });
 
-        // watchPosition = mise à jour continue (chaque déplacement)
-        navigator.geolocation.watchPosition(
-            function onSuccess(pos) {
-                const eLat = pos.coords.latitude;
-                const eLng = pos.coords.longitude;
-                const distKm = distanceKm(eLat, eLng, ALERTE_LAT, ALERTE_LNG);
+    // Démarrer le suivi GPS équipe
+    startEquipeTracking();
+}
 
-                // ── Marqueur équipe : créer ou déplacer ──
-                if (!markerEquipe) {
-                    markerEquipe = L.marker([eLat, eLng], { icon: iconEquipe })
-                        .addTo(map)
-                        .bindPopup(`
-                            <div style="font-family:'Inter',sans-serif;">
-                                <div style="font-weight:700;color:#F97316;margin-bottom:4px;">📍 ${EQUIPE_NOM}</div>
-                                <div style="font-size:12px;color:#475569;">Votre position en direct</div>
-                            </div>
-                        `);
-
-                    // Distance initiale de référence pour la barre de progression
-                    distanceInitiale = distKm;
-
-                    // Ajuster la vue pour voir les deux points
-                    map.fitBounds(
-                        [[eLat, eLng], [ALERTE_LAT, ALERTE_LNG]],
-                        { padding: [50, 50], maxZoom: 16 }
-                    );
-
-                } else {
-                    // Déplacer le marqueur sans recréer
-                    markerEquipe.setLatLng([eLat, eLng]);
-                }
-
-                // ── Ligne trajet : recréer à chaque mise à jour ──
-                if (polylinePath) map.removeLayer(polylinePath);
-                polylinePath = L.polyline(
-                    [[eLat, eLng], [ALERTE_LAT, ALERTE_LNG]],
-                    { color: '#F97316', weight: 3, dashArray: '8 6', opacity: 0.9 }
-                ).addTo(map);
-
-                // ── Label distance au milieu de la ligne ──
-                if (labelDist) map.removeLayer(labelDist);
-                const midLat = (eLat + ALERTE_LAT) / 2;
-                const midLng = (eLng + ALERTE_LNG) / 2;
-                labelDist = L.marker([midLat, midLng], {
-                    icon: L.divIcon({
-                        className: '',
-                        html: `<div style="
-                            background:#0B1E3D;color:#fff;
-                            padding:4px 10px;border-radius:8px;
-                            font-size:12px;font-weight:700;
-                            font-family:'Inter',sans-serif;
-                            white-space:nowrap;
-                            box-shadow:0 2px 8px rgba(0,0,0,.35);
-                        ">📏 ${formatDist(distKm)}</div>`,
-                        iconAnchor: [42, 12]
-                    })
-                }).addTo(map);
-
-                // ── Barre de distance live ──
-                const liveBar = document.getElementById('liveBar');
-                liveBar.classList.add('show');
-                document.getElementById('lbDist').textContent = formatDist(distKm);
-
-                // Barre de progression : 100% = distance initiale, 0% = arrivé
-                const pct = distanceInitiale > 0
-                    ? Math.max(0, Math.min(100, (distKm / distanceInitiale) * 100))
-                    : 100;
-                document.getElementById('lbBar').style.width = pct + '%';
-
-                // ── Seuil d'arrivée : ≤ 50 mètres ──
-                if (distKm <= 0.05) {
-                    document.getElementById('lbArrived').classList.add('show');
-                    document.getElementById('lbDist').textContent = '🎯 Sur place';
-                    document.getElementById('lbBar').style.width = '0%';
-                } else {
-                    document.getElementById('lbArrived').classList.remove('show');
-                }
-
-                // ── Sous-titre carte ──
-                document.getElementById('mapSubtitle').textContent =
-                    'En direct · ' + EQUIPE_NOM + ' → ' + formatDist(distKm) + ' de l\'urgence';
-
-                // ── Bouton Google Maps (itinéraire dynamique) ──
-                const gmLink = `https://www.google.com/maps/dir/${eLat},${eLng}/${ALERTE_LAT},${ALERTE_LNG}`;
-                const btn = document.getElementById('gmapsBtn');
-                btn.href = gmLink;
-                btn.style.display = 'inline-flex';
-                feather.replace({ width: 14, height: 14 });
-            },
-
-            function onError(err) {
-                // GPS refusé ou indisponible
-                map.setView([ALERTE_LAT, ALERTE_LNG], 14);
-                document.getElementById('mapSubtitle').textContent = 'GPS indisponible — urgence localisée';
-                document.getElementById('gpsWarning').classList.add('show');
-
-                // Bouton Maps centré sur l'urgence uniquement
-                const gmLink = `https://www.google.com/maps/search/?api=1&query=${ALERTE_LAT},${ALERTE_LNG}`;
-                const btn = document.getElementById('gmapsBtn');
-                btn.href  = gmLink;
-                btn.style.display = 'inline-flex';
-                feather.replace({ width: 14, height: 14 });
-            },
-
-            {
-                enableHighAccuracy: true,   // GPS haute précision
-                maximumAge: 5000,           // accepter position vieille de 5s max
-                timeout: 15000             // timeout 15s
-            }
-        );
-
-    } else {
-        // Navigateur sans géolocalisation
-        map.setView([ALERTE_LAT, ALERTE_LNG], 14);
-        document.getElementById('mapSubtitle').textContent = 'Géolocalisation non supportée';
+// ════════════════════════════════════════════════════════════════
+//  SUIVI GPS EN TEMPS RÉEL (watchPosition)
+// ════════════════════════════════════════════════════════════════
+function startEquipeTracking() {
+    if (!navigator.geolocation) {
         document.getElementById('gpsWarning').classList.add('show');
+        return;
     }
 
-} else {
-    // Aucune coordonnée GPS sur l'alerte → carte Brazzaville
+    navigator.geolocation.watchPosition(
+        function onSuccess(pos) {
+            const eLat = pos.coords.latitude;
+            const eLng = pos.coords.longitude;
+            const distKm = distanceKm(eLat, eLng, ALERTE_LAT, ALERTE_LNG);
+
+            // Marqueur équipe
+            if (!markerEquipe) {
+                markerEquipe = L.marker([eLat, eLng], { icon: iconEquipe })
+                    .addTo(map)
+                    .bindPopup(`
+                        <div style="font-family:'Inter',sans-serif;">
+                            <div style="font-weight:700;color:#F97316;margin-bottom:4px;">
+                                📍 ${EQUIPE_NOM}
+                            </div>
+                            <div style="font-size:12px;color:#475569;">Votre position en direct</div>
+                        </div>
+                    `);
+                distanceInitiale = distKm;
+                map.fitBounds([[eLat,eLng],[ALERTE_LAT,ALERTE_LNG]], { padding:[50,50], maxZoom:16 });
+            } else {
+                markerEquipe.setLatLng([eLat, eLng]);
+            }
+
+            // Ligne trajet
+            if (polylinePath) map.removeLayer(polylinePath);
+            polylinePath = L.polyline(
+                [[eLat,eLng],[ALERTE_LAT,ALERTE_LNG]],
+                { color:'#F97316', weight:3, dashArray:'8 6', opacity:.9 }
+            ).addTo(map);
+
+            // Label distance (milieu de ligne)
+            if (labelDist) map.removeLayer(labelDist);
+            const midLat = (eLat + ALERTE_LAT) / 2;
+            const midLng = (eLng + ALERTE_LNG) / 2;
+            labelDist = L.marker([midLat, midLng], {
+                icon: L.divIcon({
+                    className: '',
+                    html: `<div style="background:#0B1E3D;color:#fff;padding:4px 10px;
+                        border-radius:8px;font-size:12px;font-weight:700;
+                        font-family:'Inter',sans-serif;white-space:nowrap;
+                        box-shadow:0 2px 8px rgba(0,0,0,.35);">
+                        📏 ${formatDist(distKm)}</div>`,
+                    iconAnchor: [42,12]
+                })
+            }).addTo(map);
+
+            // Live bar
+            const liveBar = document.getElementById('liveBar');
+            liveBar.classList.add('show');
+            document.getElementById('lbDist').textContent = formatDist(distKm);
+
+            const pct = distanceInitiale > 0
+                ? Math.max(0, Math.min(100, (distKm / distanceInitiale) * 100))
+                : 100;
+            document.getElementById('lbBar').style.width = pct + '%';
+
+            // Arrivé (≤ 50m)
+            if (distKm <= 0.05) {
+                document.getElementById('lbArrived').classList.add('show');
+                document.getElementById('lbDist').textContent = '🎯 Sur place';
+                document.getElementById('lbBar').style.width = '0%';
+            } else {
+                document.getElementById('lbArrived').classList.remove('show');
+            }
+
+            // Sous-titre carte
+            document.getElementById('mapSubtitle').textContent =
+                'En direct · ' + EQUIPE_NOM + ' → ' + formatDist(distKm) + ' de l\'urgence';
+
+            // Bouton Google Maps itinéraire complet
+            const gmLink = `https://www.google.com/maps/dir/${eLat},${eLng}/${ALERTE_LAT},${ALERTE_LNG}`;
+            const btn = document.getElementById('gmapsBtn');
+            btn.href  = gmLink;
+            btn.style.display = 'inline-flex';
+            feather.replace({ width: 14, height: 14 });
+        },
+
+        function onError() {
+            document.getElementById('mapSubtitle').textContent = 'GPS indisponible — urgence localisée';
+            document.getElementById('gpsWarning').classList.add('show');
+            const btn = document.getElementById('gmapsBtn');
+            btn.href  = `https://www.google.com/maps/search/?api=1&query=${ALERTE_LAT},${ALERTE_LNG}`;
+            btn.style.display = 'inline-flex';
+            feather.replace({ width: 14, height: 14 });
+        },
+        {
+            enableHighAccuracy: true,
+            maximumAge: 5000,
+            timeout: 15000
+        }
+    );
+}
+
+// ════════════════════════════════════════════════════════════════
+//  HELPERS bannière géocodage
+// ════════════════════════════════════════════════════════════════
+function showGeocodingBanner(type, text) {
+    const banner   = document.getElementById('geocodingBanner');
+    const spinner  = document.getElementById('geoSpinner');
+    const geoText  = document.getElementById('geoText');
+
+    banner.classList.remove('error','success');
+    banner.classList.add('show');
+    geoText.textContent = text;
+
+    if (type === 'loading') {
+        spinner.style.display = 'block';
+        banner.classList.remove('error','success');
+    } else if (type === 'error') {
+        spinner.style.display = 'none';
+        banner.classList.add('error');
+    } else if (type === 'success') {
+        spinner.style.display = 'none';
+        banner.classList.add('success');
+    }
+}
+
+function fallbackBrazzaville() {
     map.setView([-4.2634, 15.2429], 12);
     L.marker([-4.2634, 15.2429], { icon: iconUrgence })
         .addTo(map)
-        .bindPopup('<b>Brazzaville</b><br>Aucune coordonnée GPS pour cette urgence')
+        .bindPopup('<b>Brazzaville</b><br>Coordonnées GPS introuvables pour cette urgence')
         .openPopup();
-    document.getElementById('mapSubtitle').textContent = 'Aucune coordonnée GPS — localisation textuelle uniquement';
+    document.getElementById('mapSubtitle').textContent = 'Coordonnées introuvables — localisation textuelle : ' + ALERTE_LOC;
+}
+
+// ════════════════════════════════════════════════════════════════
+//  POINT D'ENTRÉE
+// ════════════════════════════════════════════════════════════════
+if (ALERTE_LAT && ALERTE_LNG) {
+    // Coordonnées GPS disponibles directement
+    document.getElementById('geocodingBanner').classList.remove('show');
+    initMapWithCoords();
+} else if (ALERTE_LOC) {
+    // Pas de GPS → géocoder l'adresse textuelle
+    geocodeAddress(ALERTE_LOC);
+} else {
+    // Rien du tout → fallback Brazzaville
+    fallbackBrazzaville();
+    document.getElementById('mapSubtitle').textContent = 'Aucune localisation disponible';
 }
 </script>
 @endpush
