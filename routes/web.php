@@ -51,7 +51,8 @@ use App\Http\Controllers\ActualiteController;
 
 Route::get('/', [RedirectionController::class, 'accueil'])->name('accueil');
 Route::get('/formulaire', [RedirectionController::class, 'formulaire'])->name('formulaire');
-Route::get('/compte', [RedirectionController::class, 'compte'])->name('compte');
+// APRÈS (pointe directement vers le bon contrôleur)
+Route::get('/compte', [compteController::class, 'index'])->name('compte');
 Route::get('/profil', [RedirectionController::class, 'profil'])->name('profil');
 Route::get('/actualites', [RedirectionController::class, 'actualites'])->name('actualites');
 Route::get('/bilanSante', [RedirectionController::class, 'bilanSante'])->name('bilanSante');
