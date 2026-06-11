@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CongoAssist — Services d'urgence</title>
     <link rel="icon" href="medias/Clogo.jpg" type="image/png">
+
+    {{-- PWA Meta --}}
+    <link rel="manifest" href="/manifest-services.json">
+    <meta name="theme-color" content="#0B1E3D">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="CongoAssist">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@600;700&display=swap" rel="stylesheet">
@@ -495,10 +505,7 @@
             color: rgba(255,255,255,0.55);
             padding: 3.5rem 1.5rem 2rem;
         }
-        .footer-inner {
-            max-width: 1140px;
-            margin: 0 auto;
-        }
+        .footer-inner { max-width: 1140px; margin: 0 auto; }
         .footer-top {
             display: grid;
             grid-template-columns: 1.4fr 1fr 1fr 1fr;
@@ -546,6 +553,125 @@
         .social-link svg { width: 15px; height: 15px; fill: none; stroke: rgba(255,255,255,0.55); stroke-width: 2; }
         @media (max-width: 900px) { .footer-top { grid-template-columns: 1fr 1fr; } }
         @media (max-width: 560px) { .footer-top { grid-template-columns: 1fr; } }
+
+        /* ══════════════════════════════════════
+           PWA FAB
+        ══════════════════════════════════════ */
+        #pwa-fab {
+            display: none;
+            position: fixed;
+            bottom: max(1.5rem, env(safe-area-inset-bottom));
+            right: 1.5rem;
+            z-index: 9990;
+            align-items: center;
+            gap: .6rem;
+            background: var(--accent-green);
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            padding: .75rem 1.4rem;
+            border-radius: 100px;
+            border: none;
+            box-shadow: 0 8px 28px rgba(29,184,122,.45);
+            cursor: pointer;
+            transition: transform .2s, box-shadow .2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        #pwa-fab.visible { display: flex; }
+        #pwa-fab:hover   { transform: translateY(-3px); box-shadow: 0 14px 36px rgba(29,184,122,.55); }
+        #pwa-fab:active  { transform: scale(.97); }
+        #pwa-fab svg {
+            width: 16px; height: 16px;
+            fill: none; stroke: currentColor;
+            stroke-width: 2.5;
+            stroke-linecap: round; stroke-linejoin: round;
+        }
+
+        /* ══════════════════════════════════════
+           PWA Modal overlay
+        ══════════════════════════════════════ */
+        #pwa-modal-overlay {
+            display: none;
+            position: fixed; inset: 0; z-index: 9995;
+            background: rgba(0,0,0,.55);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            align-items: flex-end;
+            justify-content: center;
+            padding: 1rem;
+        }
+        #pwa-modal-overlay.open { display: flex; }
+
+        #pwa-modal-box {
+            background: var(--white);
+            border-radius: 24px 24px 0 0;
+            padding: 2rem 1.8rem max(2rem, env(safe-area-inset-bottom));
+            width: 100%; max-width: 480px;
+        }
+        #pwa-modal-handle {
+            width: 36px; height: 4px;
+            background: var(--border); border-radius: 2px;
+            margin: 0 auto 1.4rem;
+        }
+        #pwa-modal-header {
+            display: flex; align-items: center;
+            gap: 12px; margin-bottom: .75rem;
+        }
+        #pwa-modal-app-icon {
+            width: 44px; height: 44px; border-radius: 12px;
+            background: var(--brand-dark);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        #pwa-modal-app-icon svg {
+            width: 22px; height: 22px;
+            fill: none; stroke: var(--accent-green); stroke-width: 2;
+        }
+        #pwa-modal-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1rem; font-weight: 700;
+            color: var(--brand-dark);
+        }
+        #pwa-modal-body {
+            font-size: .85rem; color: var(--text-secondary);
+            line-height: 1.7; margin-bottom: 1.2rem;
+        }
+        .pwa-chip {
+            display: inline-block;
+            background: #ecfdf5; color: #065f46;
+            border-radius: 6px; padding: .08rem .5rem;
+            font-weight: 700; font-size: .8rem;
+        }
+        #pwa-modal-steps {
+            display: flex; flex-direction: column;
+            gap: .6rem; margin-bottom: 1.4rem;
+        }
+        .pwa-step {
+            display: flex; align-items: flex-start;
+            gap: 10px; font-size: .82rem; color: var(--text-secondary);
+        }
+        .pwa-step-num {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: var(--accent-green); color: var(--white);
+            font-size: .62rem; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; margin-top: 1px;
+        }
+        #pwa-modal-close {
+            display: block; width: 100%;
+            background: var(--brand-dark); color: var(--white);
+            font-family: 'Inter', sans-serif;
+            font-weight: 700; font-size: .78rem;
+            letter-spacing: .08em; text-transform: uppercase;
+            padding: .9rem; border-radius: 100px;
+            border: none; cursor: pointer;
+            transition: background .2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        #pwa-modal-close:hover { background: var(--brand-mid); }
     </style>
 </head>
 
@@ -681,9 +807,7 @@
                 <div class="service-card-icon icon-red">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
                 </div>
-                <div>
-                    <h3>Urgence médicale</h3>
-                </div>
+                <div><h3>Urgence médicale</h3></div>
                 <p>Localisez les hôpitaux les plus proches et signalez une urgence médicale en temps réel pour une intervention rapide.</p>
                 <a href="#" class="service-link">
                     En savoir plus
@@ -696,9 +820,7 @@
                 <div class="service-card-icon icon-blue">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                 </div>
-                <div>
-                    <h3>Sécurité publique</h3>
-                </div>
+                <div><h3>Sécurité publique</h3></div>
                 <p>Signalez les incidents, collaborez avec les forces de l'ordre et contribuez à un environnement plus sûr pour tous.</p>
                 <a href="#" class="service-link">
                     En savoir plus
@@ -711,9 +833,7 @@
                 <div class="service-card-icon icon-purple">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 3l4 4m10 10l4 4M9.5 9.5l5 5M7.5 7.5l9 9m-9-9L4 4m12 12 4 4M12 8v8m-4-4h8"/></svg>
                 </div>
-                <div>
-                    <h3>Vaccination</h3>
-                </div>
+                <div><h3>Vaccination</h3></div>
                 <p>Suivez le calendrier vaccinal de votre famille, recevez des rappels et accédez aux centres de vaccination.</p>
                 <a href="#" class="service-link">
                     En savoir plus
@@ -726,9 +846,7 @@
                 <div class="service-card-icon icon-orange">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                 </div>
-                <div>
-                    <h3>Urgence urbaine</h3>
-                </div>
+                <div><h3>Urgence urbaine</h3></div>
                 <p>Signalez les routes dégradées, les inondations ou tout autre problème d'infrastructure pour améliorer votre cadre de vie.</p>
                 <a href="#" class="service-link">
                     En savoir plus
@@ -741,9 +859,7 @@
                 <div class="service-card-icon icon-amber">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                 </div>
-                <div>
-                    <h3>Pannes électriques</h3>
-                </div>
+                <div><h3>Pannes électriques</h3></div>
                 <p>Signalez les pannes de courant dans votre quartier et suivez l'avancement des réparations en temps réel.</p>
                 <a href="#" class="service-link">
                     En savoir plus
@@ -756,9 +872,7 @@
                 <div class="service-card-icon icon-green">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
                 </div>
-                <div>
-                    <h3>Alertes & actualités</h3>
-                </div>
+                <div><h3>Alertes & actualités</h3></div>
                 <p>Restez informé des alertes sanitaires, des épidémies et des informations importantes pour votre région.</p>
                 <a href="#" class="service-link">
                     En savoir plus
@@ -834,16 +948,179 @@
     </div>
 </footer>
 
+
+<!-- ══════════════════════════════════════════════
+     PWA — Bouton flottant d'installation
+══════════════════════════════════════════════ -->
+<button id="pwa-fab" aria-label="Installer l'application">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+    </svg>
+    Installer l'app
+</button>
+
+<!-- ══════════════════════════════════════════════
+     PWA — Modal d'installation (bottom sheet)
+══════════════════════════════════════════════ -->
+<div id="pwa-modal-overlay">
+    <div id="pwa-modal-box">
+        <div id="pwa-modal-handle"></div>
+        <div id="pwa-modal-header">
+            <div id="pwa-modal-app-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+            </div>
+            <div id="pwa-modal-title"></div>
+        </div>
+        <div id="pwa-modal-body"></div>
+        <div id="pwa-modal-steps"></div>
+        <button id="pwa-modal-close">Fermer</button>
+    </div>
+</div>
+
+
 <script>
+    // ── Mobile menu burger ──
     const burger = document.getElementById('burger-btn');
     const mobileNav = document.getElementById('mobile-nav');
     burger.addEventListener('click', () => {
         mobileNav.classList.toggle('open');
     });
-    // Close mobile menu on link click
     mobileNav.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', () => mobileNav.classList.remove('open'));
     });
+</script>
+
+<!-- ══ PWA Script ══ -->
+<script>
+(function () {
+
+    /* ── Service Worker ── */
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                .then(reg  => console.log('[SW] enregistré :', reg.scope))
+                .catch(err => console.warn('[SW] erreur :', err));
+        });
+    }
+
+    /* ── Ne pas afficher si déjà installée ── */
+    const isStandalone = window.navigator.standalone === true
+        || window.matchMedia('(display-mode: standalone)').matches
+        || window.matchMedia('(display-mode: fullscreen)').matches;
+    if (isStandalone) return;
+
+    /* ── Détection plateforme ── */
+    const ua        = navigator.userAgent.toLowerCase();
+    const isIOS     = /iphone|ipad|ipod/.test(ua);
+    const isAndroid = /android/.test(ua);
+    const isSamsung = /samsungbrowser/.test(ua);
+
+    /* ── Éléments DOM ── */
+    const fab      = document.getElementById('pwa-fab');
+    const overlay  = document.getElementById('pwa-modal-overlay');
+    const title    = document.getElementById('pwa-modal-title');
+    const body     = document.getElementById('pwa-modal-body');
+    const steps    = document.getElementById('pwa-modal-steps');
+    const closeBtn = document.getElementById('pwa-modal-close');
+
+    let deferredPrompt = null;
+
+    /* ── Chrome / Edge / Android : prompt natif ── */
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        fab.classList.add('visible');
+    });
+
+    /* ── iOS Safari ── */
+    if (isIOS) {
+        fab.classList.add('visible');
+    }
+
+    /* ── Masquer après installation ── */
+    window.addEventListener('appinstalled', () => {
+        fab.classList.remove('visible');
+        deferredPrompt = null;
+    });
+
+    /* ── Clic sur le FAB ── */
+    fab.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            try {
+                await deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') fab.classList.remove('visible');
+            } catch {
+                showGuide();
+            }
+            deferredPrompt = null;
+        } else {
+            showGuide();
+        }
+    });
+
+    /* ── Étapes numérotées ── */
+    function makeSteps(list) {
+        return list.map((s, i) =>
+            `<div class="pwa-step">
+                <span class="pwa-step-num">${i + 1}</span>
+                <span>${s}</span>
+            </div>`
+        ).join('');
+    }
+
+    /* ── Guide manuel selon plateforme ── */
+    function showGuide() {
+        body.innerHTML = '';
+
+        if (isIOS) {
+            title.textContent = 'Installer sur iPhone / iPad';
+            steps.innerHTML = makeSteps([
+                'Ouvrez ce site dans <strong>Safari</strong>',
+                'Appuyez sur <span class="pwa-chip">⎙ Partager</span> en bas de l\'écran',
+                'Sélectionnez <span class="pwa-chip">Sur l\'écran d\'accueil</span>',
+                'Appuyez sur <span class="pwa-chip">Ajouter</span> pour confirmer'
+            ]);
+        } else if (isSamsung) {
+            title.textContent = 'Installer sur Samsung';
+            steps.innerHTML = makeSteps([
+                'Ouvrez ce site dans <strong>Samsung Internet</strong>',
+                'Appuyez sur <span class="pwa-chip">⋮ Menu</span> en bas de l\'écran',
+                'Sélectionnez <span class="pwa-chip">Ajouter page à</span>',
+                'Choisissez <span class="pwa-chip">Écran d\'accueil</span>'
+            ]);
+        } else if (isAndroid) {
+            title.textContent = 'Installer sur Android';
+            steps.innerHTML = makeSteps([
+                'Ouvrez ce site dans <strong>Chrome</strong>',
+                'Appuyez sur le menu <span class="pwa-chip">⋮</span> en haut à droite',
+                'Sélectionnez <span class="pwa-chip">Installer l\'application</span>',
+                'Confirmez en appuyant sur <span class="pwa-chip">Installer</span>'
+            ]);
+        } else {
+            title.textContent = 'Installer CongoAssist';
+            steps.innerHTML = makeSteps([
+                'Ouvrez ce site dans <strong>Chrome</strong> ou <strong>Edge</strong>',
+                'Cliquez sur l\'icône <span class="pwa-chip">⊕</span> dans la barre d\'adresse',
+                'Ou menu <span class="pwa-chip">⋮</span> → <span class="pwa-chip">Installer l\'application</span>',
+                'Confirmez l\'installation'
+            ]);
+        }
+
+        overlay.classList.add('open');
+    }
+
+    /* ── Fermeture ── */
+    closeBtn.addEventListener('click', () => overlay.classList.remove('open'));
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.classList.remove('open');
+    });
+
+})();
 </script>
 
 </body>
