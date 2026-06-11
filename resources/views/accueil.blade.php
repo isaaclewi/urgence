@@ -58,7 +58,6 @@
             box-shadow: 0 16px 40px rgba(0,0,0,.09);
             border-color: #10b981;
         }
-
         .hero-card {
             transition: transform .3s ease, box-shadow .3s ease;
         }
@@ -112,47 +111,6 @@
         .stat-item { border-right: 1px solid #e5e7eb; }
         .stat-item:last-child { border-right: none; }
 
-        /* ── PWA FAB ── */
-        #pwa-fab {
-            display: none;
-            position: fixed;
-            bottom: max(1.5rem, env(safe-area-inset-bottom));
-            right: 1.5rem;
-            z-index: 9990;
-            align-items: center;
-            gap: .6rem;
-            background: #10b981;
-            color: #fff;
-            font-size: .75rem;
-            font-weight: 700;
-            letter-spacing: .06em;
-            text-transform: uppercase;
-            padding: .85rem 1.5rem;
-            border-radius: 100px;
-            border: none;
-            box-shadow: 0 6px 24px rgba(16,185,129,.45);
-            cursor: pointer;
-            transition: transform .2s, box-shadow .2s;
-        }
-        #pwa-fab:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(16,185,129,.55); }
-
-        /* ── PWA Modal ── */
-        #pwa-modal-overlay {
-            display: none;
-            position: fixed; inset: 0; z-index: 9995;
-            background: rgba(0,0,0,.5);
-            backdrop-filter: blur(6px);
-            align-items: flex-end;
-            justify-content: center;
-            padding: 1rem;
-        }
-        #pwa-modal-box {
-            background: #fff;
-            border-radius: 20px 20px 0 0;
-            padding: 2rem 1.8rem max(2rem, env(safe-area-inset-bottom));
-            width: 100%; max-width: 480px;
-        }
-
         /* ── Urgence badge ── */
         .urgence-badge {
             position: absolute; top: 14px; left: 14px; z-index: 20;
@@ -177,6 +135,124 @@
             display: flex; align-items: center; justify-content: center;
             margin-bottom: 14px;
         }
+
+        /* ══════════════════════════════════════
+           PWA FAB
+        ══════════════════════════════════════ */
+        #pwa-fab {
+            display: none;
+            position: fixed;
+            bottom: max(1.5rem, env(safe-area-inset-bottom));
+            right: 1.5rem;
+            z-index: 9990;
+            align-items: center;
+            gap: .6rem;
+            background: #10b981;
+            color: #fff;
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            padding: .75rem 1.4rem;
+            border-radius: 100px;
+            border: none;
+            box-shadow: 0 8px 28px rgba(16,185,129,.45);
+            cursor: pointer;
+            transition: transform .2s, box-shadow .2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        #pwa-fab.visible { display: flex; }
+        #pwa-fab:hover   { transform: translateY(-3px); box-shadow: 0 14px 36px rgba(16,185,129,.55); }
+        #pwa-fab:active  { transform: scale(.97); }
+
+        /* ══════════════════════════════════════
+           PWA Modal overlay
+        ══════════════════════════════════════ */
+        #pwa-modal-overlay {
+            display: none;
+            position: fixed; inset: 0; z-index: 9995;
+            background: rgba(0,0,0,.55);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            align-items: flex-end;
+            justify-content: center;
+            padding: 1rem;
+        }
+        #pwa-modal-overlay.open { display: flex; }
+
+        /* Modal box */
+        #pwa-modal-box {
+            background: #fff;
+            border-radius: 24px 24px 0 0;
+            padding: 2rem 1.8rem max(2rem, env(safe-area-inset-bottom));
+            width: 100%; max-width: 480px;
+        }
+
+        /* Poignée */
+        #pwa-modal-handle {
+            width: 36px; height: 4px;
+            background: #e5e7eb; border-radius: 2px;
+            margin: 0 auto 1.4rem;
+        }
+
+        /* En-tête modal */
+        #pwa-modal-header {
+            display: flex; align-items: center;
+            gap: 12px; margin-bottom: .75rem;
+        }
+        #pwa-modal-app-icon {
+            width: 44px; height: 44px; border-radius: 12px;
+            background: #10b981;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        #pwa-modal-title {
+            font-size: 1rem; font-weight: 800; color: #0f172a;
+        }
+
+        /* Corps modal */
+        #pwa-modal-body {
+            font-size: .85rem; color: #64748b;
+            line-height: 1.7; margin-bottom: 1.2rem;
+        }
+
+        /* Chips inline */
+        .pwa-chip {
+            display: inline-block;
+            background: #ecfdf5; color: #065f46;
+            border-radius: 6px; padding: .08rem .5rem;
+            font-weight: 700; font-size: .8rem;
+        }
+
+        /* Étapes numérotées */
+        #pwa-modal-steps {
+            display: flex; flex-direction: column;
+            gap: .6rem; margin-bottom: 1.4rem;
+        }
+        .pwa-step {
+            display: flex; align-items: flex-start;
+            gap: 10px; font-size: .82rem; color: #475569;
+        }
+        .pwa-step-num {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: #10b981; color: #fff;
+            font-size: .62rem; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; margin-top: 1px;
+        }
+
+        /* Bouton fermer */
+        #pwa-modal-close {
+            display: block; width: 100%;
+            background: #10b981; color: #fff;
+            font-weight: 700; font-size: .78rem;
+            letter-spacing: .08em; text-transform: uppercase;
+            padding: .9rem; border-radius: 100px;
+            border: none; cursor: pointer;
+            transition: background .2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        #pwa-modal-close:hover { background: #059669; }
     </style>
 </head>
 
@@ -703,26 +779,33 @@
         </div>
     </footer>
 
-    {{-- ══ PWA Install FAB ══ --}}
+    {{-- ══════════════════════════════════════════════
+         PWA — Bouton flottant d'installation
+    ══════════════════════════════════════════════ --}}
     <button id="pwa-fab" aria-label="Installer l'application">
-        <i data-feather="download" class="w-4 h-4"></i> Installer l'app
+        <i data-feather="download" class="w-4 h-4"></i>
+        Installer l'app
     </button>
 
-    {{-- ══ PWA Install Modal ══ --}}
+    {{-- ══════════════════════════════════════════════
+         PWA — Modal d'installation (bottom sheet)
+    ══════════════════════════════════════════════ --}}
     <div id="pwa-modal-overlay">
         <div id="pwa-modal-box">
-            <h3 id="pwa-modal-title" style="font-size:1rem;font-weight:800;color:#0f172a;margin-bottom:.75rem;"></h3>
-            <p  id="pwa-modal-body"  style="font-size:.85rem;color:#64748b;line-height:1.7;"></p>
-            <button id="pwa-modal-close" style="
-                display:block; width:100%; margin-top:1.5rem;
-                background:#10b981; color:#fff;
-                font-weight:700; font-size:.78rem; letter-spacing:.08em; text-transform:uppercase;
-                padding:.85rem; border-radius:100px; border:none; cursor:pointer;">
-                Fermer
-            </button>
+            <div id="pwa-modal-handle"></div>
+            <div id="pwa-modal-header">
+                <div id="pwa-modal-app-icon">
+                    <i data-feather="shield" style="color:#fff;width:22px;height:22px;"></i>
+                </div>
+                <div id="pwa-modal-title"></div>
+            </div>
+            <div id="pwa-modal-body"></div>
+            <div id="pwa-modal-steps"></div>
+            <button id="pwa-modal-close">Fermer</button>
         </div>
     </div>
 
+    {{-- ══ Scripts principaux ══ --}}
     <script>
         feather.replace();
 
@@ -785,6 +868,8 @@
     {{-- ══ PWA Script ══ --}}
     <script>
     (function () {
+
+        /* ── Service Worker ── */
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js', { scope: '/' })
@@ -793,66 +878,121 @@
             });
         }
 
+        /* ── Ne pas afficher si déjà installée ── */
         const isStandalone = window.navigator.standalone === true
-            || window.matchMedia('(display-mode: standalone)').matches;
+            || window.matchMedia('(display-mode: standalone)').matches
+            || window.matchMedia('(display-mode: fullscreen)').matches;
         if (isStandalone) return;
 
+        /* ── Détection plateforme ── */
         const ua        = navigator.userAgent.toLowerCase();
         const isIOS     = /iphone|ipad|ipod/.test(ua);
         const isAndroid = /android/.test(ua);
         const isSamsung = /samsungbrowser/.test(ua);
 
-        const fab     = document.getElementById('pwa-fab');
-        const overlay = document.getElementById('pwa-modal-overlay');
-        const title   = document.getElementById('pwa-modal-title');
-        const body    = document.getElementById('pwa-modal-body');
-        const closeBtn= document.getElementById('pwa-modal-close');
+        /* ── Éléments DOM ── */
+        const fab      = document.getElementById('pwa-fab');
+        const overlay  = document.getElementById('pwa-modal-overlay');
+        const title    = document.getElementById('pwa-modal-title');
+        const body     = document.getElementById('pwa-modal-body');
+        const steps    = document.getElementById('pwa-modal-steps');
+        const closeBtn = document.getElementById('pwa-modal-close');
 
         let deferredPrompt = null;
 
+        /* ── Chrome / Edge / Android : prompt natif disponible ── */
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            fab.style.display = 'flex';
+            fab.classList.add('visible');
+            feather.replace();
         });
 
-        if (isIOS) fab.style.display = 'flex';
+        /* ── iOS Safari : pas de beforeinstallprompt, on affiche quand même ── */
+        if (isIOS) {
+            fab.classList.add('visible');
+            feather.replace();
+        }
 
+        /* ── Masquer après installation ── */
         window.addEventListener('appinstalled', () => {
-            fab.style.display = 'none';
-            deferredPrompt    = null;
+            fab.classList.remove('visible');
+            deferredPrompt = null;
         });
 
+        /* ── Clic sur le FAB ── */
         fab.addEventListener('click', async () => {
             if (deferredPrompt) {
                 try {
                     await deferredPrompt.prompt();
                     const { outcome } = await deferredPrompt.userChoice;
-                    if (outcome === 'accepted') fab.style.display = 'none';
-                } catch { showGuide(); }
+                    if (outcome === 'accepted') fab.classList.remove('visible');
+                } catch {
+                    showGuide();
+                }
                 deferredPrompt = null;
-            } else { showGuide(); }
+            } else {
+                showGuide();
+            }
         });
 
-        function showGuide() {
-            if (isIOS) {
-                title.textContent = 'Installer sur iPhone / iPad';
-                body.innerHTML    = 'Dans <strong>Safari</strong>, appuyez sur <strong>⎙ Partager</strong> en bas, puis <strong>Sur l\'écran d\'accueil</strong>.';
-            } else if (isSamsung) {
-                title.textContent = 'Installer sur Samsung';
-                body.innerHTML    = 'Dans <strong>Samsung Internet</strong>, menu <strong>⋮</strong> → <strong>Ajouter page à</strong> → <strong>Écran d\'accueil</strong>.';
-            } else if (isAndroid) {
-                title.textContent = 'Installer sur Android';
-                body.innerHTML    = 'Dans <strong>Chrome</strong>, menu <strong>⋮</strong> → <strong>Installer l\'application</strong>.';
-            } else {
-                title.textContent = 'Installer CongoAssist';
-                body.innerHTML    = 'Dans <strong>Chrome</strong> ou <strong>Edge</strong>, cliquez sur l\'icône <strong>⊕</strong> dans la barre d\'adresse.';
-            }
-            overlay.style.display = 'flex';
+        /* ── Construction des étapes numérotées ── */
+        function makeSteps(list) {
+            return list.map((s, i) =>
+                `<div class="pwa-step">
+                    <span class="pwa-step-num">${i + 1}</span>
+                    <span>${s}</span>
+                </div>`
+            ).join('');
         }
 
-        closeBtn.addEventListener('click',  () => overlay.style.display = 'none');
-        overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.style.display = 'none'; });
+        /* ── Guide manuel selon plateforme ── */
+        function showGuide() {
+            body.innerHTML = '';
+
+            if (isIOS) {
+                title.textContent = 'Installer sur iPhone / iPad';
+                steps.innerHTML = makeSteps([
+                    'Ouvrez ce site dans <strong>Safari</strong>',
+                    'Appuyez sur <span class="pwa-chip">⎙ Partager</span> en bas de l\'écran',
+                    'Sélectionnez <span class="pwa-chip">Sur l\'écran d\'accueil</span>',
+                    'Appuyez sur <span class="pwa-chip">Ajouter</span> pour confirmer'
+                ]);
+            } else if (isSamsung) {
+                title.textContent = 'Installer sur Samsung';
+                steps.innerHTML = makeSteps([
+                    'Ouvrez ce site dans <strong>Samsung Internet</strong>',
+                    'Appuyez sur <span class="pwa-chip">⋮ Menu</span> en bas de l\'écran',
+                    'Sélectionnez <span class="pwa-chip">Ajouter page à</span>',
+                    'Choisissez <span class="pwa-chip">Écran d\'accueil</span>'
+                ]);
+            } else if (isAndroid) {
+                title.textContent = 'Installer sur Android';
+                steps.innerHTML = makeSteps([
+                    'Ouvrez ce site dans <strong>Chrome</strong>',
+                    'Appuyez sur le menu <span class="pwa-chip">⋮</span> en haut à droite',
+                    'Sélectionnez <span class="pwa-chip">Installer l\'application</span>',
+                    'Confirmez en appuyant sur <span class="pwa-chip">Installer</span>'
+                ]);
+            } else {
+                title.textContent = 'Installer CongoAssist';
+                steps.innerHTML = makeSteps([
+                    'Ouvrez ce site dans <strong>Chrome</strong> ou <strong>Edge</strong>',
+                    'Cliquez sur l\'icône <span class="pwa-chip">⊕</span> dans la barre d\'adresse',
+                    'Ou menu <span class="pwa-chip">⋮</span> → <span class="pwa-chip">Installer l\'application</span>',
+                    'Confirmez l\'installation'
+                ]);
+            }
+
+            overlay.classList.add('open');
+        }
+
+        /* ── Fermeture de la modal ── */
+        closeBtn.addEventListener('click', () => overlay.classList.remove('open'));
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) overlay.classList.remove('open');
+        });
+
     })();
     </script>
 
