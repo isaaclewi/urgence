@@ -59,124 +59,165 @@
         h3 { font-size: 1.05rem; font-weight: 600; color: var(--brand-dark); }
 
         /* ── HEADER ── */
-        header {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: rgba(255,255,255,0.96);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border);
-        }
-        .nav-inner {
-            max-width: 1140px;
-            margin: 0 auto;
-            padding: 0 1.5rem;
-            height: 64px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-        .logo-mark {
-            width: 38px;
-            height: 38px;
-            background: var(--brand-dark);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        .logo-mark span {
-            font-family: 'Sora', sans-serif;
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--accent-green);
-        }
-        .logo-text {
-            font-family: 'Sora', sans-serif;
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: var(--brand-dark);
-        }
-        .logo-text em { font-style: normal; color: var(--accent-green); }
+        /* ── HEADER ── */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255,255,255,0.96);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+}
+.nav-inner {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+.logo-mark {
+    width: 34px;
+    height: 34px;
+    background: var(--brand-dark);
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.logo-mark span {
+    font-family: 'Sora', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent-green);
+}
+.logo-text {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--brand-dark);
+}
+.logo-text em { font-style: normal; color: var(--accent-green); }
 
-        nav.desktop-nav { display: flex; align-items: center; gap: 2rem; }
-        nav.desktop-nav a {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-        nav.desktop-nav a:hover { color: var(--brand-dark); }
+nav.desktop-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+nav.desktop-nav a {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+}
+nav.desktop-nav a:hover { color: var(--brand-dark); }
 
-        .btn-primary {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: var(--brand-dark);
-            color: var(--white);
-            padding: 0.55rem 1.2rem;
-            border-radius: 8px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            text-decoration: none;
-            transition: background 0.2s, transform 0.15s;
-            white-space: nowrap;
-        }
-        .btn-primary:hover { background: var(--brand-mid); }
-        .btn-primary:active { transform: scale(0.98); }
+/* Bouton connexion header */
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
 
-        .btn-outline {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: transparent;
-            color: var(--brand-dark);
-            padding: 0.55rem 1.2rem;
-            border-radius: 8px;
-            border: 1.5px solid var(--border);
-            font-size: 0.875rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            transition: border-color 0.2s, background 0.2s;
-        }
-        .btn-outline:hover { border-color: var(--brand-dark); background: var(--surface); }
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--brand-dark);
+    color: var(--white);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.15s;
+    white-space: nowrap;
+}
+.btn-primary:hover { background: var(--brand-mid); }
+.btn-primary:active { transform: scale(0.98); }
 
-        /* Mobile menu */
-        .burger { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
-        .burger svg { width: 24px; height: 24px; stroke: var(--brand-dark); stroke-width: 2; fill: none; }
-        #mobile-nav {
-            display: none;
-            background: var(--white);
-            border-top: 1px solid var(--border);
-            padding: 1rem 1.5rem 1.5rem;
-        }
-        #mobile-nav.open { display: block; }
-        #mobile-nav a {
-            display: block;
-            padding: 0.65rem 0;
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-            text-decoration: none;
-            border-bottom: 1px solid var(--surface2);
-        }
-        #mobile-nav .btn-primary { margin-top: 1rem; width: 100%; justify-content: center; }
+/* Burger */
+.burger {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 8px;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+.burger:hover { background: var(--surface); }
+.burger svg {
+    width: 22px; height: 22px;
+    stroke: var(--brand-dark);
+    stroke-width: 2;
+    fill: none;
+    display: block;
+}
 
-        @media (max-width: 768px) {
-            .desktop-nav { display: none; }
-            .burger { display: block; }
-        }
+/* Mobile nav */
+#mobile-nav {
+    display: none;
+    background: var(--white);
+    border-top: 1px solid var(--border);
+    padding: 0.75rem 1rem 1.25rem;
+}
+#mobile-nav.open { display: block; }
+#mobile-nav a {
+    display: flex;
+    align-items: center;
+    padding: 0.7rem 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-bottom: 1px solid var(--surface2);
+    transition: color 0.2s;
+}
+#mobile-nav a:hover { color: var(--brand-dark); }
+#mobile-nav a:last-of-type { border-bottom: none; }
+#mobile-nav .btn-primary {
+    margin-top: 1rem;
+    width: 100%;
+    justify-content: center;
+    padding: 0.7rem 1rem;
+    font-size: 0.9rem;
+    border-radius: 10px;
+}
+
+/* ── Breakpoints ── */
+
+/* Tablette : masquer les liens nav, garder le bouton connexion */
+@media (max-width: 900px) {
+    nav.desktop-nav { display: none; }
+    .burger { display: block; }
+}
+
+/* Mobile : réduire encore le logo */
+@media (max-width: 400px) {
+    .logo-text { font-size: 0.95rem; }
+    .logo-mark { width: 30px; height: 30px; }
+    .logo-mark span { font-size: 14px; }
+    .nav-inner { padding: 0 0.75rem; height: 56px; }
+    .btn-primary { padding: 0.45rem 0.85rem; font-size: 0.78rem; }
+    .btn-primary svg { display: none; } /* masquer la flèche sur très petit */
+}
 
         /* ── HERO ── */
         .hero {
@@ -693,11 +734,11 @@
             <a href="#electricite">Électricité</a>
         </nav>
 
-        <div style="display:flex;align-items:center;gap:10px;">
-            <a href="{{ route('services.login') }}" class="btn-outline" style="display:none;" id="btn-login-desktop">Connexion</a>
+        {{-- ← remplacez l'ancienne div style="display:flex..." par celle-ci --}}
+        <div class="nav-actions">
             <a href="{{ route('services.login') }}" class="btn-primary">
                 Connexion
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </a>
             <button class="burger" id="burger-btn" aria-label="Menu">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
