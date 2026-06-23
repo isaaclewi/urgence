@@ -55,7 +55,7 @@ class profilController extends Controller
             $citoyen->password = Hash::make($validated['password']);
         }
 
-        // ✅ Upload photo vers Supabase Storage
+        // Upload photo vers Supabase Storage
         if ($request->hasFile('photo')) {
             $file     = $request->file('photo');
             $filename = time() . '_' . $file->getClientOriginalName();

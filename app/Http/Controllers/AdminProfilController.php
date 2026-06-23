@@ -66,7 +66,7 @@ class AdminProfilController extends Controller
             $admin->mot_passe = Hash::make($validated['mot_passe']);
         }
 
-        // ✅ Upload photo vers Supabase Storage
+        // Upload photo vers Supabase Storage
         if ($request->hasFile('photo')) {
             $file = $request->file('photo');
 

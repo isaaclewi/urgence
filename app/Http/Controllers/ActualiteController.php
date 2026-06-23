@@ -78,7 +78,7 @@ class ActualiteController extends Controller
 
         if ($request->hasFile('url_media')) {
 
-            // ✅ Supprimer ancien fichier sur Supabase
+            // Supprimer ancien fichier sur Supabase
             if ($actualite->url_media) {
                 Storage::disk('supabase')->delete('actualites/' . basename($actualite->url_media));
             }
@@ -86,7 +86,7 @@ class ActualiteController extends Controller
             $file     = $request->file('url_media');
             $filename = time() . '_' . $file->getClientOriginalName();
 
-            // ✅ Upload vers Supabase
+            //Upload vers Supabase
             Storage::disk('supabase')->putFileAs('actualites', $file, $filename);
 
             $actualite->url_media  = env('SUPABASE_PUBLIC_URL') . '/actualites/' . $filename;
@@ -108,7 +108,7 @@ class ActualiteController extends Controller
 
         $actualite = Actualite::findOrFail($id);
 
-        // ✅ Supprimer sur Supabase
+        //Supprimer sur Supabase
         if ($actualite->url_media) {
             Storage::disk('supabase')->delete('actualites/' . basename($actualite->url_media));
         }

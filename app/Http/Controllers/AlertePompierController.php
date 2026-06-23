@@ -31,7 +31,7 @@ class AlertePompierController extends Controller
             'media_vocal' => 'nullable|string',
         ]);
 
-        // ✅ Gestion photo vers Supabase
+        // Gestion photo vers Supabase
         $photoPath = null;
         if ($request->hasFile('media_photo')) {
             $file     = $request->file('media_photo');
@@ -42,7 +42,7 @@ class AlertePompierController extends Controller
             $photoPath = env('SUPABASE_PUBLIC_URL') . '/alertes/photos/' . $filename;
         }
 
-        // ✅ Gestion vocal base64 vers Supabase
+        // Gestion vocal base64 vers Supabase
         $vocalPath = null;
         if ($request->media_vocal) {
             $data         = preg_replace('/^data:audio\/\w+;base64,/', '', $request->media_vocal);

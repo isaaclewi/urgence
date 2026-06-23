@@ -18,7 +18,7 @@ class RedirectionController extends Controller
     //
     public function accueil()
     {
-        $services = servicesProposes::all(); // ✅
+        $services = servicesProposes::all(); //
 
         return view('accueil', compact('services'));
     }
@@ -128,7 +128,7 @@ class RedirectionController extends Controller
         }
 
         DiscussionMessage::create([
-            'discussion_space_id' => $id, // ✅ ID du groupe
+            'discussion_space_id' => $id, // ID du groupe
             'sender_type' => 'citoyen',
             'sender_id' => $senderId,
             'message_type' => 'texte',

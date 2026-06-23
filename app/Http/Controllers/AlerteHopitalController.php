@@ -31,7 +31,7 @@ class AlerteHopitalController extends Controller
             'media_vocal'  => 'nullable|string',
         ]);
 
-        // ✅ Gestion photo vers Supabase
+        //Gestion photo vers Supabase
         $photoPath = null;
         if ($request->hasFile('media_photo')) {
             $file     = $request->file('media_photo');
@@ -42,7 +42,7 @@ class AlerteHopitalController extends Controller
             $photoPath = env('SUPABASE_PUBLIC_URL') . '/alertes/photos/' . $filename;
         }
 
-        // ✅ Gestion vocal base64 vers Supabase
+        // Gestion vocal base64 vers Supabase
         $vocalPath = null;
         if ($request->media_vocal) {
             preg_match('/data:audio\/(.*?);base64,/', $request->media_vocal, $matches);

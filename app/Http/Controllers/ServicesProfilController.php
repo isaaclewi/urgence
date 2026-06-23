@@ -52,7 +52,7 @@ class ServicesProfilController extends Controller
         $service->adresse   = $validated['adresse'] ?? $service->adresse;
         $service->telephone = $validated['telephone'] ?? $service->telephone;
 
-        // ✅ Upload photo vers Supabase Storage
+        // Upload photo vers Supabase Storage
         if ($request->hasFile('photo_profil')) {
             $file = $request->file('photo_profil');
 
