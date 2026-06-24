@@ -167,6 +167,14 @@ Route::get('/services/forum/{id}', [ForumServicesController::class, 'show'])->na
 Route::post('/services/forum/{id}/message', [ForumServicesController::class, 'sendMessage'])->name('services.forum.message');
 Route::delete('/services/forum/message/{id}', [ForumServicesController::class, 'deleteMessage'])->name('services.forum.message.delete');
     // vaccination, bilan, forum, equipes, actualites services… (même groupe)
+
+
+    Route::get('/services/vaccination', [VaccinationController::class, 'index'])->name('services.vaccinationIndex');
+Route::get('/services/vaccination/create', [VaccinationController::class, 'create'])->name('services.vaccinationCreate');
+Route::post('/services/vaccination', [VaccinationController::class, 'store'])->name('services.vaccinationStore');
+Route::get('/services/vaccination/{id}/edit', [VaccinationController::class, 'edit'])->name('services.vaccinationEdit');
+Route::put('/services/vaccination/{id}', [VaccinationController::class, 'update'])->name('services.vaccinationUpdate');
+Route::delete('/services/vaccination/{id}', [VaccinationController::class, 'destroy'])->name('services.vaccinationDestroy');
 });
 
 // ─── ÉQUIPE (connectée) ─────────────────────────
