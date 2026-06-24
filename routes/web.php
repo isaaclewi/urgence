@@ -146,6 +146,13 @@ Route::middleware(['auth.service'])->group(function () {
     Route::post('/services/urgence/affecter/{id}', [UrgenceController::class, 'affecter'])->name('services.urgence.affecter');
     Route::get('/services/interventions-journalieres', [UrgenceController::class, 'interventionsJournalieres'])->name('services.interventions.journalieres');
     Route::get('/services/urgences/stream', [UrgenceController::class, 'stream'])->name('services.urgences.stream');
+
+    Route::get('/services/equipes', [ServiceEquipeController::class, 'index'])->name('services.equipes.index');
+Route::get('/services/equipes/create', [ServiceEquipeController::class, 'create'])->name('services.equipes.create');
+Route::post('/services/equipes', [ServiceEquipeController::class, 'store'])->name('services.equipes.store');
+Route::get('/services/equipes/{id}/edit', [ServiceEquipeController::class, 'edit'])->name('services.equipes.edit');
+Route::put('/services/equipes/{id}', [ServiceEquipeController::class, 'update'])->name('services.equipes.update');
+Route::delete('/services/equipes/{id}', [ServiceEquipeController::class, 'destroy'])->name('services.equipes.destroy');
     // vaccination, bilan, forum, equipes, actualites services… (même groupe)
 });
 
