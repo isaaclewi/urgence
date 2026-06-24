@@ -71,19 +71,18 @@ class ForumController extends Controller
      * Suppression d’un message (ADMIN)
      */
     public function deleteMessage($id)
-    {
-        if (!session()->has('admin_id')) {
-            return redirect()->route('admin.login')->with('error', 'Veuillez vous connecter.');
-        }
-
-        $msg = DiscussionMessage::findOrFail($id);
-
-        // L’admin peut supprimer ses propres messages
-        if ($msg->sender_type === 'admin' && $msg->sender_id == session('admin_id')) {
-            $msg->delete();
-            return back()->with('success', 'Message supprimé avec succès.');
-        }
-
-        return back()->with('error', 'Vous ne pouvez pas supprimer ce message.');
+{
+    if (!session()->has('admin_id')) {
+        return redirect()->route('admin.login')->with('error', 'Veuillez vous connecter.');
     }
+
+    $msg = DiscussionMessage::findOrFail($id);
+
+    if ($msg->sender_type === 'agent' && $msg->sender_id == session('admin_id')) {
+        $msg->delete();
+        return back()->with('success', 'Message supprimé avec succès.');
+    }
+
+    return back()->with('error', 'Vous ne pouvez pas supprimer ce message.');
+}
 }

@@ -132,6 +132,10 @@ Route::middleware(['auth.admin'])->prefix('admin')->group(function () {
     Route::post('/discussion-spaces', [AdminDiscussionSpaceController::class, 'store'])->name('admin.discussion.space.store');
     Route::get('/discussion-spaces/toggle/{id}', [AdminDiscussionSpaceController::class, 'toggle'])->name('admin.discussion.space.toggle');
     Route::get('/discussion-space/{id}/delete', [AdminDiscussionSpaceController::class, 'destroy'])->name('admin.discussion.space.delete');
+    Route::get('/forum', [ForumController::class, 'index'])->name('forum.index');
+Route::get('/forum/{id}', [ForumController::class, 'show'])->name('forum.group');
+Route::post('/forum/{id}/message', [ForumController::class, 'sendMessage'])->name('forum.message');
+Route::delete('/forum/message/{id}', [ForumController::class, 'deleteMessage'])->name('forum.message.delete');
 });
 
 // ─── SERVICE (connecté) ─────────────────────────
