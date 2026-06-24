@@ -63,6 +63,17 @@ class ActualiteController extends Controller
                          ->with('success', 'Actualité publiée avec succès.');
     }
 
+    public function edit($id)
+{
+    if (!session()->has('service_id')) {
+        return redirect()->route('services.login')->with('error', 'Veuillez vous connecter.');
+    }
+
+    $actualite = Actualite::findOrFail($id);
+
+    return view('services.actualite-edit', compact('actualite'));
+}
+
     public function update(Request $request, $id)
     {
         if (!session()->has('service_id')) {

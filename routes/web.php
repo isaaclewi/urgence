@@ -157,10 +157,10 @@ Route::delete('/services/equipes/{id}', [ServiceEquipeController::class, 'destro
 
 // Actualités
 Route::get('/services/actualites', [ActualiteController::class, 'index'])->name('services.actualite');
-Route::post('/services/actualites', [ActualiteController::class, 'store'])->name('services.actualite.store');
-Route::put('/services/actualites/{id}', [ActualiteController::class, 'update'])->name('services.actualite.update');
-Route::delete('/services/actualites/{id}', [ActualiteController::class, 'destroy'])->name('services.actualite.destroy');
-
+Route::post('/services/actualites', [ActualiteController::class, 'store'])->name('services.actualiteStore');
+Route::get('/services/actualites/{id}/edit', [ActualiteController::class, 'edit'])->name('services.actualiteEdit');
+Route::put('/services/actualites/{id}', [ActualiteController::class, 'update'])->name('services.actualiteUpdate');
+Route::delete('/services/actualites/{id}', [ActualiteController::class, 'destroy'])->name('services.actualiteDestroy');
 // Forum
 Route::get('/services/forum', [ForumServicesController::class, 'index'])->name('services.forum.index');
 Route::get('/services/forum/{id}', [ForumServicesController::class, 'show'])->name('services.forum.group');
