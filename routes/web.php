@@ -168,7 +168,7 @@ Route::delete('/services/actualites/{id}', [ActualiteController::class, 'destroy
 // Forum
 Route::get('/services/forum', [ForumServicesController::class, 'index'])->name('services.forum.index');
 Route::get('/services/forum/{id}', [ForumServicesController::class, 'show'])->name('services.forum.group');
-Route::post('/services/forum/{id}/message', [ForumServicesController::class, 'sendMessage'])->name('services.forum.message');
+Route::post('/services/forum/{id}/message', [ForumServicesController::class, 'sendMessage'])->name('services.forum.group.send');
 Route::delete('/services/forum/message/{id}', [ForumServicesController::class, 'deleteMessage'])->name('services.forum.message.delete');
     // vaccination, bilan, forum, equipes, actualites services… (même groupe)
 
