@@ -54,6 +54,9 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'processLogin'])->name('processLogin');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+Route::get('/avis', [RedirectionController::class, 'avis'])->name('avis');
+Route::get('/regle', [RedirectionController::class, 'regle'])->name('regle');
+
 Route::get('/admin/login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');
 Route::post('/admin/login', [AdminLoginController::class, 'processLogin'])->name('admin.login.process');
 
