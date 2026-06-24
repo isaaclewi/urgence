@@ -660,7 +660,7 @@ setInterval(refreshAlertes, 20000);
 let previousCount = {{ $alertes->count() }};
 
 function checkNewAlerts() {
-    fetch('{{ route("MesAlertes") }}')
+    fetch('{{ route("admin.alertes") }}')
         .then(response => response.text())
         .then(html => {
             const parser = new DOMParser();
