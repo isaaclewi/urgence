@@ -172,8 +172,6 @@ Route::get('/services/forum/{id}', [ForumServicesController::class, 'show'])->na
 Route::post('/services/forum/{id}/message', [ForumServicesController::class, 'sendMessage'])->name('services.forum.group.send');
 Route::delete('/services/forum/message/{id}', [ForumServicesController::class, 'deleteMessage'])->name('services.forum.message.delete');
     // vaccination, bilan, forum, equipes, actualites services… (même groupe)
-
-
 Route::get('/services/citoyens/bilan', [ServicesBilanController::class, 'index'])->name('services.citoyensBilan');
 Route::post('/services/citoyens/bilan', [ServicesBilanController::class, 'store'])->name('services.citoyensBilanStore');
 Route::delete('/services/citoyens/bilan/{id}', [ServicesBilanController::class, 'destroy'])->name('services.citoyensBilanDestroy');
