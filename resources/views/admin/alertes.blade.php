@@ -426,15 +426,15 @@ tbody tr:last-child td {
         gap: 16px;
         align-items: flex-start;
     }
-    
+
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     table {
         font-size: 13px;
     }
-    
+
     th, td {
         padding: 12px 10px;
     }
@@ -444,11 +444,11 @@ tbody tr:last-child td {
     .stats-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .table-container {
         overflow-x: auto;
     }
-    
+
     table {
         min-width: 1000px;
     }
@@ -484,7 +484,7 @@ tbody tr:last-child td {
         </div>
         <div class="stat-value">{{ $alertes->count() }}</div>
     </div>
-    
+
     <div class="stat-card pending">
         <div class="stat-header">
             <div class="stat-label">En Attente</div>
@@ -494,7 +494,7 @@ tbody tr:last-child td {
         </div>
         <div class="stat-value">{{ $alertes->where('statut', 'En attente')->count() }}</div>
     </div>
-    
+
     <div class="stat-card progress">
         <div class="stat-header">
             <div class="stat-label">En Cours</div>
@@ -504,7 +504,7 @@ tbody tr:last-child td {
         </div>
         <div class="stat-value">{{ $alertes->where('statut', 'En cours')->count() }}</div>
     </div>
-    
+
     <div class="stat-card resolved">
         <div class="stat-header">
             <div class="stat-label">Résolues</div>
@@ -564,8 +564,8 @@ tbody tr:last-child td {
                     <div class="citizen-info">
                         <i class="fas fa-user-circle"></i>
                         <span>
-                            {{ optional($alerte->citoyen)->nom 
-                                ? optional($alerte->citoyen)->nom . ' ' . optional($alerte->citoyen)->prenom 
+                            {{ optional($alerte->citoyen)->nom
+                                ? optional($alerte->citoyen)->nom . ' ' . optional($alerte->citoyen)->prenom
                                 : 'Anonyme' }}
                         </span>
                     </div>
@@ -610,25 +610,25 @@ tbody tr:last-child td {
 function refreshAlertes() {
     const loadingOverlay = document.getElementById('loadingOverlay');
     const refreshBtn = document.querySelector('.refresh-btn i');
-    
+
     // Afficher le loading
     loadingOverlay.classList.add('active');
     refreshBtn.style.animation = 'rotate 0.6s ease';
-    
-    fetch('{{ route("MesAlertes") }}')
+
+   fetch('{{ route("admin.alertes") }}')
         .then(response => response.text())
         .then(html => {
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
             const newTbody = doc.querySelector('#tableAlertes tbody');
-            
+
             if (newTbody) {
                 document.querySelector('#tableAlertes tbody').innerHTML = newTbody.innerHTML;
-                
+
                 // Mise à jour des statistiques
                 updateStats(doc);
             }
-            
+
             // Masquer le loading
             setTimeout(() => {
                 loadingOverlay.classList.remove('active');
@@ -645,7 +645,7 @@ function refreshAlertes() {
 function updateStats(doc) {
     const statsCards = doc.querySelectorAll('.stat-value');
     const currentStatsCards = document.querySelectorAll('.stat-value');
-    
+
     statsCards.forEach((stat, index) => {
         if (currentStatsCards[index]) {
             currentStatsCards[index].textContent = stat.textContent;
@@ -666,7 +666,7 @@ function checkNewAlerts() {
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
             const totalValue = doc.querySelector('.stat-card.total .stat-value');
-            
+
             if (totalValue) {
                 const currentCount = parseInt(totalValue.textContent);
                 if (currentCount > previousCount) {
