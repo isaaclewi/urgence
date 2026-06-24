@@ -12,10 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'auth.citoyen' => \App\Http\Middleware\AuthCitoyen::class,
-            'auth.admin'   => \App\Http\Middleware\AuthAdmin::class,
-            'auth.service' => \App\Http\Middleware\AuthService::class,
-            'auth.equipe'  => \App\Http\Middleware\AuthEquipe::class,
+            'auth.citoyen' => \App\Http\Middleware\EnsureCitoyenAuth::class,
+            'auth.admin'   => \App\Http\Middleware\EnsureAdminAuth::class,
+            'auth.service' => \App\Http\Middleware\EnsureServiceAuth::class,
+            'auth.equipe'  => \App\Http\Middleware\EnsureEquipeAuth::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
