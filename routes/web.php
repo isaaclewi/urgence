@@ -178,6 +178,13 @@ Route::post('/services/vaccination', [VaccinationController::class, 'store'])->n
 Route::get('/services/vaccination/{id}/edit', [VaccinationController::class, 'edit'])->name('services.vaccinationEdit');
 Route::put('/services/vaccination/{id}', [VaccinationController::class, 'update'])->name('services.vaccinationUpdate');
 Route::delete('/services/vaccination/{id}', [VaccinationController::class, 'destroy'])->name('services.vaccinationDestroy');
+
+Route::get('/services/vaccination-enfants', [ServiceVaccinEnfantController::class, 'index'])->name('services.vaccinationEnfantsIndex');
+Route::get('/services/vaccination-enfants/create', [ServiceVaccinEnfantController::class, 'create'])->name('services.vaccinationEnfantsCreate');
+Route::post('/services/vaccination-enfants', [ServiceVaccinEnfantController::class, 'store'])->name('services.vaccinationEnfantsStore');
+Route::get('/services/vaccination-enfants/{id}/edit', [ServiceVaccinEnfantController::class, 'edit'])->name('services.vaccinationEnfantsEdit');
+Route::put('/services/vaccination-enfants/{id}', [ServiceVaccinEnfantController::class, 'update'])->name('services.vaccinationEnfantsUpdate');
+Route::delete('/services/vaccination-enfants/{id}', [ServiceVaccinEnfantController::class, 'destroy'])->name('services.vaccinationEnfantsDestroy');
 });
 
 // ─── ÉQUIPE (connectée) ─────────────────────────
