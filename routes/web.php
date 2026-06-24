@@ -153,6 +153,19 @@ Route::post('/services/equipes', [ServiceEquipeController::class, 'store'])->nam
 Route::get('/services/equipes/{id}/edit', [ServiceEquipeController::class, 'edit'])->name('services.equipes.edit');
 Route::put('/services/equipes/{id}', [ServiceEquipeController::class, 'update'])->name('services.equipes.update');
 Route::delete('/services/equipes/{id}', [ServiceEquipeController::class, 'destroy'])->name('services.equipes.destroy');
+
+
+// Actualités
+Route::get('/services/actualites', [ActualiteController::class, 'index'])->name('services.actualite');
+Route::post('/services/actualites', [ActualiteController::class, 'store'])->name('services.actualite.store');
+Route::put('/services/actualites/{id}', [ActualiteController::class, 'update'])->name('services.actualite.update');
+Route::delete('/services/actualites/{id}', [ActualiteController::class, 'destroy'])->name('services.actualite.destroy');
+
+// Forum
+Route::get('/services/forum', [ForumServicesController::class, 'index'])->name('services.forum.index');
+Route::get('/services/forum/{id}', [ForumServicesController::class, 'show'])->name('services.forum.group');
+Route::post('/services/forum/{id}/message', [ForumServicesController::class, 'sendMessage'])->name('services.forum.message');
+Route::delete('/services/forum/message/{id}', [ForumServicesController::class, 'deleteMessage'])->name('services.forum.message.delete');
     // vaccination, bilan, forum, equipes, actualites services… (même groupe)
 });
 
