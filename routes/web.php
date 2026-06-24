@@ -65,6 +65,9 @@ Route::get('/services/login', [ServicesLoginController::class, 'showLoginForm'])
 Route::post('/services/login', [ServicesLoginController::class, 'processLogin'])->name('services.login.process');
 Route::get('/services/logout', [ServicesLoginController::class, 'logout'])->name('services.logout');
 
+Route::post('/alerte/enregistrer', [UrgenceController::class, 'enregistrerAlerte'])
+    ->name('enregistrerAlerte');
+
 // ─── CITOYEN (connecté) ─────────────────────────
 Route::middleware(['auth.citoyen'])->group(function () {
     Route::get('/compte', [compteController::class, 'index'])->name('compte');
