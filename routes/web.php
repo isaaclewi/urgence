@@ -160,6 +160,9 @@ Route::put('/services/equipes/{id}', [ServiceEquipeController::class, 'update'])
 Route::delete('/services/equipes/{id}', [ServiceEquipeController::class, 'destroy'])->name('services.equipes.destroy');
 
 
+//Mon commentaire
+
+
 // Actualités
 Route::get('/services/actualites', [ActualiteController::class, 'index'])->name('services.actualite');
 Route::post('/services/actualites', [ActualiteController::class, 'store'])->name('services.actualiteStore');
