@@ -45,6 +45,7 @@ use App\Http\Controllers\ServicesBilanController;
 use App\Http\Controllers\ServiceVaccinEnfantController;
 use App\Http\Controllers\ActualiteController;
 
+
 // ─── PUBLIC ─────────────────────────────────────
 Route::get('/', [RedirectionController::class, 'accueil'])->name('accueil');
 Route::get('/formulaire', [RedirectionController::class, 'formulaire'])->name('formulaire');
