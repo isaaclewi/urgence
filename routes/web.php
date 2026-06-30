@@ -139,6 +139,11 @@ Route::get('/forum', [ForumController::class, 'index'])->name('forum.index');
 Route::get('/forum/{id}', [ForumController::class, 'show'])->name('forum.group');
 Route::post('/forum/{id}/message', [ForumController::class, 'sendMessage'])->name('forum.group.send');
 Route::delete('/forum/message/{id}', [ForumController::class, 'deleteMessage'])->name('forum.message.delete');
+
+//Mon commentaire (Déchiffrement de la pièce d'identité)
+Route::get('/citoyen/piece/{id}', [PieceIdentiteCitoyenController::class, 'show'])->name('citoyen.piece');
+
+
 });
 
 // ─── SERVICE (connecté) ─────────────────────────
@@ -162,8 +167,6 @@ Route::put('/services/equipes/{id}', [ServiceEquipeController::class, 'update'])
 Route::delete('/services/equipes/{id}', [ServiceEquipeController::class, 'destroy'])->name('services.equipes.destroy');
 
 
-//Mon commentaire (Déchiffrement de la pièce d'identité)
-Route::get('/citoyen/piece/{id}', [PieceIdentiteCitoyenController::class, 'show'])->name('citoyen.piece');
 
 
 

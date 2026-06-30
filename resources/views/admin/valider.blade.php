@@ -482,9 +482,8 @@
                 <td>
                     <div class="photo-wrapper">
                         <img src="{{ route('citoyen.piece', $c->id) }}"
-                            alt="Pièce d'identité"
-                            class="table-photo"
-                            data-name="{{ $c->nom }} {{ $c->prenom }}">
+                         data-src="{{ route('citoyen.piece', $c->id) }}" 
+                         class="table-photo" data-name="{{ $c->nom }} {{ $c->prenom }}">
                         <div class="photo-zoom-icon">
                             <i class="fas fa-search-plus"></i>
                         </div>
