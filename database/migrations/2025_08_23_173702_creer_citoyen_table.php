@@ -4,6 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+
 return new class extends Migration
 {
     /**
@@ -22,7 +23,9 @@ return new class extends Migration
             $table->string('telephone');
             $table->string('pseudo')->nullable();
             $table->string('etat_compte')->default('desactif');
-            $table->binary('piece_identite')->nullable();
+
+            //Changement de binary en "string" afin de gérer le chiffrement et le stockage des images en base64
+            $table->string('piece_identite')->nullable();
             $table->string('password');
             $table->timestamps();
         });

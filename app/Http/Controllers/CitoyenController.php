@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Crypt;
 
 class CitoyenController extends Controller
 {
@@ -34,13 +35,24 @@ class CitoyenController extends Controller
         // Upload pièce d'identité → Supabase Storage
         if ($request->hasFile('piece_identite')) {
             $file     = $request->file('piece_identite');
-            $filename = time() . '_' .
-                Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) .
-                '.' . $file->getClientOriginalExtension();
 
-            Storage::disk('supabase')->putFileAs('pieces', $file, $filename);
+            //Lecture du contenu du fichier binaire
+            $contenu = file_get_contents($file->getRealPath());
 
-            $validated['piece_identite'] = env('SUPABASE_PUBLIC_URL') . '/pieces/' . $filename;
+            //Chriffrement du contenu
+            $contenuChiffre = Crypt::encrypt($contenu);
+
+            //Fichier chiffré 
+            $fichierChiffre = time() . '_' . Str::uuid() . '.enc';
+
+            //Stockage en local du fichier chiffré
+            Storage::disk('supabase')->put(
+                'pieces_identite/' . $fichierChiffre,
+                $contenuChiffre
+            );
+
+            //Sauvegarde en base de données du chemin du fichier chiffré
+            $validated['piece_identite'] = 'pieces_identite/' . $fichierChiffre;
         }
 
         // Matricule unique

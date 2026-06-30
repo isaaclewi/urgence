@@ -44,6 +44,7 @@ use App\Http\Controllers\VaccinationController;
 use App\Http\Controllers\ServicesBilanController;
 use App\Http\Controllers\ServiceVaccinEnfantController;
 use App\Http\Controllers\ActualiteController;
+use App\Http\Controllers\PieceIdentiteCitoyenController; //Dechiffrement de la pièce d'identité
 
 
 // ─── PUBLIC ─────────────────────────────────────
@@ -161,7 +162,9 @@ Route::put('/services/equipes/{id}', [ServiceEquipeController::class, 'update'])
 Route::delete('/services/equipes/{id}', [ServiceEquipeController::class, 'destroy'])->name('services.equipes.destroy');
 
 
-//Mon commentaire
+//Mon commentaire (Déchiffrement de la pièce d'identité)
+Route::get('/citoyen/piece/{id}', [PieceIdentiteCitoyenController::class, 'show'])->name('citoyen.piece');
+
 
 
 // Actualités
