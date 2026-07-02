@@ -200,7 +200,6 @@ Route::get('/services/vaccination-enfants/{id}/edit', [ServiceVaccinEnfantContro
 Route::put('/services/vaccination-enfants/{id}', [ServiceVaccinEnfantController::class, 'update'])->name('services.vaccinationEnfantsUpdate');
 Route::delete('/services/vaccination-enfants/{id}', [ServiceVaccinEnfantController::class, 'destroy'])->name('services.vaccinationEnfantsDestroy');
 
-Route::get('/services/bilans/chiffrer-anciens', [ServicesBilanController::class, 'chiffrerAnciens']);
 });
 
 // ─── ÉQUIPE (connectée) ─────────────────────────

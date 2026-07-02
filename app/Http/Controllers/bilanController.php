@@ -22,7 +22,6 @@ class bilanController extends Controller
         'interventions_chirurgicales',
         'antecedents_hospitalisation',
         'medicaments_pris_actuellement',
-
     ];
 
     public function index()
@@ -34,7 +33,7 @@ class bilanController extends Controller
             // Récupérer le bilan du citoyen (dernier bilan par exemple)
             $bilan = bilanSante::where('citoyen_id', $citoyen->id)->latest()->first();
 
-             // Déchiffrement des champs sensibles pour l'affichage
+            // Déchiffrement des champs sensibles pour la lecture
             if ($bilan) {
                 foreach ($this->champsChiffres as $champ) {
                     if (!empty($bilan->$champ)) {
