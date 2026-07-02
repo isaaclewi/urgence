@@ -22,7 +22,6 @@ class ServicesBilanController extends Controller
         'interventions_chirurgicales',
         'antecedents_hospitalisation',
         'medicaments_pris_actuellement',
-        'listez_vaccins_reçus'
     ];
 
     // Liste et gestion sur une seule page (ajout du chiffrement et déchiffrement des champs sensibles pour la lecture)
@@ -71,7 +70,7 @@ class ServicesBilanController extends Controller
             'interventions_chirurgicales' => 'nullable|string|max:255',
             'antecedents_hospitalisation' => 'nullable|string|max:255',
             'medicaments_pris_actuellement' => 'nullable|string|max:255',
-            'listez_vaccins_reçus' => 'nullable|string|max:255',
+
         ]);
 
         // Chiffrement des champs sensibles avant l'enregistrement

@@ -22,7 +22,7 @@ class bilanController extends Controller
         'interventions_chirurgicales',
         'antecedents_hospitalisation',
         'medicaments_pris_actuellement',
-        'listez_vaccins_reçus'
+
     ];
 
     public function index()
