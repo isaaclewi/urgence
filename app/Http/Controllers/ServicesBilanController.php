@@ -70,7 +70,6 @@ class ServicesBilanController extends Controller
             'interventions_chirurgicales' => 'nullable|string|max:255',
             'antecedents_hospitalisation' => 'nullable|string|max:255',
             'medicaments_pris_actuellement' => 'nullable|string|max:255',
-
         ]);
 
         // Chiffrement des champs sensibles avant l'enregistrement
@@ -86,6 +85,45 @@ class ServicesBilanController extends Controller
         );
 
         return redirect()->route('services.citoyensBilan')->with('success', 'Bilan ajouté ou mis à jour avec succès.');
+    }
+
+
+
+    public function chiffrerAnciens()
+    {
+        if (! session()->has('service_id')) {
+            return redirect()->route('services.login')->with('error', 'Vous devez être connecté.');
+        }
+
+        $bilans = bilanSante::all();
+        $compteur = 0;
+
+        foreach ($bilans as $bilan) {
+            $modifie = false;
+
+            foreach ($this->champsChiffres as $champ) {
+                $valeur = $bilan->$champ;
+
+                if (empty($valeur)) {
+                    continue;
+                }
+
+                try {
+                    decrypt($valeur);
+                    // déjà chiffré, on ne touche pas
+                } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+                    $bilan->$champ = encrypt($valeur);
+                    $modifie = true;
+                }
+            }
+
+            if ($modifie) {
+                $bilan->save();
+                $compteur++;
+            }
+        }
+
+        return "Terminé : {$compteur} bilan(s) chiffré(s).";
     }
 
     // Suppression
