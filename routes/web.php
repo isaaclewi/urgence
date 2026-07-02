@@ -71,7 +71,7 @@ Route::post('/alerte/enregistrer', [UrgenceController::class, 'enregistrerAlerte
     ->name('enregistrerAlerte');
 
 // ─── CITOYEN (connecté) ─────────────────────────
-Route::middleware(['auth.citoyen'])->group(function () {
+Route::middleware(['auth.citoyen', 'no.cache'])->group(function () {
     Route::get('/compte', [compteController::class, 'index'])->name('compte');
     Route::get('/compteController', [compteController::class, 'index'])->name('compteController');
     Route::get('/profil', [profilController::class, 'index'])->name('profilController');
@@ -101,7 +101,7 @@ Route::middleware(['auth.citoyen'])->group(function () {
 });
 
 // ─── ADMIN (connecté) ───────────────────────────
-Route::middleware(['auth.admin'])->prefix('admin')->group(function () {
+Route::middleware(['auth.admin', 'no.cache'])->prefix('admin')->group(function () {
     Route::get('/accueil', [RedirectionController::class, 'accueilAdmin'])->name('admin.accueil');
     Route::get('/compte', [AdminCompteController::class, 'index'])->name('admin.compte');
     Route::get('/profil', [AdminProfilController::class, 'index'])->name('admin.profil');
@@ -147,7 +147,7 @@ Route::get('/citoyen/piece/{id}', [PieceIdentiteCitoyenController::class, 'show'
 });
 
 // ─── SERVICE (connecté) ─────────────────────────
-Route::middleware(['auth.service'])->group(function () {
+Route::middleware(['auth.service', 'no.cache'])->group(function () {
     Route::get('/services/compte', [ServicesCompteController::class, 'index'])->name('services.compte');
     Route::post('/services/compte/upload', [ServicesCompteController::class, 'uploadPiece'])->name('services.compte.upload');
     Route::get('/services/profil', [ServicesProfilController::class, 'index'])->name('services.profil');
@@ -202,7 +202,7 @@ Route::delete('/services/vaccination-enfants/{id}', [ServiceVaccinEnfantControll
 });
 
 // ─── ÉQUIPE (connectée) ─────────────────────────
-Route::middleware(['auth.equipe'])->prefix('equipe')->name('equipe.')->group(function () {
+Route::middleware(['auth.equipe', 'no.cache'])->prefix('equipe')->name('equipe.')->group(function () {
     Route::get('/dashboard', [EquipeDashboardController::class, 'index'])->name('dashboard');
     Route::get('/alertes', [EquipeDashboardController::class, 'alertes'])->name('alertes');
     Route::get('/alertes/{id}', [EquipeDashboardController::class, 'alerteDetail'])->name('alerte.detail');

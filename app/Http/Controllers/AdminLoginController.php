@@ -51,6 +51,8 @@ return back()->withErrors(['email' => 'Email ou mot de passe incorrect']);
     public function logout(Request $request)
     {
         $request->session()->flush();
+        // Regénération de l'ID de session pour éviter les attaques de fixation de session
+        $request->session()->regenerate();
         return redirect()->route('admin.login')->with('success', 'Déconnecté');
     }
 }
