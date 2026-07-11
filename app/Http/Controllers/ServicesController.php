@@ -3,23 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\Admins;
-use App\Models\Services;
 use App\Models\servicesProposes;
 use Illuminate\Http\Request;
 
 class ServicesController extends Controller
 {
     public function index()
-{
-    if (!session()->has('admin_id')) {
-        return redirect()->route('admin.login')->with('error', 'Vous devez être connecté.');
+    {
+        if (!session()->has('admin_id')) {
+            return redirect()->route('admin.login')->with('error', 'Vous devez être connecté.');
+        }
+
+        $admin             = Admins::find(session('admin_id'));
+        $servicesProposes  = servicesProposes::orderBy('created_at', 'desc')->paginate(5);
+
+        return view('admin.serviceCreate', compact('admin', 'servicesProposes'));
     }
-
-    $admin    = Admins::find(session('admin_id'));
-    $services = servicesProposes::orderBy('created_at', 'desc')->paginate(5); // ✅ bonne table
-
-    return view('admin.serviceCreate', compact('admin', 'services'));
-}
 
     // Ajouter un service proposé
     public function store(Request $request)
@@ -49,25 +48,16 @@ class ServicesController extends Controller
             'admin_id'    => session('admin_id'),
         ]);
 
-        return redirect()->route('admin.services')->with('success', 'Service proposé créé avec succès.');
+        return redirect()->route('admin.serviceCreate')->with('success', 'Service proposé créé avec succès.');
     }
 
     // Supprimer un service proposé
     public function destroy($id)
     {
         servicesProposes::findOrFail($id)->delete();
-        return redirect()->route('admin.services')->with('success', 'Service proposé supprimé.');
+        return redirect()->route('admin.serviceCreate')->with('success', 'Service proposé supprimé.');
     }
 
-    public function activer($id)
-    {
-        Services::findOrFail($id)->update(['disponible' => 1]);
-        return back()->with('success', 'Le service est maintenant disponible.');
-    }
-
-    public function desactiver($id)
-    {
-        Services::findOrFail($id)->update(['disponible' => 0]);
-        return back()->with('success', 'Le service a été désactivé.');
-    }
+    // activer()/desactiver() retirées d'ici — déplacées dans adminServicesController
 }
+

@@ -113,13 +113,16 @@ Route::middleware(['auth.admin', 'no.cache'])->prefix('admin')->group(function (
     Route::post('/activer/{id}', [ValiderUsers::class, 'activer'])->name('admin.activer');
     Route::post('/desactiver/{id}', [ValiderUsers::class, 'desactiver'])->name('admin.desactiver');
     Route::get('/services', [adminServicesController::class, 'index'])->name('admin.services');
-    Route::post('/services/urgence', [adminServicesController::class, 'store'])->name('admin.services.store');
-    Route::delete('/services/urgence/{id}', [adminServicesController::class, 'destroy'])->name('admin.services.destroy');
-    Route::get('/service-create', [ServicesController::class, 'index'])->name('admin.serviceCreate');
-    Route::post('/service-store', [ServicesController::class, 'store'])->name('admin.serviceStore');
-    Route::delete('/service-propose/{id}', [ServicesController::class, 'destroy'])->name('admin.serviceDestroy');
-    Route::get('/service-activer/{id}', [ServicesController::class, 'activer'])->name('admin.serviceActiver');
-    Route::get('/service-desactiver/{id}', [ServicesController::class, 'desactiver'])->name('admin.serviceDesactiver');
+Route::post('/services/urgence', [adminServicesController::class, 'store'])->name('admin.services.store');
+Route::delete('/services/urgence/{id}', [adminServicesController::class, 'destroy'])->name('admin.services.destroy');
+
+Route::get('/service-create', [ServicesController::class, 'index'])->name('admin.serviceCreate');
+Route::post('/service-store', [ServicesController::class, 'store'])->name('admin.serviceStore');
+Route::delete('/service-propose/{id}', [ServicesController::class, 'destroy'])->name('admin.serviceDestroy');
+
+// ✅ déplacé vers adminServicesController car ça agit sur le modèle Services (urgence)
+Route::get('/service-activer/{id}', [adminServicesController::class, 'activer'])->name('admin.serviceActiver');
+Route::get('/service-desactiver/{id}', [adminServicesController::class, 'desactiver'])->name('admin.serviceDesactiver');
     Route::get('/bilans', [AdminBilanController::class, 'index'])->name('admin.bilanSante');
     Route::get('/bilan/{id}', [AdminBilanController::class, 'show'])->name('admin.bilan.show');
     Route::post('/bilan', [AdminBilanController::class, 'store'])->name('admin.bilan.store');

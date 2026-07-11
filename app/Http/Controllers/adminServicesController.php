@@ -61,4 +61,17 @@ class adminServicesController extends Controller
         Services::findOrFail($id)->delete();
         return redirect()->back()->with('success', 'Service d\'urgence supprimé avec succès.');
     }
+
+    // ✅ Rapatrié depuis ServicesController — agit bien sur le modèle Services
+    public function activer($id)
+    {
+        Services::findOrFail($id)->update(['disponible' => 1]);
+        return back()->with('success', 'Le service est maintenant disponible.');
+    }
+
+    public function desactiver($id)
+    {
+        Services::findOrFail($id)->update(['disponible' => 0]);
+        return back()->with('success', 'Le service a été désactivé.');
+    }
 }
