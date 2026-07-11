@@ -26,7 +26,7 @@
     <h2 style="color:#0D3B66;margin-bottom:20px;font-size:18px;">
         <i class="fa fa-plus-circle"></i> Ajouter un service d'urgence
     </h2>
-    <form action="{{ route('admin.serviceStore') }}" method="POST">
+    <form action="{{ route('admin.services.store') }}" method="POST">
         @csrf
         <div class="form-grid">
             <input type="text" name="nom" placeholder="Nom du service" required value="{{ old('nom') }}">

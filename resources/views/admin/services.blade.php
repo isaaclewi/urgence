@@ -227,7 +227,7 @@
         </div>
     @endif
 
-    <form action="{{ route('admin.services.store') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('admin.serviceStore') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="form-grid">
             <input type="text" name="nom_service" placeholder="Titre du service" required>
