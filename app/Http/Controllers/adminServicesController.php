@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Admins;
 use App\Models\Services;
-use App\Models\ServicesProposes;
+use App\Models\servicesProposes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -18,7 +18,7 @@ class adminServicesController extends Controller
 
         $admin            = Admins::find(session('admin_id'));
         $services         = Services::orderBy('created_at', 'desc')->get();
-        $servicesProposes = ServicesProposes::orderBy('created_at', 'desc')->get();
+        $servicesProposes = servicesProposes::orderBy('created_at', 'desc')->get();
 
         return view('admin.services', compact('admin', 'services', 'servicesProposes'));
     }
