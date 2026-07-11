@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Admins;
 use App\Models\Services;
-use App\Models\ServicesProposes;
+use App\Models\servicesProposes;
 use Illuminate\Http\Request;
 
 class ServicesController extends Controller
@@ -41,7 +41,7 @@ class ServicesController extends Controller
             $imageData = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file));
         }
 
-        ServicesProposes::create([
+        servicesProposes::create([
             'nom_service' => $request->nom_service,
             'description' => $request->description,
             'lien'        => $request->lien,
@@ -55,7 +55,7 @@ class ServicesController extends Controller
     // Supprimer un service proposé
     public function destroy($id)
     {
-        ServicesProposes::findOrFail($id)->delete();
+        servicesProposes::findOrFail($id)->delete();
         return redirect()->route('admin.services')->with('success', 'Service proposé supprimé.');
     }
 
