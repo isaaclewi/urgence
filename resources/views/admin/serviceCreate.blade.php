@@ -121,7 +121,7 @@
                         {{ $service->etat_compte ?? '—' }}
                     </td>
                     <td style="text-align:center;">
-                        <form action="{{ route('admin.services.destroy', $service->id) }}"
+                        <form action="{{ route('admin.serviceDestroy', $service->id) }}"
                               method="POST"
                               onsubmit="return confirm('Supprimer le service « {{ $service->nom }} » ? Cette action est irréversible.')">
                             @csrf

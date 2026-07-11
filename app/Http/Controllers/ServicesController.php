@@ -10,16 +10,16 @@ use Illuminate\Http\Request;
 class ServicesController extends Controller
 {
     public function index()
-    {
-        if (!session()->has('admin_id')) {
-            return redirect()->route('admin.login')->with('error', 'Vous devez être connecté.');
-        }
-
-        $admin    = Admins::find(session('admin_id'));
-        $services = Services::paginate(5);
-
-        return view('admin.serviceCreate', compact('admin', 'services'));
+{
+    if (!session()->has('admin_id')) {
+        return redirect()->route('admin.login')->with('error', 'Vous devez être connecté.');
     }
+
+    $admin    = Admins::find(session('admin_id'));
+    $services = servicesProposes::orderBy('created_at', 'desc')->paginate(5); // ✅ bonne table
+
+    return view('admin.serviceCreate', compact('admin', 'services'));
+}
 
     // Ajouter un service proposé
     public function store(Request $request)
