@@ -35,7 +35,7 @@
                         padding-bottom:24px;border-bottom:1px solid var(--border);">
                 <div style="position:relative;">
                     <img id="profilePic"
-                         src="{{ asset($citoyen->photo_profil ?? 'medias/default.png') }}"
+                         src="{{ $citoyen->photo_profil ?: asset('medias/default.png') }}"
                          alt="Profil"
                          style="width:72px;height:72px;border-radius:50%;object-fit:cover;
                                 border:2.5px solid var(--border);">

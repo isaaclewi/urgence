@@ -483,7 +483,7 @@
 
             @if(isset($citoyen))
             <div class="sb-user">
-                <img src="{{ asset($citoyen->photo_profil ?? 'medias/default.png') }}"
+                <img src="{{ $citoyen->photo_profil ?: asset('medias/default.png') }}"
                      alt="Profil" class="sb-user-avatar">
                 <div style="min-width:0">
                     <div class="sb-user-name">{{ $citoyen->nom ?? '' }} {{ $citoyen->prenom ?? '' }}</div>

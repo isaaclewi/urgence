@@ -61,7 +61,7 @@
     {{-- Carte profil --}}
     <div class="card anim-fade" style="animation-delay:.18s">
         <div class="card-body" style="text-align:center;padding-top:28px;">
-            <img src="{{ asset($citoyen->photo_profil ?? 'medias/default.png') }}"
+            <img src="{{ $citoyen->photo_profil ?: asset('medias/default.png') }}"
                  alt="Profil"
                  style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid var(--border);margin-bottom:12px;">
             <div style="font-weight:700;font-size:15px;color:var(--text);">{{ $citoyen->nom }} {{ $citoyen->prenom }}</div>
