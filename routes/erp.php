@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\RessourceController;
+use App\Http\Controllers\KpiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -12,6 +13,9 @@ use App\Http\Controllers\RessourceController;
 | groupe « web » (session, CSRF).
 */
 Route::middleware(['auth.service', 'no.cache'])->prefix('services')->name('services.')->group(function () {
+
+    // Tableau de bord KPI
+    Route::get('/indicateurs', [KpiController::class, 'index'])->name('kpi');
 
     // Personnel
     Route::get('/personnel',               [PersonnelController::class, 'index'])->name('personnel.index');
