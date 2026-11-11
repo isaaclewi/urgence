@@ -20,7 +20,7 @@ return new class extends Migration
         $table->string('type_media')->nullable();
         $table->string('url_media')->nullable();
         $table->binary('image')->nullable();
-        $table->foreignId('agent_id')->nullable()->constrained('agents')->nullOnDelete();
+        $table->foreignId('agent_id')->nullable()->constrained('admins')->nullOnDelete();
         $table->foreignId('service_id')->nullable()->constrained('services')->nullOnDelete();
         $table->timestamps();
     });

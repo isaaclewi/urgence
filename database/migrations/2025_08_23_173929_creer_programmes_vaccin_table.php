@@ -34,9 +34,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('mon_programmes_vaccin');
-
-        Schema::table('mon_programmes_vaccin', function (Blueprint $table) {
-            $table->dropColumn('categorie');
-        });
     }
 };

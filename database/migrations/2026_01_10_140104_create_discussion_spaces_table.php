@@ -20,7 +20,7 @@ return new class extends Migration {
 
             // Créateur (agent admin)
             $table->foreignId('created_by')
-                ->constrained('agents')
+                ->constrained('admins')
                 ->onDelete('cascade');
 
             // Service responsable / modérateur

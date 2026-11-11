@@ -33,14 +33,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('services_proposes');
-
-         Schema::table('services_proposes', function (Blueprint $table) {
-            $table->dropColumn('image');
-        });
-
-         Schema::table('services_proposes', function (Blueprint $table) {
-        $table->dropForeign(['admin_id']);
-        $table->dropColumn('admin_id');
-    });
     }
 };

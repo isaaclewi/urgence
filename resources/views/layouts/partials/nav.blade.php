@@ -18,6 +18,7 @@
                 ['services.personnel.gardes',       'Planning des gardes', 'calendar', 'services.personnel.gardes*'],
                 ['services.ressources.index',       'Ressources',      'truck',    'services.ressources.*'],
                 ['services.kpi',                    'Indicateurs',     'bar-chart-2', 'services.kpi*'],
+                ['services.exports.index',          'Rapports & exports', 'download', 'services.exports.*'],
             ],
             'Santé & citoyens' => [
                 ['services.citoyens',               'Citoyens',        'user',     'services.citoyens'],

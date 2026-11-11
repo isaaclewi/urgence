@@ -9,6 +9,7 @@
         <a href="{{ route('services.kpi', ['jours' => $p]) }}"
            class="ds-btn ds-btn-sm {{ $jours === $p ? 'ds-btn-primary' : 'ds-btn-secondary' }}">{{ $p }} j</a>
     @endforeach
+    <a href="{{ route('services.exports.kpi', ['jours' => $jours]) }}" class="ds-btn ds-btn-sm ds-btn-secondary">Exporter en PDF</a>
 @endsection
 
 @section('content')

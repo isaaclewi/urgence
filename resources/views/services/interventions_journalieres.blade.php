@@ -18,6 +18,7 @@
                     <th>Équipe</th>
                     <th>Statut</th>
                     <th>Date</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -28,6 +29,9 @@
                         <td>{{ $i->equipe_nom }}</td>
                         <td><x-badge :status="$i->statut" /></td>
                         <td>{{ \Carbon\Carbon::parse($i->created_at)->format('d/m/Y H:i') }}</td>
+                        <td class="ds-row-actions">
+                            <a class="ds-btn ds-btn-secondary ds-btn-sm" href="{{ route('services.exports.intervention', $i->id) }}">Rapport PDF</a>
+                        </td>
                     </tr>
                 @endforeach
             </tbody>

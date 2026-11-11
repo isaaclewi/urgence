@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\RessourceController;
 use App\Http\Controllers\KpiController;
+use App\Http\Controllers\ExportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +17,17 @@ Route::middleware(['auth.service', 'no.cache'])->prefix('services')->name('servi
 
     // Tableau de bord KPI
     Route::get('/indicateurs', [KpiController::class, 'index'])->name('kpi');
+
+    // Rapports & exports (PDF / Excel)
+    Route::prefix('exports')->name('exports.')->group(function () {
+        Route::get('/', [ExportController::class, 'index'])->name('index');
+        Route::get('/personnel/{format}',     [ExportController::class, 'personnel'])->whereIn('format', ['pdf', 'xlsx'])->name('personnel');
+        Route::get('/vehicules/{format}',     [ExportController::class, 'vehicules'])->whereIn('format', ['pdf', 'xlsx'])->name('vehicules');
+        Route::get('/stocks/{format}',        [ExportController::class, 'stocks'])->whereIn('format', ['pdf', 'xlsx'])->name('stocks');
+        Route::get('/interventions/{format}', [ExportController::class, 'interventions'])->whereIn('format', ['pdf', 'xlsx'])->name('interventions');
+        Route::get('/kpi',                    [ExportController::class, 'kpi'])->name('kpi');
+        Route::get('/intervention/{id}',      [ExportController::class, 'intervention'])->whereNumber('id')->name('intervention');
+    });
 
     // Personnel
     Route::get('/personnel',               [PersonnelController::class, 'index'])->name('personnel.index');

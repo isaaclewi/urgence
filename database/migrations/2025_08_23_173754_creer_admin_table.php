@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('agents', function (Blueprint $table) {
+        Schema::create('admins', function (Blueprint $table) {
         $table->id();
         $table->string('matricule')->unique();
         $table->string('nom');
@@ -25,8 +25,8 @@ return new class extends Migration
         $table->string('role')->default('admin');
         $table->timestamps();
 });
-        Schema::table('agents', function (Blueprint $table) {
-            $table->binary('photo_profil')->nullable()->after('role'); 
+        Schema::table('admins', function (Blueprint $table) {
+            $table->binary('photo_profil')->nullable()->after('role');
 
         });
     }
@@ -36,9 +36,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('agents');
-        Schema::table('agents', function (Blueprint $table) {
-            $table->dropColumn('photo_profil');
-        });
+        Schema::dropIfExists('admins');
     }
 };
