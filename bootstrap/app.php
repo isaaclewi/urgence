@@ -21,6 +21,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Contrôle des permissions (config/permissions.php) sur tout le groupe « web »
         $middleware->appendToGroup('web', \App\Http\Middleware\ControlAccess::class);
+
+        // Anti brute force + régénération de session sur les formulaires de connexion
+        $middleware->appendToGroup('web', \App\Http\Middleware\ProtectLogins::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

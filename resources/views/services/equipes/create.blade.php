@@ -31,8 +31,8 @@
                 </div>
 
                 <div>
-                    <label class="form-label">Email</label>
-                    <input type="email" name="email" class="form-input">
+                    <label class="form-label">Email (identifiant de connexion)</label>
+                    <input type="email" name="email" class="form-input" value="{{ old('email') }}" required>
                 </div>
 
                 <div>

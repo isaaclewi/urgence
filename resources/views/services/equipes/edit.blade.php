@@ -59,6 +59,15 @@
                            value="{{ $equipe->adresse }}">
                 </div>
 
+                <div>
+                    <label class="form-label">Nouveau mot de passe <span style="font-weight:400;opacity:.7">(laisser vide pour ne pas changer)</span></label>
+                    <input type="password"
+                           name="password"
+                           class="form-input"
+                           minlength="8"
+                           autocomplete="new-password">
+                </div>
+
             </div>
 
             <div style="margin-top:20px;display:flex;gap:10px;">
