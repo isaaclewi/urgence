@@ -290,12 +290,7 @@ let affCount = {{ $affectations->count() }};
 // ════════════════════════════════════════════════════════════
 //  SSE — écouter les nouvelles affectations
 // ════════════════════════════════════════════════════════════
-function startAffStream() {
-    const url = `{{ route('equipe.affectations.stream') }}?lastId=${lastAffId}`;
-    const es  = new EventSource(url);
-
-    es.onmessage = function(e) {
-        const aff = JSON.parse(e.data);
+function traiterNouvelleAffectation(aff) {
 
         // Supprimer l'état vide si présent
         const empty = document.getElementById('affEmpty');
@@ -335,12 +330,25 @@ function startAffStream() {
 
         // Toast
         showAffToast(aff.alerte?.titre || 'Nouvelle mission', aff.alerte?.localisation || '');
-    };
+}
 
-    es.onerror = function() {
-        es.close();
-        setTimeout(startAffStream, 5000);
-    };
+// Polling JSON toutes les 5 s (remplace EventSource : ne bloque plus le serveur)
+let pollBusy = false;
+async function startAffStream() {
+    if (pollBusy || document.hidden) return;
+    pollBusy = true;
+    try {
+        const r = await fetch(`{{ route('equipe.affectations.stream') }}?lastId=${lastAffId}`, {
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin',
+            cache: 'no-store'
+        });
+        if (r.ok) {
+            const data = await r.json();
+            (data.items || []).forEach(traiterNouvelleAffectation);
+        }
+    } catch (e) { /* réseau coupé : on réessaie au prochain cycle */ }
+    pollBusy = false;
 }
 
 function updateStats() {
@@ -542,6 +550,8 @@ if (alerteLat && alerteLng) {
 
 // ── Démarrage SSE ──
 startAffStream();
+setInterval(startAffStream, 5000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) startAffStream(); });
 </script>
 @endpush
 

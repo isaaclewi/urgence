@@ -646,12 +646,7 @@ function buildRow(a) {
 // ════════════════════════════════════════════════════════════
 //  SERVER-SENT EVENTS — écouter les nouvelles alertes
 // ════════════════════════════════════════════════════════════
-function startAlerteStream() {
-    const url = `{{ route('services.urgences.stream') }}?lastId=${lastAlerteId}`;
-    const es  = new EventSource(url);
-
-    es.onmessage = function(e) {
-        const alerte = JSON.parse(e.data);
+function traiterNouvelleAlerte(alerte) {
 
         // Supprimer la ligne "vide" si elle existe
         const emptyRow = document.getElementById('empty-row');
@@ -682,13 +677,25 @@ function startAlerteStream() {
 
         // Toast
         showToast(alerte.titre, alerte.localisation || alerte.type_alerte || '');
-    };
+}
 
-    es.onerror = function() {
-        // Reconnexion automatique après 5s si la connexion SSE tombe
-        es.close();
-        setTimeout(startAlerteStream, 5000);
-    };
+// Polling JSON toutes les 5 s (remplace EventSource : ne bloque plus le serveur)
+let pollBusy = false;
+async function startAlerteStream() {
+    if (pollBusy || document.hidden) return;
+    pollBusy = true;
+    try {
+        const r = await fetch(`{{ route('services.urgences.stream') }}?lastId=${lastAlerteId}`, {
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin',
+            cache: 'no-store'
+        });
+        if (r.ok) {
+            const data = await r.json();
+            (data.items || []).forEach(traiterNouvelleAlerte);
+        }
+    } catch (e) { /* réseau coupé : on réessaie au prochain cycle */ }
+    pollBusy = false;
 }
 
 // ════════════════════════════════════════════════════════════
@@ -791,5 +798,7 @@ function closeAffectModal() { document.getElementById('affectModal').classList.r
 //  DÉMARRAGE
 // ════════════════════════════════════════════════════════════
 startAlerteStream();
+setInterval(startAlerteStream, 5000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) startAlerteStream(); });
 </script>
 @endpush

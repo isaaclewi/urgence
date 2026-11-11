@@ -10,13 +10,6 @@ use App\Models\AlerteAffectation;
 
 class UrgenceController extends Controller
 {
-    /** Durée maximale d'une connexion SSE (en dessous du timeout nginx par défaut). */
-    private const SSE_WINDOW   = 55;
-    /** Pause entre deux vérifications en base. */
-    private const SSE_INTERVAL = 3;
-    /** Intervalle entre deux heartbeats (commentaires SSE). */
-    private const SSE_HEARTBEAT = 15;
-
     public function index()
     {
         if (!session()->has('service_id')) {
@@ -35,60 +28,34 @@ class UrgenceController extends Controller
     }
 
     // ─────────────────────────────────────────────────
-    //  SSE — Nouvelles alertes pour le service connecté
-    //  GET /services/urgences/stream
+    //  Polling JSON — Nouvelles alertes pour le service connecté
+    //  GET /services/urgences/stream?lastId=123
+    //  (le nom de route "stream" est conservé ; la réponse est maintenant
+    //   immédiate, ce qui ne bloque plus php artisan serve ni un worker PHP)
     // ─────────────────────────────────────────────────
     public function stream(Request $request)
     {
-        // On lit tout ce qui dépend de la session AVANT d'ouvrir le flux.
         $service = Services::find(session('service_id'));
         abort_if(!$service, 403);
 
-        $rolesConnus = $this->rolesConnus();
-        $lastId      = (int) $request->input('lastId', 0);
+        $lastId = (int) $request->input('lastId', 0);
 
-        return $this->sseResponse(function () use ($service, $rolesConnus, &$lastId) {
+        $items = $this->alertesPourService($service, $this->rolesConnus())
+            ->with('citoyen')
+            ->where('id', '>', $lastId)
+            ->orderBy('id')
+            ->limit(50)
+            ->get()
+            ->map(fn ($a) => $this->payloadAlerte($a))
+            ->values();
 
-            $nouvelles = $this->alertesPourService($service, $rolesConnus)
-                ->with('citoyen')
-                ->where('id', '>', $lastId)
-                ->orderBy('id')
-                ->get();
-
-            foreach ($nouvelles as $alerte) {
-                $payload = [
-                    'id'           => $alerte->id,
-                    'titre'        => $alerte->titre,
-                    'type_alerte'  => $alerte->type_alerte,
-                    'localisation' => $alerte->localisation,
-                    'statut'       => $alerte->statut,
-                    'latitude'     => $alerte->latitude,
-                    'longitude'    => $alerte->longitude,
-                    'created_at'   => $alerte->created_at->format('d/m/Y H:i'),
-                    'citoyen'      => $alerte->citoyen ? [
-                        'nom'       => $alerte->citoyen->nom,
-                        'prenom'    => $alerte->citoyen->prenom,
-                        'email'     => $alerte->citoyen->email,
-                        'telephone' => $alerte->citoyen->telephone,
-                        'adresse'   => $alerte->citoyen->adresse ?? 'Adresse non renseignée',
-                        'photo'     => asset($alerte->citoyen->photo_profil ?? 'medias/default.jpg'),
-                    ] : null,
-                    'media_photo'  => $alerte->media_photo ? asset($alerte->media_photo) : null,
-                    'media_vocal'  => $alerte->media_vocal ? asset($alerte->media_vocal) : null,
-                ];
-
-                echo 'id: ' . $alerte->id . "\n";
-                echo 'data: ' . json_encode($payload) . "\n\n";
-                $lastId = $alerte->id;
-            }
-
-            return $nouvelles->isNotEmpty();
-        });
+        return response()->json(['items' => $items])
+            ->header('Cache-Control', 'no-store');
     }
 
     // ─────────────────────────────────────────────────
-    //  SSE — Nouvelles affectations pour une équipe
-    //  GET /equipe/affectations/stream
+    //  Polling JSON — Nouvelles affectations pour une équipe
+    //  GET /equipe/affectations/stream?lastId=123
     // ─────────────────────────────────────────────────
     public function streamAffectations(Request $request)
     {
@@ -97,39 +64,17 @@ class UrgenceController extends Controller
 
         $lastId = (int) $request->input('lastId', 0);
 
-        return $this->sseResponse(function () use ($equipeId, &$lastId) {
+        $items = AlerteAffectation::with(['alerte.citoyen', 'serviceSource'])
+            ->where('service_destination_id', $equipeId)
+            ->where('id', '>', $lastId)
+            ->orderBy('id')
+            ->limit(50)
+            ->get()
+            ->map(fn ($aff) => $this->payloadAffectation($aff))
+            ->values();
 
-            $nouvelles = AlerteAffectation::with(['alerte.citoyen', 'serviceSource'])
-                ->where('service_destination_id', $equipeId)
-                ->where('id', '>', $lastId)
-                ->orderBy('id')
-                ->get();
-
-            foreach ($nouvelles as $aff) {
-                $alerte  = $aff->alerte;
-                $payload = [
-                    'id'          => $aff->id,
-                    'statut'      => $aff->statut,
-                    'commentaire' => $aff->commentaire,
-                    'created_at'  => $aff->created_at->diffForHumans(),
-                    'alerte'      => $alerte ? [
-                        'id'           => $alerte->id,
-                        'titre'        => $alerte->titre,
-                        'localisation' => $alerte->localisation,
-                        'latitude'     => $alerte->latitude,
-                        'longitude'    => $alerte->longitude,
-                        'type_alerte'  => $alerte->type_alerte,
-                    ] : null,
-                    'service_source' => $aff->serviceSource?->nom,
-                ];
-
-                echo 'id: ' . $aff->id . "\n";
-                echo 'data: ' . json_encode($payload) . "\n\n";
-                $lastId = $aff->id;
-            }
-
-            return $nouvelles->isNotEmpty();
-        });
+        return response()->json(['items' => $items])
+            ->header('Cache-Control', 'no-store');
     }
 
     public function updateStatut(Request $request, $id)
@@ -213,47 +158,47 @@ class UrgenceController extends Controller
         });
     }
 
-    /**
-     * Boucle SSE commune. $tick() écrit les nouveaux événements et retourne
-     * true s'il en a émis. Le flux s'arrête dès que le client se déconnecte,
-     * ce qui libère immédiatement le worker PHP.
-     */
-    private function sseResponse(callable $tick)
+    private function payloadAlerte($alerte): array
     {
-        return response()->stream(function () use ($tick) {
+        return [
+            'id'           => $alerte->id,
+            'titre'        => $alerte->titre,
+            'type_alerte'  => $alerte->type_alerte,
+            'localisation' => $alerte->localisation,
+            'statut'       => $alerte->statut,
+            'latitude'     => $alerte->latitude,
+            'longitude'    => $alerte->longitude,
+            'created_at'   => $alerte->created_at->format('d/m/Y H:i'),
+            'citoyen'      => $alerte->citoyen ? [
+                'nom'       => $alerte->citoyen->nom,
+                'prenom'    => $alerte->citoyen->prenom,
+                'email'     => $alerte->citoyen->email,
+                'telephone' => $alerte->citoyen->telephone,
+                'adresse'   => $alerte->citoyen->adresse ?? 'Adresse non renseignée',
+                'photo'     => asset($alerte->citoyen->photo_profil ?? 'medias/default.jpg'),
+            ] : null,
+            'media_photo'  => $alerte->media_photo ? asset($alerte->media_photo) : null,
+            'media_vocal'  => $alerte->media_vocal ? asset($alerte->media_vocal) : null,
+        ];
+    }
 
-            @set_time_limit(self::SSE_WINDOW + 15);
-            while (ob_get_level() > 0) {
-                ob_end_clean();
-            }
-
-            $deadline      = time() + self::SSE_WINDOW;
-            $lastHeartbeat = 0;
-
-            while (time() < $deadline) {
-
-                if (connection_aborted()) {
-                    break;
-                }
-
-                if ($tick()) {
-                    flush();
-                }
-
-                if (time() - $lastHeartbeat >= self::SSE_HEARTBEAT) {
-                    echo ": heartbeat\n\n";
-                    flush();
-                    $lastHeartbeat = time();
-                }
-
-                sleep(self::SSE_INTERVAL);
-            }
-
-        }, 200, [
-            'Content-Type'      => 'text/event-stream',
-            'Cache-Control'     => 'no-cache',
-            'X-Accel-Buffering' => 'no',
-            'Connection'        => 'keep-alive',
-        ]);
+    private function payloadAffectation($aff): array
+    {
+        $alerte = $aff->alerte;
+        return [
+            'id'          => $aff->id,
+            'statut'      => $aff->statut,
+            'commentaire' => $aff->commentaire,
+            'created_at'  => $aff->created_at->diffForHumans(),
+            'alerte'      => $alerte ? [
+                'id'           => $alerte->id,
+                'titre'        => $alerte->titre,
+                'localisation' => $alerte->localisation,
+                'latitude'     => $alerte->latitude,
+                'longitude'    => $alerte->longitude,
+                'type_alerte'  => $alerte->type_alerte,
+            ] : null,
+            'service_source' => $aff->serviceSource?->nom,
+        ];
     }
 }
