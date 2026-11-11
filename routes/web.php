@@ -214,3 +214,5 @@ Route::middleware(['auth.equipe', 'no.cache'])->prefix('equipe')->name('equipe.'
     Route::get('/affectations/stream', [UrgenceController::class, 'streamAffectations'])->name('affectations.stream');
     Route::post('/logout', [ServicesLoginController::class, 'logout'])->name('logout');
 });
+
+require __DIR__.'/erp.php';

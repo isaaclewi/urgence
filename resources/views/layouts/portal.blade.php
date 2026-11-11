@@ -1,7 +1,7 @@
 @php
     // Détection du portail à partir de la session existante
-    $portal = session()->has('equipe_id') ? 'equipe'
-            : (session()->has('admin_id') ? 'admin' : 'service');
+    $portal = request()->is('equipe', 'equipe/*') ? 'equipe'
+            : (request()->is('admin', 'admin/*') ? 'admin' : 'service');
 
     $identity = match ($portal) {
         'equipe' => ['nom' => session('equipe_nom', 'Équipe'),  'photo' => session('equipe_photo'),  'role' => 'Équipe terrain'],
@@ -72,6 +72,9 @@
         <main class="ds-main">
             @if(session('success'))<div class="ds-alert ds-alert-success">{{ session('success') }}</div>@endif
             @if(session('error'))<div class="ds-alert ds-alert-error">{{ session('error') }}</div>@endif
+            @if($errors->any())
+                <div class="ds-alert ds-alert-error"><ul style="margin:0;padding-left:18px">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>
+            @endif
 
             @hasSection('page-subtitle')
                 <x-page-header :title="View::yieldContent('page-title', 'Tableau de bord')" :subtitle="View::yieldContent('page-subtitle')">

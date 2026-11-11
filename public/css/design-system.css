@@ -222,3 +222,17 @@
 @media (prefers-reduced-motion: reduce) {
     .ds-btn, .ds-nav-link, .ds-sidebar { transition: none; }
 }
+
+/* ── Étape 3 : listes, filtres, formulaires, pagination ──────── */
+.ds-section { margin-bottom: 20px; }
+.ds-filters { display: flex; flex-wrap: wrap; gap: 10px; padding: 14px 20px; border-bottom: 1px solid var(--ds-border); }
+.ds-filters .ds-input  { flex: 2 1 220px; }
+.ds-filters .ds-select { flex: 1 1 160px; }
+.ds-form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0 16px; }
+.ds-row-actions { display: flex; gap: 6px; justify-content: flex-end; align-items: center; white-space: nowrap; }
+.ds-row-actions form { margin: 0; }
+.ds-text-danger { color: var(--ds-danger); }
+.ds-pager { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 16px; font-size: 13px; }
+.ds-pager [aria-disabled="true"] { opacity: .45; pointer-events: none; }
+.ds-grid-aside { grid-template-columns: minmax(280px, 360px) 1fr; align-items: start; }
+@media (max-width: 900px) { .ds-grid-aside { grid-template-columns: 1fr; } }

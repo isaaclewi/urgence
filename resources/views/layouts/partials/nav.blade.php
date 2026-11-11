@@ -14,7 +14,8 @@
             ],
             'Organisation' => [
                 ['services.equipes.index',          'Équipes',         'users',    'services.equipes.*'],
-                ['services.personnel.index',        'Personnel',       'user-check', 'services.personnel.*'],
+                ['services.personnel.index',        'Personnel',       'user-check', ['services.personnel.index','services.personnel.create','services.personnel.edit']],
+                ['services.personnel.gardes',       'Planning des gardes', 'calendar', 'services.personnel.gardes*'],
                 ['services.ressources.index',       'Ressources',      'truck',    'services.ressources.*'],
                 ['services.kpi',                    'Indicateurs',     'bar-chart-2', 'services.kpi*'],
             ],
@@ -57,7 +58,7 @@
     @if(count($visibles))
         <div class="ds-nav-label">{{ $section }}</div>
         @foreach($visibles as [$route, $label, $icon, $pattern])
-            <a href="{{ route($route) }}" class="ds-nav-link {{ request()->routeIs($pattern) ? 'active' : '' }}">
+            <a href="{{ route($route) }}" class="ds-nav-link {{ request()->routeIs(...(array) $pattern) ? 'active' : '' }}">
                 <i data-feather="{{ $icon }}" class="ds-nav-icon" style="width:16px;height:16px"></i> {{ $label }}
             </a>
         @endforeach

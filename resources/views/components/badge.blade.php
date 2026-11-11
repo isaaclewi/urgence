@@ -6,6 +6,8 @@
         'pris en charge' => 'info', 'affectee' => 'info', 'affectée' => 'info', 'transmise' => 'info',
         'en route' => 'info', 'sur place' => 'info',
         'en attente' => 'warning', 'nouvelle' => 'warning',
+        'disponible' => 'success', 'en mission' => 'info', 'maintenance' => 'warning',
+        'en congé' => 'warning', 'indisponible' => 'danger', 'hors service' => 'danger',
         'ouvert' => 'danger', 'annulee' => 'danger', 'annulée' => 'danger',
         'inactif' => 'neutral', 'desactive' => 'neutral', 'désactivé' => 'neutral',
     ];
