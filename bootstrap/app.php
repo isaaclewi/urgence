@@ -18,6 +18,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth.equipe'  => \App\Http\Middleware\EnsureEquipeAuth::class,
             'no.cache'     => \App\Http\Middleware\NoCache::class, // Ajout du middleware NoCache
         ]);
+
+        // Contrôle des permissions (config/permissions.php) sur tout le groupe « web »
+        $middleware->appendToGroup('web', \App\Http\Middleware\ControlAccess::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

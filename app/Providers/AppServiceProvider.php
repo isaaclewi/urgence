@@ -5,6 +5,8 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Blade;
+use App\Support\Access;
 
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +25,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Schema::defaultStringLength(191);
+
+        // @access('personnel.manage') ... @endaccess dans les vues Blade
+        Blade::if('access', fn (string $permission) => Access::can($permission));
 
         // HTTPS forcé en ligne (derrière le proxy de l'hébergeur), mais PAS en local :
         // `php artisan serve` ne parle qu'en HTTP, et des liens https://127.0.0.1

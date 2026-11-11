@@ -55,7 +55,7 @@
 @endphp
 
 @foreach($menus[$portal] as $section => $items)
-    @php $visibles = array_filter($items, fn($i) => \Illuminate\Support\Facades\Route::has($i[0])); @endphp
+    @php $visibles = array_filter($items, fn($i) => \Illuminate\Support\Facades\Route::has($i[0]) && \App\Support\Access::canRoute($i[0])); @endphp
     @if(count($visibles))
         <div class="ds-nav-label">{{ $section }}</div>
         @foreach($visibles as [$route, $label, $icon, $pattern])
