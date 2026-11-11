@@ -836,6 +836,7 @@
             :root { --sidebar-w: 260px; }
         }
     </style>
+       <link rel="stylesheet" href="{{ asset('css/design-system.css') }}">
     @stack('styles')
 </head>
 

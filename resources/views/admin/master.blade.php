@@ -744,6 +744,7 @@
             }
         }
     </style>
+       <link rel="stylesheet" href="{{ asset('css/design-system.css') }}">
     @stack('styles')
 </head>
 

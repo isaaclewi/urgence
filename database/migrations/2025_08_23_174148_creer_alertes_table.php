@@ -23,7 +23,7 @@ return new class extends Migration
 
 
         $table->foreignId('citoyen_id')->nullable()->constrained('citoyens')->nullOnDelete();
-        $table->foreignId('services_id')->nullable()->constrained('hopitaux')->nullOnDelete();
+        $table->foreignId('services_id')->nullable()->constrained('services')->nullOnDelete();
 
 
         $table->timestamps();
