@@ -581,6 +581,16 @@
                         </div>
                     @endif
 
+                    @if (session('error') || $errors->any())
+                        <div class="mb-6 flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+                            <i data-feather="alert-circle" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+                            <div class="text-red-800 text-sm font-semibold">
+                                @if (session('error'))<p>{{ session('error') }}</p>@endif
+                                @foreach ($errors->all() as $erreur)<p>{{ $erreur }}</p>@endforeach
+                            </div>
+                        </div>
+                    @endif
+
                     <form id="alertForm" enctype="multipart/form-data" method="POST"
                           action="{{ route('enregistrerAlerte') }}" class="space-y-5">
                         @csrf
