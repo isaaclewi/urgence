@@ -3,16 +3,6 @@
 @section('page-title', 'Modifier équipe')
 @section('page-subtitle', 'Mise à jour des informations')
 
-@section('sidebar')
-<a href="{{ route('services.compte') }}" class="sidebar-link">
-    <i data-feather="home"></i> Dashboard
-</a>
-
-<a href="{{ route('services.equipes.index') }}" class="sidebar-link">
-    <i data-feather="users"></i> Équipes
-</a>
-@endsection
-
 @section('content')
 
 <div class="content-card">

@@ -3,20 +3,6 @@
 @section('page-title', 'Créer une équipe')
 @section('page-subtitle', 'Ajouter une nouvelle équipe terrain')
 
-@section('sidebar')
-<a href="{{ route('services.compte') }}" class="sidebar-link">
-    <i data-feather="home"></i> Dashboard
-</a>
-
-<a href="{{ route('services.equipes.index') }}" class="sidebar-link">
-    <i data-feather="users"></i> Équipes
-</a>
-
-<a href="{{ route('services.equipes.create') }}" class="sidebar-link active">
-    <i data-feather="plus"></i> Nouvelle équipe
-</a>
-@endsection
-
 @section('content')
 
 <div class="content-card">

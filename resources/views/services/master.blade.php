@@ -868,7 +868,7 @@
 
         {{-- Navigation --}}
         <nav class="sb-nav">
-            @yield('sidebar')
+            @hasSection('sidebar')@yield('sidebar')@else@include('layouts.partials.nav-legacy')@endif
         </nav>
 
         {{-- Profile --}}
@@ -1001,7 +1001,7 @@
             </button>
         </div>
         <nav class="mob-nav">
-            @yield('sidebar')
+            @hasSection('sidebar')@yield('sidebar')@else@include('layouts.partials.nav-legacy')@endif
         </nav>
         <div class="mob-foot">
             <img src="{{ $service->photo_profil ?? asset('medias/default.jpg') }}" alt="Profil"

@@ -7,42 +7,6 @@
 {{-- ══════════════════════════════
      SIDEBAR
 ══════════════════════════════ --}}
-@section('sidebar')
-
-<div class="sb-section-label">Principal</div>
-
-<a href="{{ route('services.compte') }}" class="sidebar-link">
-    <i data-feather="home"></i>
-    <span class="sb-lbl">Tableau de bord</span>
-</a>
-
-<a href="{{ route('services.citoyens') }}" class="sidebar-link">
-    <i data-feather="users"></i>
-    <span class="sb-lbl">Citoyens</span>
-</a>
-
-<div class="sb-divider"></div>
-<div class="sb-section-label">Services médicaux</div>
-
-<a href="{{ route('services.citoyensBilan') }}" class="sidebar-link active">
-    <i data-feather="activity"></i>
-    <span class="sb-lbl">Bilan de santé</span>
-</a>
-
-<a href="{{ route('services.vaccinationIndex') }}" class="sidebar-link">
-    <i data-feather="shield"></i>
-    <span class="sb-lbl">Vaccination</span>
-</a>
-
-<div class="sb-divider"></div>
-
-<a href="{{ route('services.logout') }}" class="sidebar-link danger">
-    <i data-feather="log-out"></i>
-    <span class="sb-lbl">Déconnexion</span>
-</a>
-
-@endsection
-
 {{-- ══════════════════════════════
      CONTENT
 ══════════════════════════════ --}}

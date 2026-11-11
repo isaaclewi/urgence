@@ -12,55 +12,6 @@
     </button>
 @endsection
 
-@section('sidebar')
-<div class="sb-section-label">Navigation</div>
-<a href="{{ route('services.compte') }}" class="sidebar-link">
-    <i data-feather="home"></i>
-    <span class="sb-lbl">Tableau de bord</span>
-</a>
-<a href="{{ route('services.urgenceSignalee') }}" class="sidebar-link">
-    <i data-feather="bell"></i>
-    <span class="sb-lbl">Urgences signalées</span>
-</a>
-<a href="{{ route('services.citoyens') }}" class="sidebar-link">
-    <i data-feather="users"></i>
-    <span class="sb-lbl">Citoyens</span>
-</a>
-<a href="{{ route('services.forum.index') }}" class="sidebar-link">
-    <i data-feather="message-square"></i>
-    <span class="sb-lbl">Forum</span>
-</a>
-<a href="{{ route('services.actualite') }}" class="sidebar-link">
-    <i data-feather="newspaper"></i>
-    <span class="sb-lbl">Actualités</span>
-</a>
-<a href="{{ route('services.profil') }}" class="sidebar-link">
-    <i data-feather="settings"></i>
-    <span class="sb-lbl">Gestion interne</span>
-</a>
-
-<div class="sb-divider"></div>
-<div class="sb-section-label">Services Médicaux</div>
-<a href="{{ route('services.vaccinationIndex') }}" class="sidebar-link">
-    <i data-feather="calendar"></i>
-    <span class="sb-lbl">Programmes Vaccination</span>
-</a>
-<a href="{{ route('services.vaccinationEnfantsIndex') }}" class="sidebar-link active">
-    <i data-feather="activity"></i>
-    <span class="sb-lbl">Vaccins Enfants</span>
-</a>
-<a href="{{ route('services.citoyensBilan') }}" class="sidebar-link">
-    <i data-feather="heart"></i>
-    <span class="sb-lbl">Bilan Santé</span>
-</a>
-
-<div class="sb-divider"></div>
-<a href="{{ route('services.logout') }}" class="sidebar-link danger">
-    <i data-feather="log-out"></i>
-    <span class="sb-lbl">Déconnexion</span>
-</a>
-@endsection
-
 @section('content')
 <div style="display:flex; flex-direction:column; gap:24px;">
 
