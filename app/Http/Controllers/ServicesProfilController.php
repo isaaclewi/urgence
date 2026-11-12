@@ -56,9 +56,7 @@ class ServicesProfilController extends Controller
         if ($request->hasFile('photo_profil')) {
             $file = $request->file('photo_profil');
 
-            $filename = time() . '_' .
-                Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) .
-                '.' . $file->getClientOriginalExtension();
+            $filename = Str::uuid() . '.' . strtolower($file->extension() ?: $file->getClientOriginalExtension());
 
             // Supprimer l'ancienne photo si elle existe
             if ($service->photo_profil) {
@@ -86,5 +84,36 @@ class ServicesProfilController extends Controller
         return redirect()
             ->route('services.profil')
             ->with('success', 'Profil mis à jour avec succès.');
+    }
+
+    /**
+     * Changement du mot de passe du compte service connecté.
+     */
+    public function password(Request $request)
+    {
+        if (! session()->has('service_id')) {
+            return redirect()->route('services.login')->with('error', 'Vous devez être connecté.');
+        }
+
+        $service = Services::findOrFail(session('service_id'));
+
+        $request->validate([
+            'mot_de_passe_actuel' => 'required|string',
+            'nouveau_mot_de_passe' => 'required|string|min:8|confirmed',
+        ], [
+            'nouveau_mot_de_passe.confirmed' => 'La confirmation ne correspond pas au nouveau mot de passe.',
+            'nouveau_mot_de_passe.min'       => 'Le nouveau mot de passe doit contenir au moins 8 caractères.',
+        ]);
+
+        if (! Hash::check($request->mot_de_passe_actuel, $service->password)) {
+            return back()->withErrors(['mot_de_passe_actuel' => 'Le mot de passe actuel est incorrect.']);
+        }
+
+        $service->password = Hash::make($request->nouveau_mot_de_passe);
+        $service->save();
+
+        $request->session()->regenerate();
+
+        return redirect()->route('services.profil')->with('success', 'Mot de passe modifié avec succès.');
     }
 }

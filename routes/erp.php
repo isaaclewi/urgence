@@ -5,6 +5,7 @@ use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\RessourceController;
 use App\Http\Controllers\KpiController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\ServicesProfilController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,6 +15,9 @@ use App\Http\Controllers\ExportController;
 | groupe « web » (session, CSRF).
 */
 Route::middleware(['auth.service', 'no.cache'])->prefix('services')->name('services.')->group(function () {
+
+    // Changement de mot de passe du compte service
+    Route::post('/profil/password', [ServicesProfilController::class, 'password'])->name('profil.password');
 
     // Tableau de bord KPI
     Route::get('/indicateurs', [KpiController::class, 'index'])->name('kpi');

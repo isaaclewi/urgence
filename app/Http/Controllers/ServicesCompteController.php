@@ -2,80 +2,54 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\alertes;
 use App\Models\Citoyens;
-use Illuminate\Support\Facades\Storage;
+use App\Models\Services;
+use App\Services\KpiService;
+use App\Support\AlertesScope;
 
 class ServicesCompteController extends Controller
 {
-    public function index()
+    /**
+     * Tableau de bord du service.
+     * Avant : les compteurs filtraient sur services_id (toujours vide pour les alertes
+     * publiques) et sur le statut « resolue » (qui n'existe pas), et la liste « récentes »
+     * montrait les alertes de tous les services.
+     */
+    public function index(KpiService $kpi)
     {
-        if (!session()->has('service_id')) {
+        if (! session()->has('service_id')) {
             return redirect()->route('services.login')->with('error', 'Veuillez vous connecter.');
         }
 
-        $serviceId = session('service_id');
-        $service = \App\Models\Services::find($serviceId);
+        $service = Services::findOrFail(session('service_id'));
+
+        $compter = fn (array $statuts) => AlertesScope::pourService($service)->whereIn('statut', $statuts)->count();
 
         $stats = [
-            'urgences_en_cours' => alertes::where('statut', 'en attente')
-                ->where('services_id', $serviceId)
-                ->count(),
-
-            'urgences_resolues' => alertes::where('statut', 'resolue')
-                ->where('services_id', $serviceId)
-                ->count(),
-
+            'en_attente'      => $compter(['en attente']),
+            'en_cours'        => $compter(['pris en charge', 'transmise']),
+            'terminees'       => $compter(['terminee']),
             'citoyens_actifs' => Citoyens::where('etat_compte', 'actif')->count(),
+            'delai_moyen'     => '—',
         ];
 
-        $recentAlerts = alertes::latest()->take(5)->get()->map(function ($a) {
-            return [
-                'title'    => $a->titre ?? 'Alerte sans titre',
-                'type'     => ucfirst($a->type ?? 'inconnu'),
-                'time'     => $a->created_at->diffForHumans(),
-                'location' => $a->localisation ?? '—',
-            ];
-        });
+        try {
+            $stats['delai_moyen'] = $kpi->calculer($service, 30)['delaiMoyen'] ?? '—';
+        } catch (\Throwable $e) {
+            // Le tableau de bord reste utilisable si le calcul des indicateurs échoue.
+        }
 
-        return view('services.compte', compact('service', 'stats', 'recentAlerts'));
+        $recentes = AlertesScope::pourService($service)->latest()->take(6)->get();
+
+        return view('services.compte', compact('service', 'stats', 'recentes'));
     }
 
     /**
-     * Upload d'un document lié au compte service
+     * Ancienne fonction de dépôt de pièce d'identité du service : retirée.
+     * Elle écrivait dans une colonne inexistante et publiait le document sur une URL publique.
      */
-    public function uploadPiece(Request $request)
+    public function uploadPiece()
     {
-        if (!session()->has('service_id')) {
-            return redirect()->route('services.login')->with('error', 'Veuillez vous connecter.');
-        }
-
-        $request->validate([
-            'piece_identite' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
-        ]);
-
-        $serviceId = session('service_id');
-        $file      = $request->file('piece_identite');
-
-        // Nom de fichier unique
-        $filename = 'service_' . $serviceId . '_' . time() . '.' . $file->getClientOriginalExtension();
-
-        // Upload vers Supabase Storage
-        $path = Storage::disk('supabase')->putFileAs('pieces', $file, $filename);
-
-        if (!$path) {
-            return back()->with('error', 'Échec du téléversement du fichier.');
-        }
-
-        // Construction de l'URL publique
-        $publicUrl = config('filesystems.disks.supabase.public_url') . '/pieces/' . $filename;
-
-        // Sauvegarde dans la base de données
-        $service = \App\Models\Services::find($serviceId);
-        $service->piece_identite = $publicUrl;
-        $service->save();
-
-        return back()->with('success', 'Document téléversé avec succès.');
+        abort(410, 'Cette fonction a été retirée.');
     }
 }
