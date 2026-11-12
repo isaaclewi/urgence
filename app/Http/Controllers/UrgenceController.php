@@ -2,58 +2,109 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AlerteAffectation;
+use App\Models\AlerteIntervention;
+use App\Models\Services;
+use App\Models\alertes;
+use App\Support\AlertesScope;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
-use App\Models\alertes;
-use App\Models\Services;
-use App\Models\AlerteAffectation;
 
 class UrgenceController extends Controller
 {
-    public function index()
+    private const STATUTS = ['en attente', 'pris en charge', 'terminee'];
+
+    private function serviceConnecte(): Services
     {
-        if (!session()->has('service_id')) {
-            return redirect()->route('services.login')->with('error', 'Veuillez vous connecter.');
-        }
+        return Services::findOrFail(session('service_id'));
+    }
 
-        $service     = Services::findOrFail(session('service_id'));
-        $rolesConnus = $this->rolesConnus();
+    /** Alerte visible par ce service — sinon 404 (jamais l'alerte d'un autre type de service). */
+    private function alerteDuService(Services $service, $id): alertes
+    {
+        return AlertesScope::pourService($service)->where('alertes.id', $id)->firstOrFail();
+    }
 
-        $alertes = $this->alertesPourService($service, $rolesConnus)
-            ->with('citoyen')
-            ->orderByDesc('created_at')
-            ->get();
+    /** Équipes actives rattachées à ce service. */
+    private function equipesActives(Services $service)
+    {
+        return Services::where('parent_service_id', $service->id)
+            ->where('etat_compte', 'actif')->orderBy('nom')->get(['id', 'nom']);
+    }
 
-        return view('services.urgenceSignalee', compact('service', 'alertes'));
+    private function stats(Services $service): array
+    {
+        $n = AlertesScope::pourService($service)
+            ->selectRaw('statut, COUNT(*) as n')->groupBy('statut')->pluck('n', 'statut');
+
+        return [
+            'attente'  => (int) ($n['en attente'] ?? 0),
+            'encours'  => (int) ($n['pris en charge'] ?? 0),
+            'terminee' => (int) ($n['terminee'] ?? 0),
+            'total'    => (int) $n->sum(),
+        ];
     }
 
     // ─────────────────────────────────────────────────
-    //  Polling JSON — Nouvelles alertes pour le service connecté
+    //  Page Urgences (filtres + pagination, plus de chargement de toutes les alertes)
+    // ─────────────────────────────────────────────────
+    public function index(Request $request)
+    {
+        $service = $this->serviceConnecte();
+
+        $liste = AlertesScope::pourService($service)->with(['citoyen', 'equipe:id,nom']);
+
+        if ($q = mb_strtolower(trim((string) $request->query('q')))) {
+            $liste->where(fn ($w) => $w
+                ->whereRaw('LOWER(alertes.titre) LIKE ?', ["%{$q}%"])
+                ->orWhereRaw('LOWER(alertes.localisation) LIKE ?', ["%{$q}%"])
+                ->orWhereRaw('LOWER(alertes.description) LIKE ?', ["%{$q}%"]));
+        }
+
+        if (in_array($request->query('statut'), self::STATUTS, true)) {
+            $liste->where('alertes.statut', $request->query('statut'));
+        }
+
+        $alertes = $liste->orderByDesc('alertes.id')->paginate(20)->withQueryString();
+
+        return view('services.urgenceSignalee', [
+            'service' => $service,
+            'alertes' => $alertes,
+            'stats'   => $this->stats($service),
+            'equipes' => $this->equipesActives($service),
+            'lastId'  => (int) AlertesScope::pourService($service)->max('alertes.id'),
+            'live'    => $alertes->onFirstPage() && ! $request->hasAny(['q', 'statut']),
+        ]);
+    }
+
+    // ─────────────────────────────────────────────────
+    //  Polling JSON — nouvelles alertes du service connecté
     //  GET /services/urgences/stream?lastId=123
-    //  (le nom de route "stream" est conservé ; la réponse est maintenant
-    //   immédiate, ce qui ne bloque plus php artisan serve ni un worker PHP)
+    //  Renvoie les lignes déjà rendues (même partial que la page) et les compteurs à jour.
     // ─────────────────────────────────────────────────
     public function stream(Request $request)
     {
         $service = Services::find(session('service_id'));
-        abort_if(!$service, 403);
+        abort_if(! $service, 403);
 
         $lastId = (int) $request->input('lastId', 0);
 
-        $items = $this->alertesPourService($service, $this->rolesConnus())
-            ->with('citoyen')
-            ->where('id', '>', $lastId)
-            ->orderBy('id')
-            ->limit(50)
-            ->get()
-            ->map(fn ($a) => $this->payloadAlerte($a))
-            ->values();
+        $nouvelles = AlertesScope::pourService($service)
+            ->with(['citoyen', 'equipe:id,nom'])
+            ->where('alertes.id', '>', $lastId)
+            ->orderBy('alertes.id')->limit(50)->get();
 
-        return response()->json(['items' => $items])
-            ->header('Cache-Control', 'no-store');
+        return response()->json([
+            'items' => $nouvelles->map(fn ($a) => [
+                'id' => $a->id, 'titre' => $a->titre, 'localisation' => $a->localisation,
+                'type_alerte' => $a->type_alerte, 'statut' => $a->statut,
+                'html' => view('services.partials.urgence-row', ['alerte' => $a])->render(),
+            ])->values(),
+            'stats' => $this->stats($service),
+        ])->header('Cache-Control', 'no-store');
     }
 
     // ─────────────────────────────────────────────────
@@ -143,110 +194,144 @@ class UrgenceController extends Controller
             : back()->with('success', 'Alerte envoyée avec succès !');
     }
 
+    // ─────────────────────────────────────────────────
+    //  Changer le statut d'une urgence
+    // ─────────────────────────────────────────────────
     public function updateStatut(Request $request, $id)
     {
-        $request->validate([
-            'statut' => 'required|in:en attente,pris en charge,terminee',
-        ]);
+        $service = $this->serviceConnecte();
+        $alerte  = $this->alerteDuService($service, $id);
 
-        $alerte = alertes::findOrFail($id);
-        $alerte->statut = $request->statut;
-        $alerte->save();
+        $request->validate(['statut' => 'required|in:' . implode(',', self::STATUTS)]);
+
+        if ($alerte->statut === 'terminee' && $request->statut !== 'terminee') {
+            return back()->with('error', 'Une urgence terminée ne peut pas être rouverte.');
+        }
+
+        DB::transaction(function () use ($alerte, $request) {
+            $alerte->statut = $request->statut;
+
+            if ($request->statut === 'terminee') {
+                $alerte->statut_intervention = 'terminee';
+
+                // On clôture aussi ce qui était encore ouvert côté équipes
+                AlerteAffectation::where('alerte_id', $alerte->id)
+                    ->whereIn('statut', ['transmise', 'en_cours'])->update(['statut' => 'terminee']);
+                AlerteIntervention::where('alerte_id', $alerte->id)
+                    ->where('statut', '!=', 'terminee')->update(['statut' => 'terminee']);
+            }
+
+            $alerte->save();
+        });
 
         return back()->with('success', 'Statut mis à jour avec succès.');
     }
 
+    // ─────────────────────────────────────────────────
+    //  Affecter (ou réaffecter) une équipe
+    // ─────────────────────────────────────────────────
     public function affecter(Request $request, $id)
     {
+        $service = $this->serviceConnecte();
+        $alerte  = $this->alerteDuService($service, $id);
+
         $request->validate([
-            'service_destination_id' => 'required|exists:services,id',
-            'commentaire'            => 'nullable|string',
+            'service_destination_id' => 'required|integer',
+            'commentaire'            => 'nullable|string|max:1000',
         ]);
 
-        $alerte = alertes::findOrFail($id);
+        if ($alerte->statut === 'terminee') {
+            return back()->with('error', 'Cette urgence est terminée : elle ne peut plus être affectée.');
+        }
 
-        AlerteAffectation::create([
-            'alerte_id'              => $alerte->id,
-            'service_source_id'      => session('service_id'),
-            'service_destination_id' => $request->service_destination_id,
-            'affecte_par'            => session('service_id'),
-            'commentaire'            => $request->commentaire,
-            'statut'                 => 'transmise',
-        ]);
+        // L'équipe doit appartenir à CE service et être active
+        $equipe = Services::where('id', $request->service_destination_id)
+            ->where('parent_service_id', $service->id)
+            ->where('etat_compte', 'actif')->first();
 
-        $alerte->equipe_id           = $request->service_destination_id;
-        $alerte->statut_intervention = 'affectee';
-        $alerte->save();
+        if (! $equipe) {
+            return back()->with('error', 'Équipe introuvable ou désactivée.');
+        }
 
-        return back()->with('success', 'Alerte affectée avec succès.');
+        $ouvertes = AlerteAffectation::with('serviceDestination:id,nom')
+            ->where('alerte_id', $alerte->id)->whereIn('statut', ['transmise', 'en_cours'])->get();
+
+        if ($enCours = $ouvertes->firstWhere('statut', 'en_cours')) {
+            return back()->with('error', "L'équipe « " . ($enCours->serviceDestination->nom ?? '?') . " » est déjà en intervention sur cette urgence.");
+        }
+
+        if ($ouvertes->contains('service_destination_id', $equipe->id)) {
+            return back()->with('error', "Cette urgence est déjà affectée à « {$equipe->nom} ».");
+        }
+
+        DB::transaction(function () use ($alerte, $ouvertes, $equipe, $service, $request) {
+            // Réaffectation : l'ancienne affectation non démarrée est annulée (et non supprimée : les délais restent exacts)
+            foreach ($ouvertes as $ancienne) {
+                $ancienne->update(['statut' => 'annulee']);
+            }
+
+            AlerteAffectation::create([
+                'alerte_id'              => $alerte->id,
+                'service_source_id'      => $service->id,
+                'service_destination_id' => $equipe->id,
+                'affecte_par'            => $service->id,
+                'commentaire'            => $request->commentaire,
+                'statut'                 => 'transmise',
+            ]);
+
+            $alerte->equipe_id           = $equipe->id;
+            $alerte->statut_intervention = 'affectee';
+            $alerte->save();
+        });
+
+        return back()->with('success', "Urgence affectée à « {$equipe->nom} ».");
     }
 
-    public function interventionsJournalieres()
+    // ─────────────────────────────────────────────────
+    //  Interventions des équipes du service (filtres + pagination)
+    // ─────────────────────────────────────────────────
+    public function interventionsJournalieres(Request $request)
     {
-        // Un service ne voit que les interventions de SES équipes.
-        $interventions = DB::table('alerte_interventions')
-            ->join('alertes',  'alertes.id',  '=', 'alerte_interventions.alerte_id')
-            ->join('services', 'services.id', '=', 'alerte_interventions.equipe_id')
-            ->where('services.parent_service_id', session('service_id'))
-            ->select(
-                'alerte_interventions.*',
-                'alertes.titre',
-                'alertes.localisation',
-                'services.nom as equipe_nom'
-            )
-            ->orderByDesc('alerte_interventions.created_at')
-            ->get();
+        $service = $this->serviceConnecte();
+        $equipes = Services::where('parent_service_id', $service->id)->orderBy('nom')->get(['id', 'nom']);
 
-        return view('services.interventions_journalieres', compact('interventions'));
+        $base = fn () => DB::table('alerte_interventions as i')
+            ->join('alertes as a', 'a.id', '=', 'i.alerte_id')
+            ->join('services as e', 'e.id', '=', 'i.equipe_id')
+            ->where('e.parent_service_id', $service->id);
+
+        $liste = $base();
+
+        if ($request->filled('du')) {
+            $liste->whereDate('i.created_at', '>=', $request->query('du'));
+        }
+        if ($request->filled('au')) {
+            $liste->whereDate('i.created_at', '<=', $request->query('au'));
+        }
+        if ($request->filled('equipe') && $equipes->contains('id', (int) $request->query('equipe'))) {
+            $liste->where('i.equipe_id', (int) $request->query('equipe'));
+        }
+        if (in_array($request->query('statut'), ['en_cours', 'terminee'], true)) {
+            $liste->where('i.statut', $request->query('statut'));
+        }
+
+        $stats = [
+            'total'   => $base()->count(),
+            'encours' => $base()->where('i.statut', 'en_cours')->count(),
+            'terminee' => $base()->where('i.statut', 'terminee')->count(),
+            'equipes' => $base()->distinct()->count('i.equipe_id'),
+        ];
+
+        $interventions = $liste
+            ->select('i.*', 'a.titre', 'a.localisation', 'e.nom as equipe_nom')
+            ->orderByDesc('i.created_at')->paginate(20)->withQueryString();
+
+        return view('services.interventions_journalieres', compact('interventions', 'equipes', 'stats'));
     }
 
     // ═════════════════════════════════════════════════
     //  Helpers privés
     // ═════════════════════════════════════════════════
-
-    /** Rôles de services existants (hôpital, police, pompier…). */
-    private function rolesConnus(): array
-    {
-        return Services::whereNotNull('role')->pluck('role')->toArray();
-    }
-
-    /**
-     * Alertes visibles par un service : celles de son type, plus celles
-     * sans type ou dont le type ne correspond à aucun service connu.
-     */
-    private function alertesPourService(Services $service, array $rolesConnus)
-    {
-        return alertes::query()->where(function ($q) use ($service, $rolesConnus) {
-            $q->where('type_alerte', $service->role)
-              ->orWhereNull('type_alerte')
-              ->orWhere('type_alerte', '')
-              ->orWhereNotIn('type_alerte', $rolesConnus);
-        });
-    }
-
-    private function payloadAlerte($alerte): array
-    {
-        return [
-            'id'           => $alerte->id,
-            'titre'        => $alerte->titre,
-            'type_alerte'  => $alerte->type_alerte,
-            'localisation' => $alerte->localisation,
-            'statut'       => $alerte->statut,
-            'latitude'     => $alerte->latitude,
-            'longitude'    => $alerte->longitude,
-            'created_at'   => $alerte->created_at->format('d/m/Y H:i'),
-            'citoyen'      => $alerte->citoyen ? [
-                'nom'       => $alerte->citoyen->nom,
-                'prenom'    => $alerte->citoyen->prenom,
-                'email'     => $alerte->citoyen->email,
-                'telephone' => $alerte->citoyen->telephone,
-                'adresse'   => $alerte->citoyen->adresse ?? 'Adresse non renseignée',
-                'photo'     => asset($alerte->citoyen->photo_profil ?? 'medias/default.jpg'),
-            ] : null,
-            'media_photo'  => $alerte->media_photo ? asset($alerte->media_photo) : null,
-            'media_vocal'  => $alerte->media_vocal ? asset($alerte->media_vocal) : null,
-        ];
-    }
 
     private function payloadAffectation($aff): array
     {

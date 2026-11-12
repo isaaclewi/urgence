@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Services;
 use App\Models\alertes;
 use App\Models\AlerteAffectation;
+use App\Models\AlerteIntervention;
 
 class EquipeDashboardController extends Controller
 {
@@ -37,6 +38,7 @@ class EquipeDashboardController extends Controller
         // Alertes affectées à cette équipe via alerte_affectations
         $affectations = AlerteAffectation::with('alerte.citoyen')
             ->where('service_destination_id', $equipeId)
+            ->where('statut', '!=', 'annulee')
             ->orderByDesc('created_at')
             ->get();
 
@@ -70,6 +72,7 @@ class EquipeDashboardController extends Controller
 
         $affectations = AlerteAffectation::with(['alerte.citoyen', 'serviceSource'])
             ->where('service_destination_id', $equipeId)
+            ->where('statut', '!=', 'annulee')
             ->orderByDesc('created_at')
             ->get();
 
@@ -87,6 +90,7 @@ class EquipeDashboardController extends Controller
         $equipe      = Services::findOrFail($equipeId);
         $affectation = AlerteAffectation::with(['alerte.citoyen', 'serviceSource'])
             ->where('service_destination_id', $equipeId)
+            ->where('statut', '!=', 'annulee')
             ->where('id', $id)
             ->firstOrFail();
 
@@ -101,25 +105,55 @@ class EquipeDashboardController extends Controller
         if ($redir = $this->checkAuth()) return $redir;
 
         $request->validate([
-            'statut' => 'required|in:transmise,en_cours,terminee',
+            'statut'      => 'required|in:transmise,en_cours,terminee',
+            'commentaire' => 'nullable|string|max:1000',
         ]);
 
-        $affectation = AlerteAffectation::findOrFail($id);
+        $affectation = AlerteAffectation::with('alerte')->findOrFail($id);
 
-        // Sécurité : l'équipe ne peut modifier que ses propres affectations
-        if ($affectation->service_destination_id != session('equipe_id')) {
+        // Sécurité : l'équipe ne peut modifier que ses propres affectations (et pas une affectation annulée)
+        if ($affectation->service_destination_id != session('equipe_id') || $affectation->statut === 'annulee') {
             abort(403);
         }
 
-        $affectation->statut = $request->statut;
-        $affectation->save();
+        // Déroulement : transmise → en_cours → terminee, sans retour en arrière
+        $ordre = ['transmise' => 0, 'en_cours' => 1, 'terminee' => 2];
 
-        // Si terminée, mettre à jour l'alerte aussi
-        if ($request->statut === 'terminee') {
-            $affectation->alerte->update(['statut' => 'terminee']);
-        } elseif ($request->statut === 'en_cours') {
-            $affectation->alerte->update(['statut' => 'pris en charge']);
+        if ($ordre[$request->statut] < ($ordre[$affectation->statut] ?? 0)) {
+            return back()->with('error', 'Impossible de revenir à une étape précédente.');
         }
+
+        DB::transaction(function () use ($affectation, $request) {
+            $affectation->statut = $request->statut;
+            $affectation->save();
+
+            $alerte = $affectation->alerte;
+
+            if ($request->statut === 'terminee') {
+                $alerte->update(['statut' => 'terminee', 'statut_intervention' => 'terminee']);
+            } elseif ($request->statut === 'en_cours') {
+                $alerte->update(['statut' => 'pris en charge', 'statut_intervention' => 'en_cours']);
+            }
+
+            // Trace de l'intervention : c'est elle qui alimente la page « Interventions » du service,
+            // les rapports PDF et les exports (avant, rien ne la créait).
+            if (in_array($request->statut, ['en_cours', 'terminee'], true)) {
+                $donnees = [
+                    'statut'    => $request->statut,
+                    'latitude'  => $alerte->latitude,
+                    'longitude' => $alerte->longitude,
+                ];
+
+                if ($request->filled('commentaire')) {
+                    $donnees['commentaire'] = $request->commentaire;
+                }
+
+                AlerteIntervention::updateOrCreate(
+                    ['alerte_id' => $alerte->id, 'equipe_id' => $affectation->service_destination_id],
+                    $donnees
+                );
+            }
+        });
 
         return back()->with('success', 'Statut mis à jour.');
     }
