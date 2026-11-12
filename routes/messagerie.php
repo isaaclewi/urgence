@@ -41,6 +41,7 @@ foreach ($portails as $nom => $cfg) {
             Route::get('/{id}',                      [MessagerieController::class, 'show'])->whereNumber('id')->name('show');
             Route::get('/{id}/messages',             [MessagerieController::class, 'poll'])->whereNumber('id')->name('poll');
             Route::post('/{id}/messages',            [MessagerieController::class, 'send'])->whereNumber('id')->name('send');
+            Route::get('/{id}/messages/{messageId}/fichier', [MessagerieController::class, 'fichier'])->whereNumber(['id', 'messageId'])->name('fichier');
             Route::put('/{id}/messages/{messageId}', [MessagerieController::class, 'update'])->whereNumber(['id', 'messageId'])->name('update');
             Route::delete('/{id}/messages/{messageId}', [MessagerieController::class, 'destroy'])->whereNumber(['id', 'messageId'])->name('destroy');
 

@@ -12,7 +12,9 @@ use App\Support\Messagerie\Presenter;
 use App\Support\Messagerie\Rules;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
@@ -234,12 +236,24 @@ class MessagerieController extends Controller
         }
 
         $data = $request->validate([
-            'message'     => ['required', 'string', 'max:2000'],
+            'message'     => ['nullable', 'string', 'max:2000'],
             'reply_to_id' => ['nullable', 'integer'],
+            // Citoyens : images seulement. Administration et services : images, documents, audio.
+            'fichier'     => $actor->isCitoyen()
+                ? ['nullable', 'file', 'mimes:jpg,jpeg,png,gif,webp', 'max:5120']
+                : ['nullable', 'file', 'mimes:jpg,jpeg,png,gif,webp,pdf,doc,docx,xls,xlsx,ppt,pptx,txt,csv,mp3,m4a,ogg,wav,mp4', 'max:10240'],
+        ], [
+            'fichier.uploaded' => "Le fichier n'a pas pu être envoyé (trop volumineux pour le serveur).",
+            'fichier.max'      => 'Le fichier est trop volumineux.',
+            'fichier.mimes'    => $actor->isCitoyen()
+                ? 'Seules les images (jpg, png, gif, webp) sont acceptées.'
+                : "Ce type de fichier n'est pas accepté.",
         ]);
 
-        $texte = trim($data['message']);
-        if ($texte === '') {
+        $texte   = trim((string) ($data['message'] ?? ''));
+        $fichier = $request->file('fichier');
+
+        if ($texte === '' && ! $fichier) {
             return $this->refus($request, 'Le message est vide.', 422);
         }
 
@@ -254,12 +268,37 @@ class MessagerieController extends Controller
             $reponseA = DiscussionMessage::where('discussion_space_id', $space->id)->find($data['reply_to_id'])?->id;
         }
 
-        $m = DiscussionMessage::create([
+        // Pièce jointe : stockée sur Supabase, servie ensuite par le contrôleur (droits vérifiés à chaque lecture)
+        $piece = ['message_type' => 'texte'];
+        if ($fichier) {
+            try {
+                $ext    = strtolower($fichier->extension() ?: $fichier->getClientOriginalExtension());
+                $chemin = 'messagerie/' . $space->id . '/' . now()->format('Ymd') . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
+                $mime   = $fichier->getMimeType() ?: 'application/octet-stream';
+                $taille = (int) $fichier->getSize();
+                $nom    = Str::limit(preg_replace('/[\r\n\0"\\\\\/]/', '', $fichier->getClientOriginalName()), 150, '');
+
+                Storage::disk('supabase')->putFileAs(dirname($chemin), $fichier, basename($chemin));
+
+                $piece = [
+                    'message_type' => str_starts_with($mime, 'image/') ? 'image' : (str_starts_with($mime, 'video/') ? 'video' : 'fichier'),
+                    'file_path'    => $chemin,
+                    'file_name'    => $nom !== '' ? $nom : basename($chemin),
+                    'file_mime'    => $mime,
+                    'file_size'    => $taille,
+                ];
+            } catch (\Throwable $e) {
+                Log::warning('Messagerie : échec du stockage de la pièce jointe', ['erreur' => $e->getMessage()]);
+
+                return $this->refus($request, "L'envoi du fichier a échoué. Réessayez dans un instant.", 500);
+            }
+        }
+
+        $m = DiscussionMessage::create($piece + [
             'discussion_space_id' => $space->id,
             'sender_type'         => $actor->type,
             'sender_id'           => $actor->id,
-            'message_type'        => 'texte',
-            'message'             => $texte,
+            'message'             => $texte !== '' ? $texte : null,
             'reply_to_id'         => $reponseA,
         ]);
 
@@ -293,15 +332,15 @@ class MessagerieController extends Controller
                 . Rules::EDIT_WINDOW_MINUTES . ' minutes dépassé).', 403);
         }
 
-        $data = $request->validate(['message' => ['required', 'string', 'max:2000']]);
-        $texte = trim($data['message']);
+        $data = $request->validate(['message' => [$m->file_path ? 'nullable' : 'required', 'string', 'max:2000']]);
+        $texte = trim((string) ($data['message'] ?? ''));
 
-        if ($texte === '') {
+        if ($texte === '' && ! $m->file_path) {
             return $this->refus($request, 'Le message est vide.', 422);
         }
 
-        if ($texte !== $m->message) {
-            $m->update(['message' => $texte, 'edited_at' => now()]);
+        if ($texte !== (string) $m->message) {
+            $m->update(['message' => $texte !== '' ? $texte : null, 'edited_at' => now()]);
         }
 
         [$prep, $auteurs] = Presenter::prepare(collect([$m->fresh()]));
@@ -320,7 +359,14 @@ class MessagerieController extends Controller
         }
 
         // Suppression « pour tous », conservée en base pour la traçabilité (jamais réaffichée)
+        if ($m->file_path) {
+            try { Storage::disk('supabase')->delete($m->file_path); } catch (\Throwable $e) {
+                Log::warning('Messagerie : fichier non supprimé du stockage', ['erreur' => $e->getMessage()]);
+            }
+        }
+
         $m->update([
+            'file_path'       => null,
             'is_deleted'      => true,
             'deleted_at'      => now(),
             'deleted_by_type' => $actor->type,
@@ -330,6 +376,51 @@ class MessagerieController extends Controller
         [$prep, $auteurs] = Presenter::prepare(collect([$m->fresh()]));
 
         return response()->json(['ok' => true, 'html' => $this->rendre($prep, $auteurs, $actor, $space)]);
+    }
+
+    /** Lecture d'une pièce jointe : réservée à ceux qui ont accès au groupe. */
+    public function fichier(Request $request, int $id, int $messageId)
+    {
+        $actor = $this->actor($request);
+        $space = $this->space($id);
+
+        abort_unless(Rules::canView($actor, $space), 403);
+
+        $m = DiscussionMessage::where('discussion_space_id', $space->id)->findOrFail($messageId);
+        abort_if($m->is_deleted || ! $m->file_path, 404);
+
+        try {
+            $flux = Storage::disk('supabase')->readStream($m->file_path);
+        } catch (\Throwable $e) {
+            $flux = null;
+        }
+        abort_if(! $flux, 404);
+
+        $mime    = $m->file_mime ?: 'application/octet-stream';
+        $affiche = str_starts_with($mime, 'image/') && $mime !== 'image/svg+xml';
+        $nom     = $m->file_name ?: basename($m->file_path);
+
+        $entetes = [
+            'Content-Type'           => $mime,
+            'X-Content-Type-Options' => 'nosniff',
+            'Cache-Control'          => 'private, max-age=3600',
+        ];
+        if ($m->file_size) {
+            $entetes['Content-Length'] = (string) $m->file_size;
+        }
+
+        $reponse = response()->stream(function () use ($flux) {
+            fpassthru($flux);
+            if (is_resource($flux)) {
+                fclose($flux);
+            }
+        }, 200, $entetes);
+
+        $reponse->headers->set('Content-Disposition', $reponse->headers->makeDisposition(
+            $affiche ? 'inline' : 'attachment', $nom, Str::ascii($nom) ?: 'fichier'
+        ));
+
+        return $reponse;
     }
 
     // ───────────────────────── Demande d'accès (services) ─────────────────────────

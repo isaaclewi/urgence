@@ -12,8 +12,8 @@
      data-id="{{ $m->id }}" data-sender="{{ $m->sender_type }}:{{ $m->sender_id }}"
      data-day="{{ $m->created_at->format('Y-m-d') }}" data-ts="{{ $m->created_at->timestamp }}"
      data-name="{{ $mine ? 'Vous' : $a['name'] }}"
-     data-excerpt="{{ $m->is_deleted ? '' : \App\Support\Messagerie\Presenter::excerpt($m->message) }}"
-     data-raw="{{ $canEdit ? $m->message : '' }}">
+     data-excerpt="{{ $m->is_deleted ? '' : \App\Support\Messagerie\Presenter::preview($m) }}"
+     data-raw="{{ $canEdit ? (string) $m->message : '' }}">
     <div class="mg-av">{{ $a['initials'] }}</div>
     <div class="mg-bubble">
         <div class="mg-head">
@@ -24,10 +24,23 @@
         @if($q && ! $m->is_deleted)
             <div class="mg-quote tone-{{ $qa['tone'] }}" data-act="goto" data-target="{{ $q->id }}">
                 <b>{{ $qa['name'] }}</b>
-                <span>{{ $q->is_deleted ? 'Message supprimé' : \App\Support\Messagerie\Presenter::excerpt($q->message, 80) }}</span>
+                <span>{{ \App\Support\Messagerie\Presenter::preview($q, 80) }}</span>
             </div>
         @endif
 
+        @if(! $m->is_deleted && $m->file_path)
+            @php $url = route($actor->routePrefix() . 'fichier', [$space->id, $m->id]); @endphp
+            @if($m->message_type === 'image')
+                <a href="{{ $url }}" target="_blank" rel="noopener"><img class="mg-img" src="{{ $url }}" alt="{{ $m->file_name }}" loading="lazy"></a>
+            @else
+                <a class="mg-file" href="{{ $url }}" download>
+                    <span class="mg-file-ic">{{ strtoupper(pathinfo((string) $m->file_name, PATHINFO_EXTENSION) ?: 'FILE') }}</span>
+                    <span class="mg-file-t"><b>{{ $m->file_name }}</b><small>{{ \App\Support\Messagerie\Presenter::taille($m->file_size) }} · Télécharger</small></span>
+                </a>
+            @endif
+        @endif
+
+        @if($m->is_deleted || filled($m->message))
         <div class="mg-text">
             @if($m->is_deleted)
                 {{ $parMod ? 'Message supprimé par un modérateur' : 'Ce message a été supprimé' }}
@@ -35,6 +48,7 @@
                 {!! \App\Support\Messagerie\Presenter::text($m->message) !!}
             @endif
         </div>
+        @endif
 
         <div class="mg-meta">
             @if($m->edited_at && ! $m->is_deleted)<span>modifié</span>@endif

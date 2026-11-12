@@ -100,6 +100,37 @@ final class Presenter
         return Str::limit(trim(preg_replace('/\s+/u', ' ', (string) $texte)), $max);
     }
 
+    /** Aperçu d'un message (liste, citation) : texte, ou type de pièce jointe. */
+    public static function preview(?object $m, int $max = 90): string
+    {
+        if (! $m) {
+            return '';
+        }
+        if ($m->is_deleted) {
+            return 'Message supprimé';
+        }
+        if (filled($m->message)) {
+            return self::excerpt($m->message, $max);
+        }
+
+        return match ($m->message_type) {
+            'image' => 'Photo',
+            'video' => 'Vidéo',
+            default => 'Fichier : ' . ($m->file_name ?: 'pièce jointe'),
+        };
+    }
+
+    public static function taille(?int $octets): string
+    {
+        $o = (int) $octets;
+
+        return match (true) {
+            $o >= 1048576 => number_format($o / 1048576, 1, ',', ' ') . ' Mo',
+            $o >= 1024    => (int) round($o / 1024) . ' Ko',
+            default       => $o . ' o',
+        };
+    }
+
     /**
      * Charge les messages cités (réponses) et renvoie [messages, auteurs] prêts pour les vues.
      */

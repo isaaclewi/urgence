@@ -56,7 +56,7 @@
                         </div>
                         <div class="mg-row-prev">
                             @if($d)
-                                {{ $d->is_deleted ? 'Message supprimé' : ($da['name'] . ' : ' . \App\Support\Messagerie\Presenter::excerpt($d->message, 70)) }}
+                                {{ $d->is_deleted ? 'Message supprimé' : ($da['name'] . ' : ' . \App\Support\Messagerie\Presenter::preview($d, 70)) }}
                             @else
                                 {{ $s->description ?: 'Aucun message pour le moment' }}
                             @endif

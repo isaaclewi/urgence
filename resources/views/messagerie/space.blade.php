@@ -17,7 +17,7 @@
      data-last="{{ $dernierId }}" data-since="{{ $maintenant }}" data-more="{{ $aPlus ? 1 : 0 }}"
      data-canpost="{{ $canPost ? 1 : 0 }}"
      data-today="{{ now()->format('Y-m-d') }}" data-yesterday="{{ now()->subDay()->format('Y-m-d') }}"
-     data-csrf="{{ csrf_token() }}">
+     data-csrf="{{ csrf_token() }}" data-maxmb="{{ $actor->isCitoyen() ? 5 : 10 }}">
 
     <section class="mg-chat">
         <header class="mg-top">
@@ -57,7 +57,14 @@
                     <div><b id="mg-reply-name"></b><span id="mg-reply-text"></span></div>
                     <button type="button" class="mg-btn" id="mg-reply-x" aria-label="Annuler la réponse">✕</button>
                 </div>
+                <div class="mg-chip" id="mg-chip" hidden>
+                    <span id="mg-chip-name"></span>
+                    <button type="button" class="mg-btn" id="mg-chip-x" aria-label="Retirer le fichier">✕</button>
+                </div>
                 <form class="mg-form" id="mg-form" autocomplete="off">
+                    <input type="file" id="mg-file" hidden
+                           accept="{{ $actor->isCitoyen() ? 'image/*' : 'image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.mp3,.m4a,.ogg,.wav,.mp4' }}">
+                    <button class="mg-btn" type="button" id="mg-attach" aria-label="Joindre un fichier">Joindre</button>
                     <textarea id="mg-input" rows="1" maxlength="2000" placeholder="Écrire un message…" aria-label="Message"></textarea>
                     <button class="mg-btn primary" type="submit" id="mg-send">Envoyer</button>
                 </form>
@@ -121,8 +128,11 @@
     async function api(url, method, body) {
         const res = await fetch(url, {
             method: method || 'GET',
-            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-CSRF-TOKEN': cfg.csrf, 'X-Requested-With': 'XMLHttpRequest' },
-            body: body ? JSON.stringify(body) : undefined,
+            headers: Object.assign(
+                { 'Accept': 'application/json', 'X-CSRF-TOKEN': cfg.csrf, 'X-Requested-With': 'XMLHttpRequest' },
+                body instanceof FormData ? {} : { 'Content-Type': 'application/json' }
+            ),
+            body: body ? (body instanceof FormData ? body : JSON.stringify(body)) : undefined,
             credentials: 'same-origin',
         });
         let data = {};
@@ -220,7 +230,17 @@
         $('mg-reply-text').textContent = el.dataset.excerpt;
         $('mg-reply').hidden = false; input.focus();
     }
+    const fileInput = $('mg-file');
+    function clearFile() { if (fileInput) { fileInput.value = ''; $('mg-chip').hidden = true; } }
     if (form) {
+        $('mg-attach').addEventListener('click', () => fileInput.click());
+        $('mg-chip-x').addEventListener('click', clearFile);
+        fileInput.addEventListener('change', () => {
+            const f = fileInput.files[0]; if (!f) return clearFile();
+            if (f.size > parseInt(cfg.maxmb, 10) * 1048576) { toast('Fichier trop volumineux (max ' + cfg.maxmb + ' Mo).'); return clearFile(); }
+            $('mg-chip-name').textContent = f.name + ' (' + (f.size / 1048576 >= 1 ? (f.size / 1048576).toFixed(1) + ' Mo' : Math.max(1, Math.round(f.size / 1024)) + ' Ko') + ')';
+            $('mg-chip').hidden = false;
+        });
         const grow = () => { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 140) + 'px'; };
         input.addEventListener('input', grow);
         input.addEventListener('keydown', e => {
@@ -229,13 +249,17 @@
         $('mg-reply-x').addEventListener('click', clearReply);
         form.addEventListener('submit', async e => {
             e.preventDefault();
-            const text = input.value.trim();
-            if (!text || sending) return;
+            const text = input.value.trim(), f = fileInput.files[0];
+            if ((!text && !f) || sending) return;
             sending = true; $('mg-send').disabled = true;
             try {
-                const d = await api(cfg.send, 'POST', { message: text, reply_to_id: replyTo });
+                const fd = new FormData();
+                fd.append('message', text);
+                if (replyTo) fd.append('reply_to_id', replyTo);
+                if (f) fd.append('fichier', f);
+                const d = await api(cfg.send, 'POST', fd);
                 append(d.html); lastId = Math.max(lastId, d.id);
-                input.value = ''; grow(); clearReply(); decorate(); toBottom();
+                input.value = ''; grow(); clearReply(); clearFile(); decorate(); toBottom();
             } catch (err) { toast(err.message); }
             finally { sending = false; $('mg-send').disabled = false; input.focus(); }
         });
@@ -246,12 +270,14 @@
     document.addEventListener('click', e => { if (!e.target.closest('.mg-more')) closeMenus(); });
 
     function startEdit(el) {
-        const box = el.querySelector('.mg-text'), original = box.innerHTML;
+        let box = el.querySelector('.mg-text');
+        if (!box) { box = document.createElement('div'); box.className = 'mg-text'; el.querySelector('.mg-meta').before(box); }
+        const original = box.innerHTML;
         box.innerHTML = '<div class="mg-edit"><textarea maxlength="2000"></textarea><div>' +
             '<button type="button" class="mg-btn" data-x="cancel">Annuler</button>' +
             '<button type="button" class="mg-btn primary" data-x="save">Enregistrer</button></div></div>';
         const ta = box.querySelector('textarea'); ta.value = el.dataset.raw; ta.focus();
-        box.querySelector('[data-x=cancel]').onclick = () => { box.innerHTML = original; };
+        box.querySelector('[data-x=cancel]').onclick = () => { if (original.trim()) box.innerHTML = original; else box.remove(); };
         box.querySelector('[data-x=save]').onclick = async () => {
             const text = ta.value.trim(); if (!text) return;
             try { const d = await api(itemUrl(el.dataset.id), 'PUT', { message: text }); replace(el.dataset.id, d.html); decorate(); }

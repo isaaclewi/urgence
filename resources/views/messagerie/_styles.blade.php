@@ -90,6 +90,16 @@ a.mg-row:hover { background:var(--mg-bg); }
 .mg-counter { text-align:right; font-size:11px; color:var(--mg-mute); margin-top:3px; }
 .mg-toast { position:absolute; left:50%; top:62px; transform:translateX(-50%); background:#0F172A; color:#fff; font-size:12.5px; padding:8px 14px; border-radius:8px; z-index:6; }
 
+/* ── pièces jointes ── */
+.mg-img { display:block; max-width:100%; max-height:300px; border-radius:10px; margin:2px 0 4px; object-fit:cover; background:#E2E8F0; min-height:60px; }
+.mg-file { display:flex; gap:10px; align-items:center; text-decoration:none; color:inherit; background:rgba(15,23,42,.05); border-radius:10px; padding:8px 10px; margin:2px 0 4px; min-width:200px; }
+.mg-file:hover { background:rgba(15,23,42,.09); }
+.mg-file-ic { flex:none; width:38px; height:38px; border-radius:8px; background:var(--t,#475569); color:#fff; font:700 10px/1 'Inter',sans-serif; display:flex; align-items:center; justify-content:center; }
+.mg-file-t { min-width:0; } .mg-file-t b { display:block; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:30ch; }
+.mg-file-t small { color:var(--mg-mute); font-size:11.5px; }
+.mg-chip { display:flex; align-items:center; gap:10px; background:var(--mg-bg); border:1px dashed var(--mg-border); border-radius:8px; padding:6px 10px; margin-bottom:8px; font-size:12.5px; }
+.mg-chip[hidden] { display:none; } .mg-chip span { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
 /* ── panneau latéral ── */
 .mg-side { border-left:1px solid var(--mg-border); overflow-y:auto; padding:16px; background:#fff; font-size:13px; }
 .mg-side h3 { font:700 12px/1 'Inter',sans-serif; color:var(--mg-mute); margin:18px 0 8px; } .mg-side h3:first-child { margin-top:0; }
