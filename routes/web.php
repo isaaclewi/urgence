@@ -94,10 +94,6 @@ Route::middleware(['auth.citoyen', 'no.cache'])->group(function () {
     Route::get('/programmes-vaccination', [ProgrammeVaccinController::class, 'index'])->name('programmeVaccinController');
     Route::get('/programmes-epidemie', [ProgrammeVaccinEpidemieController::class, 'index'])->name('programmeVaccinEpidemieController');
     Route::get('/programmes-vaccination-enfant', [ProgrammeVaccinEnfantController::class, 'index'])->name('programmeVaccinEnfantController');
-    Route::get('/forumCitoyen', [RedirectionController::class, 'forumCitoyen'])->name('forumCitoyen');
-    Route::get('/groupeDiscussion/{id}', [RedirectionController::class, 'groupeDiscussion'])->name('groupeDiscussion');
-    Route::post('/groupeDiscussion/{id}/creer', [RedirectionController::class, 'creerGroupe'])->name('creerGroupe');
-    Route::delete('/forumCitoyen/message/{id}', [RedirectionController::class, 'supprimerMessage'])->name('supprimerMessage');
 });
 
 // ─── ADMIN (connecté) ───────────────────────────
@@ -133,14 +129,6 @@ Route::get('/service-desactiver/{id}', [adminServicesController::class, 'desacti
     Route::put('/actualites/{id}', [AdminActualiteController::class, 'update'])->name('admin.actualiteUpdate');
     Route::delete('/actualites/{id}', [AdminActualiteController::class, 'destroy'])->name('admin.actualiteDestroy');
     Route::get('/alertes', [AdminAlertesController::class, 'index'])->name('admin.alertes');
-    Route::get('/discussion-spaces', [AdminDiscussionSpaceController::class, 'index'])->name('admin.discussion.spaces');
-    Route::post('/discussion-spaces', [AdminDiscussionSpaceController::class, 'store'])->name('admin.discussion.space.store');
-    Route::get('/discussion-spaces/toggle/{id}', [AdminDiscussionSpaceController::class, 'toggle'])->name('admin.discussion.space.toggle');
-    Route::get('/discussion-space/{id}/delete', [AdminDiscussionSpaceController::class, 'destroy'])->name('admin.discussion.space.delete');
-    Route::get('/forum', [ForumController::class, 'index'])->name('forum.index');
-Route::get('/forum/{id}', [ForumController::class, 'show'])->name('forum.group');
-Route::post('/forum/{id}/message', [ForumController::class, 'sendMessage'])->name('forum.group.send');
-Route::delete('/forum/message/{id}', [ForumController::class, 'deleteMessage'])->name('forum.message.delete');
 
 //Mon commentaire (Déchiffrement de la pièce d'identité)
 Route::get('/citoyen/piece/{id}', [PieceIdentiteCitoyenController::class, 'show'])->name('citoyen.piece');
@@ -179,10 +167,6 @@ Route::get('/services/actualites/{id}/edit', [ActualiteController::class, 'edit'
 Route::put('/services/actualites/{id}', [ActualiteController::class, 'update'])->name('services.actualiteUpdate');
 Route::delete('/services/actualites/{id}', [ActualiteController::class, 'destroy'])->name('services.actualiteDestroy');
 // Forum
-Route::get('/services/forum', [ForumServicesController::class, 'index'])->name('services.forum.index');
-Route::get('/services/forum/{id}', [ForumServicesController::class, 'show'])->name('services.forum.group');
-Route::post('/services/forum/{id}/message', [ForumServicesController::class, 'sendMessage'])->name('services.forum.group.send');
-Route::delete('/services/forum/message/{id}', [ForumServicesController::class, 'deleteMessage'])->name('services.forum.message.delete');
     // vaccination, bilan, forum, equipes, actualites services… (même groupe)
 Route::get('/services/citoyens/bilan', [ServicesBilanController::class, 'index'])->name('services.citoyensBilan');
 Route::post('/services/citoyens/bilan', [ServicesBilanController::class, 'store'])->name('services.citoyensBilanStore');
@@ -216,3 +200,4 @@ Route::middleware(['auth.equipe', 'no.cache'])->prefix('equipe')->name('equipe.'
 });
 
 require __DIR__.'/erp.php';
+require __DIR__.'/messagerie.php';

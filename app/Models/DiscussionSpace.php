@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class DiscussionSpace extends Model
 {
@@ -11,42 +11,47 @@ class DiscussionSpace extends Model
 
     protected $table = 'discussion_spaces';
 
-    /**
-     * Champs autorisés à l’insertion
-     */
     protected $fillable = [
         'title',
         'description',
-        'type',
-        'is_active',
+        'type',               // public (ouvert aux citoyens) | prive (membres seulement)
+        'is_active',          // false = groupe archivé (lecture seule, admin uniquement)
         'created_by',
-        'service_id',
+        'service_id',         // service responsable (devient modérateur)
         'citizens_can_post',
         'moderators_can_post',
         'agents_can_post',
+        'services_can_post',  // les services membres peuvent-ils écrire ?
+        'join_policy',        // invite | request
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
-        'citizens_can_post' => 'boolean',
+        'is_active'           => 'boolean',
+        'citizens_can_post'   => 'boolean',
         'moderators_can_post' => 'boolean',
-        'agents_can_post' => 'boolean',
+        'agents_can_post'     => 'boolean',
+        'services_can_post'   => 'boolean',
     ];
 
-
-    /**
-     * Agent créateur de l’espace (admin)
-     */
+    /** Agent admin créateur du groupe. */
     public function creator()
     {
         return $this->belongsTo(Admins::class, 'created_by');
     }
 
-    /**
-     * Service responsable / modérateur
-     */
+    /** Service responsable. */
     public function service()
     {
         return $this->belongsTo(Services::class);
+    }
+
+    public function members()
+    {
+        return $this->hasMany(DiscussionMember::class, 'discussion_space_id');
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(DiscussionMessage::class, 'discussion_space_id');
     }
 }

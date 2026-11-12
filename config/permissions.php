@@ -57,5 +57,6 @@ return [
         'services.vaccination*'        => ['vaccination.view',   'vaccination.manage'],
         'services.actualite*'          => ['actualites.manage',  'actualites.manage'],
         'services.forum.*'             => ['forum.access',       'forum.access'],
+        'services.messagerie.*'        => ['forum.access',       'forum.access'],
     ],
 ];

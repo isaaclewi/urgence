@@ -40,7 +40,7 @@ class Menu
             ],
             'Communication' => [
                 ['services.actualite',              'Actualités',      'file-text','services.actualite*'],
-                ['services.forum.index',            'Forum',           'message-circle', 'services.forum.*'],
+                ['services.messagerie.index',       'Messagerie',      'message-circle', 'services.messagerie.*'],
             ],
         ],
         'admin' => [
@@ -53,8 +53,8 @@ class Menu
             ],
             'Contenu' => [
                 ['admin.actualite',                 'Actualités',      'file-text','admin.actualite*'],
-                ['admin.discussion.spaces',         'Espaces discussion','message-square','admin.discussion.*'],
-                ['forum.index',                     'Forum',           'message-circle', 'forum.*'],
+                ['admin.messagerie.index',          'Messagerie',      'message-circle', ['admin.messagerie.index','admin.messagerie.show']],
+                ['admin.messagerie.gestion',        'Gérer les groupes','message-square', ['admin.messagerie.gestion*','admin.messagerie.membres*']],
             ],
         ],
         'equipe' => [
