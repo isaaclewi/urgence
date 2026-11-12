@@ -99,7 +99,7 @@
                     ['route'=>route('bilanController'), 'icon'=>'activity', 'label'=>'Mon bilan', 'color'=>'bg-blue-soft'],
                     ['route'=>route('vaccinationMenuController'), 'icon'=>'shield', 'label'=>'Vaccins', 'color'=>'bg-green-soft'],
                     ['route'=>route('actualitesController'), 'icon'=>'rss', 'label'=>'Actualités', 'color'=>'bg-purple-soft'],
-                    ['route'=>route('forumCitoyen'), 'icon'=>'message-square', 'label'=>'Forum', 'color'=>'bg-amber-soft'],
+                    ['route'=>route('citoyen.messagerie.index'), 'icon'=>'message-square', 'label'=>'Messagerie', 'color'=>'bg-amber-soft'],
                     ['route'=>route('codeQR'), 'icon'=>'grid', 'label'=>'Code QR', 'color'=>'bg-gray-soft'],
                 ];
                 @endphp

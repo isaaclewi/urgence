@@ -57,7 +57,7 @@ class Services extends Model
     public function alertes()
     {
         return $this->hasMany(
-            Alertes::class,
+            alertes::class,
             'services_id'
         );
     }
@@ -70,7 +70,7 @@ class Services extends Model
     public function alertesEquipe()
     {
         return $this->hasMany(
-            Alertes::class,
+            alertes::class,
             'equipe_id'
         );
     }

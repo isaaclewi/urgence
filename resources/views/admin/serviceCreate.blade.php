@@ -272,7 +272,7 @@
 
 <!-- FOOTER LINKS -->
 <div class="footer-links">
-    <a href="{{ route('admin.bilanSante') }}">Services Vaccination</a>
+    <a href="{{ route('admin.bilanSante') }}">Bilans de santé</a>
     <a href="{{ route('admin.services') }}">Nouveau Service Urgence</a>
     <a href="{{ route('admin.login') }}">Déconnexion</a>
 </div>

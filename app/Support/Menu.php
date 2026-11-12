@@ -50,6 +50,7 @@ class Menu
                 ['admin.valider',                   'Vérifications',   'check-circle', 'admin.valider'],
                 ['admin.services',                  'Services',        'briefcase','admin.service*'],
                 ['admin.alertes',                   'Urgences',        'bell',     'admin.alertes'],
+                ['admin.bilanSante',                'Bilans de santé', 'heart',    'admin.bilanSante'],
             ],
             'Contenu' => [
                 ['admin.actualite',                 'Actualités',      'file-text','admin.actualite*'],

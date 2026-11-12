@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\AvisUser;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-use App\Models\DiscussionSpace;
-use App\Models\DiscussionMessage;
 
 class RedirectionController extends Controller
 {
@@ -67,77 +65,6 @@ class RedirectionController extends Controller
     {
         return view('MesAlertes');
     }
-
-    public function forumCitoyen()
-    {
-        // Vérifier si l’utilisateur est connecté
-        if (!session()->has('citoyen_id')) {
-            return redirect()->route('accueil')->with('error', 'Veuillez vous connecter.');
-        }
-
-        // Récupérer le citoyen
-        $citoyen = \App\Models\Citoyens::find(session('citoyen_id'));
-
-        // Récupérer les espaces de discussion
-        $spaces = \App\Models\DiscussionSpace::with('service')->get(); // adapter le modèle exact
-
-        return view('forum', compact('citoyen', 'spaces'));
-    }
-
-    public function supprimerMessage($id)
-    {
-        $msg = DiscussionMessage::findOrFail($id);
-
-        // Vérifier que l'utilisateur connecté est bien l'auteur du message
-        if ($msg->sender_type === 'citoyen' && $msg->sender_id == session('citoyen_id')) {
-            $msg->delete();
-            return back()->with('success', 'Message supprimé avec succès !');
-        }
-
-        return back()->with('error', 'Vous ne pouvez pas supprimer ce message.');
-    }
-
-
-    public function groupeDiscussion($id)
-    {
-        // Vérifier si l’utilisateur est connecté
-        if (!session()->has('citoyen_id')) {
-            return redirect()->route('accueil')->with('error', 'Veuillez vous connecter.');
-        }
-
-        $space = DiscussionSpace::with('service')->findOrFail($id);
-
-        $messages = DiscussionMessage::where('discussion_space_id', $id)
-            ->orderBy('created_at', 'asc')
-            ->get();
-
-        // Récupérer le citoyen
-        $citoyen = \App\Models\Citoyens::find(session('citoyen_id'));
-        return view('group', compact('citoyen', 'space', 'messages'));
-    }
-
-    public function creerGroupe(Request $request, $id)
-    {
-        $request->validate([
-            'message' => 'required|string|max:1000',
-        ]);
-
-        $senderId = session('citoyen_id');
-        if (!$senderId) {
-            return redirect()->route('accueil')->with('error', 'Veuillez vous connecter pour envoyer un message.');
-        }
-
-        DiscussionMessage::create([
-            'discussion_space_id' => $id, // ID du groupe
-            'sender_type' => 'citoyen',
-            'sender_id' => $senderId,
-            'message_type' => 'texte',
-            'message' => $request->message,
-        ]);
-
-        return redirect()->route('groupeDiscussion', $id)->with('success', 'Message envoyé avec succès !');
-    }
-
 
     public function vaccinationMenu()
     {

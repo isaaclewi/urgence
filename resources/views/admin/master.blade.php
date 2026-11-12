@@ -779,11 +779,14 @@
                 <a href="{{ route('admin.alertes') }}" class="menu-item @yield('alertesActive')">
                     <i class="fas fa-bell"></i> Urgences
                 </a>
-                <a href="{{ route('admin.discussion.spaces') }}" class="menu-item @yield('discussionSpacesActive')">
-                    <i class="fas fa-concierge-bell"></i> Espaces Discussion
+                <a href="{{ route('admin.bilanSante') }}" class="menu-item {{ request()->routeIs('admin.bilanSante') ? 'active' : '' }}">
+                    <i class="fas fa-heartbeat"></i> Bilans de santé
                 </a>
-                <a href="{{ route('forum.index') }}" class="menu-item">
-                    <i class="fas fa-comments"></i> Forum
+                <a href="{{ route('admin.messagerie.index') }}" class="menu-item {{ request()->routeIs('admin.messagerie.index', 'admin.messagerie.show') ? 'active' : '' }}">
+                    <i class="fas fa-comments"></i> Messagerie
+                </a>
+                <a href="{{ route('admin.messagerie.gestion') }}" class="menu-item {{ request()->routeIs('admin.messagerie.gestion*', 'admin.messagerie.membres*') ? 'active' : '' }}">
+                    <i class="fas fa-concierge-bell"></i> Gérer les groupes
                 </a>
                 <a href="{{ route('admin.login') }}" class="menu-item">
                     <i class="fas fa-sign-out-alt"></i> Déconnexion

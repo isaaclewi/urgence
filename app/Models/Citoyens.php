@@ -33,7 +33,7 @@ class Citoyens extends Model
     public function alertes()
 {
     return $this->hasMany(
-        Alertes::class,
+        alertes::class,
         'citoyen_id'
     );
 }

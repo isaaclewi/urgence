@@ -458,10 +458,10 @@
                 <i data-feather="list" style="width:16px;height:16px;"></i>
                 Suivi alertes
             </a>
-            <a href="{{ route('forumCitoyen') }}"
-               class="sb-link {{ request()->routeIs('forumCitoyen') ? 'active' : '' }}">
+            <a href="{{ route('citoyen.messagerie.index') }}"
+               class="sb-link {{ request()->routeIs('citoyen.messagerie.*') ? 'active' : '' }}">
                 <i data-feather="message-square" style="width:16px;height:16px;"></i>
-                Forum
+                Messagerie
             </a>
 
             <div class="sb-divider"></div>
@@ -571,8 +571,8 @@
             <a href="{{ route('SuiviAlertesController') }}" class="sb-link {{ request()->routeIs('SuiviAlertesController') ? 'active' : '' }}">
                 <i data-feather="list" style="width:16px;height:16px;"></i> Suivi alertes
             </a>
-            <a href="{{ route('forumCitoyen') }}" class="sb-link {{ request()->routeIs('forumCitoyen') ? 'active' : '' }}">
-                <i data-feather="message-square" style="width:16px;height:16px;"></i> Forum
+            <a href="{{ route('citoyen.messagerie.index') }}" class="sb-link {{ request()->routeIs('citoyen.messagerie.*') ? 'active' : '' }}">
+                <i data-feather="message-square" style="width:16px;height:16px;"></i> Messagerie
             </a>
             <div class="sb-divider"></div>
             <div class="sb-label">Mon compte</div>

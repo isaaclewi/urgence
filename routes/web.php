@@ -3,10 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RedirectionController;
 use App\Http\Controllers\UrgenceController;
-use App\Http\Controllers\ForumController;
 use App\Http\Controllers\EquipeDashboardController;
 use App\Http\Controllers\ServiceEquipeController;
-use App\Http\Controllers\ForumServicesController;
 use App\Http\Controllers\CitoyenController;
 use App\Http\Controllers\compteController;
 use App\Http\Controllers\bilanController;
@@ -35,7 +33,6 @@ use App\Http\Controllers\GestionUsers;
 use App\Http\Controllers\ValiderUsers;
 use App\Http\Controllers\AdminActualiteController;
 use App\Http\Controllers\AdminAlertesController;
-use App\Http\Controllers\AdminDiscussionSpaceController;
 use App\Http\Controllers\ServicesCompteController;
 use App\Http\Controllers\ServicesLoginController;
 use App\Http\Controllers\ServicesProfilController;
@@ -120,9 +117,6 @@ Route::delete('/service-propose/{id}', [ServicesController::class, 'destroy'])->
 Route::get('/service-activer/{id}', [adminServicesController::class, 'activer'])->name('admin.serviceActiver');
 Route::get('/service-desactiver/{id}', [adminServicesController::class, 'desactiver'])->name('admin.serviceDesactiver');
     Route::get('/bilans', [AdminBilanController::class, 'index'])->name('admin.bilanSante');
-    Route::get('/bilan/{id}', [AdminBilanController::class, 'show'])->name('admin.bilan.show');
-    Route::post('/bilan', [AdminBilanController::class, 'store'])->name('admin.bilan.store');
-    Route::put('/bilan/{id}', [AdminBilanController::class, 'update'])->name('admin.bilan.update');
     Route::get('/actualites', [AdminActualiteController::class, 'index'])->name('admin.actualite');
     Route::post('/actualites', [AdminActualiteController::class, 'store'])->name('admin.actualiteStore');
     Route::get('/actualites/{id}/edit', [AdminActualiteController::class, 'edit'])->name('admin.actualiteEdit');
@@ -166,7 +160,6 @@ Route::post('/services/actualites', [ActualiteController::class, 'store'])->name
 Route::get('/services/actualites/{id}/edit', [ActualiteController::class, 'edit'])->name('services.actualiteEdit');
 Route::put('/services/actualites/{id}', [ActualiteController::class, 'update'])->name('services.actualiteUpdate');
 Route::delete('/services/actualites/{id}', [ActualiteController::class, 'destroy'])->name('services.actualiteDestroy');
-// Forum
     // vaccination, bilan, forum, equipes, actualites services… (même groupe)
 Route::get('/services/citoyens/bilan', [ServicesBilanController::class, 'index'])->name('services.citoyensBilan');
 Route::post('/services/citoyens/bilan', [ServicesBilanController::class, 'store'])->name('services.citoyensBilanStore');

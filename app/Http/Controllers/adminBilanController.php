@@ -2,79 +2,56 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Admins;
-use App\Models\BilanSante;
+use App\Models\bilanSante;
+use App\Models\BilanJournal;
 use App\Models\Citoyens;
 use Illuminate\Http\Request;
 
+/**
+ * Supervision des bilans de santé côté administration (route protégée par auth.admin).
+ *
+ * Volontairement en LECTURE SEULE et SANS contenu médical : l'admin voit quel service a créé
+ * chaque bilan et qui l'a consulté ou modifié, mais ne lit ni ne modifie les données de santé
+ * (créées et chiffrées par les services de santé).
+ */
 class AdminBilanController extends Controller
 {
-    // Liste des citoyens avec pagination
-    public function index()
+    public function index(Request $request)
     {
-        if (!session()->has('admin_id')) {
-            return redirect()->route('admin.login')->with('error', 'Vous devez être connecté.');
-        }
+        $q = trim((string) $request->query('q', ''));
 
-        $citoyens = Citoyens::paginate(5);
-        $admin = Admins::find(session('admin_id'));
+        $bilans = bilanSante::with(['citoyen:id,matricule,nom,prenom', 'service:id,nom', 'modifiePar:id,nom'])
+            ->when($q !== '', function ($query) use ($q) {
+                $like = '%' . $q . '%';
+                $query->whereHas('citoyen', function ($c) use ($like) {
+                    $c->where('nom', 'like', $like)
+                      ->orWhere('prenom', 'like', $like)
+                      ->orWhere('matricule', 'like', $like);
+                });
+            })
+            ->orderByDesc('updated_at')
+            ->paginate(15)
+            ->withQueryString();
 
-        // Attacher le bilan (si existant) à chaque citoyen pour la vue
-        foreach ($citoyens as $citoyen) {
-            $citoyen->bilan = BilanSante::where('citoyen_id', $citoyen->id)->first();
-        }
+        // Nombre d'actions tracées et dernier accès, par bilan de la page
+        $acces = BilanJournal::selectRaw('bilan_id, COUNT(*) as total, MAX(created_at) as dernier')
+            ->whereIn('bilan_id', $bilans->pluck('id'))
+            ->groupBy('bilan_id')
+            ->get()
+            ->keyBy('bilan_id');
 
-        return view('admin.bilanSante', compact('admin', 'citoyens'));
-    }
+        $stats = [
+            'total'      => bilanSante::count(),
+            'sans_auteur' => bilanSante::whereNull('service_id')->count(),
+            'sans_bilan' => Citoyens::where('etat_compte', 'actif')->whereNotIn('id', bilanSante::select('citoyen_id'))->count(),
+            'acces_7j'   => BilanJournal::where('action', 'consultation')->where('created_at', '>=', now()->subDays(7))->count(),
+        ];
 
-    // Formulaire pour afficher ou éditer un bilan d'un citoyen spécifique
-    public function show($id)
-    {
-        if (! session()->has('admin_id')) {
-            return redirect()->route('admin.login')->with('error', 'Vous devez être connecté.');
-        }
+        // Dernières actions (y compris suppressions : le bilan n'existe plus, la trace reste)
+        $journal = BilanJournal::with('service:id,nom')->latest('created_at')->latest('id')->limit(30)->get();
+        $citoyens = Citoyens::whereIn('id', $journal->pluck('citoyen_id')->unique())
+            ->get(['id', 'matricule', 'nom', 'prenom'])->keyBy('id');
 
-        $citoyen = Citoyens::findOrFail($id);
-        $bilan = BilanSante::where('citoyen_id', $id)->first();
-        $admin = Admins::find(session('admin_id'));
-
-        return view('admin.bilanForm', compact('admin', 'citoyen', 'bilan'));
-    }
-
-    // Enregistrer un nouveau bilan
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'citoyen_id' => 'required|exists:citoyens,id',
-            'taille' => 'nullable|numeric',
-            'poids' => 'nullable|numeric',
-            'tension' => 'nullable|string',
-            'allergies' => 'nullable|string',
-            'maladies_chroniques' => 'nullable|string',
-            'observations' => 'nullable|string',
-        ]);
-
-        BilanSante::create($validated);
-
-        return redirect()->route('admin.bilanSante')->with('success', 'Bilan de santé enregistré avec succès ✅');
-    }
-
-    // Mettre à jour un bilan existant
-    public function update(Request $request, $id)
-    {
-        $bilan = BilanSante::findOrFail($id);
-
-        $validated = $request->validate([
-            'taille' => 'nullable|numeric',
-            'poids' => 'nullable|numeric',
-            'tension' => 'nullable|string',
-            'allergies' => 'nullable|string',
-            'maladies_chroniques' => 'nullable|string',
-            'observations' => 'nullable|string',
-        ]);
-
-        $bilan->update($validated);
-
-        return redirect()->route('admin.bilanSante')->with('success', 'Bilan de santé mis à jour avec succès ✅');
+        return view('admin.bilans', compact('bilans', 'acces', 'stats', 'journal', 'citoyens', 'q'));
     }
 }
