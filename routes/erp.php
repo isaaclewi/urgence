@@ -6,6 +6,7 @@ use App\Http\Controllers\RessourceController;
 use App\Http\Controllers\KpiController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\ServicesProfilController;
+use App\Http\Controllers\ServicesBilanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,6 +19,13 @@ Route::middleware(['auth.service', 'no.cache'])->prefix('services')->name('servi
 
     // Changement de mot de passe du compte service
     Route::post('/profil/password', [ServicesProfilController::class, 'password'])->name('profil.password');
+
+    // Bilans de santé : création, consultation (journalisée), modification
+    // (la liste, l'enregistrement et la suppression restent dans routes/web.php)
+    Route::get('/citoyens/bilan/nouveau',        [ServicesBilanController::class, 'create'])->name('citoyensBilanCreate');
+    Route::get('/citoyens/bilan/{id}',           [ServicesBilanController::class, 'show'])->whereNumber('id')->name('citoyensBilanShow');
+    Route::get('/citoyens/bilan/{id}/modifier',  [ServicesBilanController::class, 'edit'])->whereNumber('id')->name('citoyensBilanEdit');
+    Route::put('/citoyens/bilan/{id}',           [ServicesBilanController::class, 'update'])->whereNumber('id')->name('citoyensBilanUpdate');
 
     // Tableau de bord KPI
     Route::get('/indicateurs', [KpiController::class, 'index'])->name('kpi');
