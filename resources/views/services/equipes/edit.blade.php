@@ -1,88 +1,44 @@
-@extends('services.master')
+@extends('layouts.portal')
 
-@section('page-title', 'Modifier équipe')
-@section('page-subtitle', 'Mise à jour des informations')
+@section('title', 'Modifier une équipe')
+@section('page-title', 'Modifier une équipe')
+@section('page-subtitle', $equipe->nom)
+
+@section('page-actions')
+    <a class="ds-btn ds-btn-secondary" href="{{ route('services.equipes.index') }}">← Retour</a>
+@endsection
 
 @section('content')
-
-<div class="content-card">
-    <div class="cc-header">
-        <div>
-            <div class="cc-title">
-                <i data-feather="edit"></i>
-                Modifier équipe
+<x-card>
+    <form method="POST" action="{{ route('services.equipes.update', $equipe->id) }}">
+        @csrf @method('PUT')
+        <div class="ds-form-grid">
+            <div class="ds-field">
+                <label class="ds-label" for="nom">Nom *</label>
+                <input class="ds-input" id="nom" name="nom" value="{{ old('nom', $equipe->nom) }}" required>
             </div>
-            <div class="cc-subtitle">
-                Mise à jour des informations de l’équipe
+            <div class="ds-field">
+                <label class="ds-label" for="email">E-mail (identifiant de connexion) *</label>
+                <input class="ds-input" type="email" id="email" name="email" value="{{ old('email', $equipe->email) }}" required>
+            </div>
+            <div class="ds-field">
+                <label class="ds-label" for="telephone">Téléphone</label>
+                <input class="ds-input" id="telephone" name="telephone" value="{{ old('telephone', $equipe->telephone) }}">
+            </div>
+            <div class="ds-field">
+                <label class="ds-label" for="adresse">Adresse</label>
+                <input class="ds-input" id="adresse" name="adresse" value="{{ old('adresse', $equipe->adresse) }}">
+            </div>
+            <div class="ds-field">
+                <label class="ds-label" for="password">Nouveau mot de passe <span class="ds-muted">(laisser vide pour ne pas le changer)</span></label>
+                <input class="ds-input" type="password" id="password" name="password" minlength="8" autocomplete="new-password">
             </div>
         </div>
-    </div>
 
-    <div class="cc-body">
-
-        <form action="{{ route('services.equipes.update', $equipe->id) }}" method="POST">
-            @csrf
-            @method('PUT')
-
-            <div class="grid-2">
-
-                <div>
-                    <label class="form-label">Nom</label>
-                    <input type="text"
-                           name="nom"
-                           class="form-input"
-                           value="{{ $equipe->nom }}"
-                           required>
-                </div>
-
-                <div>
-                    <label class="form-label">Email</label>
-                    <input type="email"
-                           name="email"
-                           class="form-input"
-                           value="{{ $equipe->email }}">
-                </div>
-
-                <div>
-                    <label class="form-label">Téléphone</label>
-                    <input type="text"
-                           name="telephone"
-                           class="form-input"
-                           value="{{ $equipe->telephone }}">
-                </div>
-
-                <div>
-                    <label class="form-label">Adresse</label>
-                    <input type="text"
-                           name="adresse"
-                           class="form-input"
-                           value="{{ $equipe->adresse }}">
-                </div>
-
-                <div>
-                    <label class="form-label">Nouveau mot de passe <span style="font-weight:400;opacity:.7">(laisser vide pour ne pas changer)</span></label>
-                    <input type="password"
-                           name="password"
-                           class="form-input"
-                           minlength="8"
-                           autocomplete="new-password">
-                </div>
-
-            </div>
-
-            <div style="margin-top:20px;display:flex;gap:10px;">
-                <button class="btn btn-accent">
-                    <i data-feather="save"></i> Mettre à jour
-                </button>
-
-                <a href="{{ route('services.equipes.index') }}" class="btn btn-outline">
-                    Retour
-                </a>
-            </div>
-
-        </form>
-
-    </div>
-</div>
-
+        <div style="margin-top:20px;display:flex;gap:10px">
+            <button class="ds-btn ds-btn-primary" type="submit">Enregistrer</button>
+            <a class="ds-btn ds-btn-ghost" href="{{ route('services.equipes.index') }}">Annuler</a>
+        </div>
+    </form>
+</x-card>
 @endsection

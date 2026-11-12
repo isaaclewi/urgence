@@ -5,6 +5,7 @@ use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\RessourceController;
 use App\Http\Controllers\KpiController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\ServiceEquipeController;
 use App\Http\Controllers\ServicesProfilController;
 use App\Http\Controllers\ServicesBilanController;
 
@@ -40,6 +41,9 @@ Route::middleware(['auth.service', 'no.cache'])->prefix('services')->name('servi
         Route::get('/kpi',                    [ExportController::class, 'kpi'])->name('kpi');
         Route::get('/intervention/{id}',      [ExportController::class, 'intervention'])->whereNumber('id')->name('intervention');
     });
+
+    // Équipes : désactiver / réactiver (les autres routes équipes sont dans web.php)
+    Route::post('/equipes/{id}/statut', [ServiceEquipeController::class, 'statut'])->whereNumber('id')->name('equipes.statut');
 
     // Personnel
     Route::get('/personnel',               [PersonnelController::class, 'index'])->name('personnel.index');

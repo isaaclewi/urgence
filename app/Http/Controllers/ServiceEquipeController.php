@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Agent;
+use App\Models\AlerteAffectation;
+use App\Models\AlerteIntervention;
 use App\Models\Services;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -12,8 +15,6 @@ class ServiceEquipeController extends Controller
 {
     /**
      * Équipe appartenant au service connecté — jamais un autre compte.
-     * (Avant : Services::findOrFail($id) permettait de modifier ou supprimer
-     * n'importe quel service ou équipe en changeant l'id dans l'URL.)
      */
     private function equipeDuService($id): Services
     {
@@ -23,27 +24,40 @@ class ServiceEquipeController extends Controller
             ->firstOrFail();
     }
 
-    /**
-     * Liste des équipes du service connecté
-     */
+    /** L'équipe a-t-elle un historique (affectations, interventions) qui disparaîtrait avec elle ? */
+    private function aUnHistorique(int $equipeId): bool
+    {
+        return AlerteAffectation::where('service_destination_id', $equipeId)->exists()
+            || AlerteIntervention::where('equipe_id', $equipeId)->exists();
+    }
+
     public function index()
     {
         if (! session()->has('service_id')) {
             return redirect()->route('services.login');
         }
 
-        $serviceId = session('service_id');
+        $service = Services::findOrFail(session('service_id'));
 
-        $service = Services::findOrFail($serviceId);
+        // Uniquement les vraies équipes terrain (les autres comptes enfants ne sont pas modifiables ici)
+        $equipes = Services::where('parent_service_id', $service->id)
+            ->where('type_compte', 'equipe')
+            ->orderBy('nom')
+            ->get();
 
-        $equipes = Services::where('parent_service_id', $serviceId)->get();
+        $ids = $equipes->pluck('id');
 
-        return view('services.equipes.index', compact('service', 'equipes'));
+        $agents = Agent::whereIn('equipe_id', $ids)
+            ->selectRaw('equipe_id, COUNT(*) as total')->groupBy('equipe_id')
+            ->pluck('total', 'equipe_id');
+
+        $interventions = AlerteIntervention::whereIn('equipe_id', $ids)
+            ->selectRaw('equipe_id, COUNT(*) as total')->groupBy('equipe_id')
+            ->pluck('total', 'equipe_id');
+
+        return view('services.equipes.index', compact('service', 'equipes', 'agents', 'interventions'));
     }
 
-    /**
-     * Formulaire création équipe
-     */
     public function create()
     {
         if (! session()->has('service_id')) {
@@ -55,9 +69,6 @@ class ServiceEquipeController extends Controller
         return view('services.equipes.create', compact('service'));
     }
 
-    /**
-     * Enregistrement équipe
-     */
     public function store(Request $request)
     {
         if (! session()->has('service_id')) {
@@ -67,8 +78,8 @@ class ServiceEquipeController extends Controller
         // L'email sert d'identifiant de connexion : obligatoire et unique.
         $request->validate([
             'nom'       => 'required|string|max:191',
-            'adresse'   => 'nullable|string',
-            'telephone' => 'nullable|string',
+            'adresse'   => 'nullable|string|max:255',
+            'telephone' => 'nullable|string|max:50',
             'email'     => ['required', 'email', Rule::unique('services', 'email')],
         ]);
 
@@ -93,9 +104,6 @@ class ServiceEquipeController extends Controller
             ->with('success', "Équipe créée. Mot de passe temporaire : {$motDePasse} (à communiquer à l'équipe, il ne sera plus affiché).");
     }
 
-    /**
-     * Modifier équipe
-     */
     public function edit($id)
     {
         $equipe = $this->equipeDuService($id);
@@ -109,8 +117,8 @@ class ServiceEquipeController extends Controller
 
         $request->validate([
             'nom'       => 'required|string|max:191',
-            'telephone' => 'nullable|string',
-            'adresse'   => 'nullable|string',
+            'telephone' => 'nullable|string|max:50',
+            'adresse'   => 'nullable|string|max:255',
             'email'     => ['required', 'email', Rule::unique('services', 'email')->ignore($equipe->id)],
             'password'  => 'nullable|string|min:8',
         ]);
@@ -135,11 +143,33 @@ class ServiceEquipeController extends Controller
     }
 
     /**
-     * Suppression équipe
+     * Désactiver / réactiver une équipe : elle ne peut plus se connecter, son historique est conservé.
+     */
+    public function statut($id)
+    {
+        $equipe = $this->equipeDuService($id);
+
+        $actif = $equipe->etat_compte === 'actif';
+        $equipe->update(['etat_compte' => $actif ? 'inactif' : 'actif']);
+
+        return back()->with('success', $actif
+            ? "Équipe « {$equipe->nom} » désactivée : elle ne peut plus se connecter."
+            : "Équipe « {$equipe->nom} » réactivée.");
+    }
+
+    /**
+     * Suppression : refusée si l'équipe a un historique d'interventions, car la base le supprimerait
+     * en cascade (rapports, KPI et exports perdraient ces interventions). On propose la désactivation.
      */
     public function destroy($id)
     {
-        $this->equipeDuService($id)->delete();
+        $equipe = $this->equipeDuService($id);
+
+        if ($this->aUnHistorique($equipe->id)) {
+            return back()->with('error', "« {$equipe->nom} » a un historique d'interventions : la supprimer l'effacerait. Désactivez-la plutôt.");
+        }
+
+        $equipe->delete();   // ses agents sont simplement détachés (equipe_id = null)
 
         return back()->with('success', 'Équipe supprimée.');
     }

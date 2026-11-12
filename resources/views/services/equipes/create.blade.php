@@ -1,65 +1,40 @@
-@extends('services.master')
+@extends('layouts.portal')
 
-@section('page-title', 'Créer une équipe')
-@section('page-subtitle', 'Ajouter une nouvelle équipe terrain')
+@section('title', 'Nouvelle équipe')
+@section('page-title', 'Nouvelle équipe')
+@section('page-subtitle', 'Un mot de passe temporaire sera généré et affiché une seule fois')
+
+@section('page-actions')
+    <a class="ds-btn ds-btn-secondary" href="{{ route('services.equipes.index') }}">← Retour</a>
+@endsection
 
 @section('content')
-
-<div class="content-card">
-    <div class="cc-header">
-        <div>
-            <div class="cc-title">
-                <i data-feather="user-plus"></i>
-                Création d’équipe
+<x-card>
+    <form method="POST" action="{{ route('services.equipes.store') }}">
+        @csrf
+        <div class="ds-form-grid">
+            <div class="ds-field">
+                <label class="ds-label" for="nom">Nom de l'équipe *</label>
+                <input class="ds-input" id="nom" name="nom" value="{{ old('nom') }}" required>
             </div>
-            <div class="cc-subtitle">
-                Remplissez les informations de l’équipe
+            <div class="ds-field">
+                <label class="ds-label" for="email">E-mail (identifiant de connexion) *</label>
+                <input class="ds-input" type="email" id="email" name="email" value="{{ old('email') }}" required>
+            </div>
+            <div class="ds-field">
+                <label class="ds-label" for="telephone">Téléphone</label>
+                <input class="ds-input" id="telephone" name="telephone" value="{{ old('telephone') }}">
+            </div>
+            <div class="ds-field">
+                <label class="ds-label" for="adresse">Adresse</label>
+                <input class="ds-input" id="adresse" name="adresse" value="{{ old('adresse') }}">
             </div>
         </div>
-    </div>
 
-    <div class="cc-body">
-
-        <form action="{{ route('services.equipes.store') }}" method="POST">
-            @csrf
-
-            <div class="grid-2">
-
-                <div>
-                    <label class="form-label">Nom de l’équipe</label>
-                    <input type="text" name="nom" class="form-input" required>
-                </div>
-
-                <div>
-                    <label class="form-label">Email (identifiant de connexion)</label>
-                    <input type="email" name="email" class="form-input" value="{{ old('email') }}" required>
-                </div>
-
-                <div>
-                    <label class="form-label">Téléphone</label>
-                    <input type="text" name="telephone" class="form-input">
-                </div>
-
-                <div>
-                    <label class="form-label">Adresse</label>
-                    <input type="text" name="adresse" class="form-input">
-                </div>
-
-            </div>
-
-            <div style="margin-top:20px;display:flex;gap:10px;">
-                <button class="btn btn-accent">
-                    <i data-feather="save"></i> Créer l’équipe
-                </button>
-
-                <a href="{{ route('services.equipes.index') }}" class="btn btn-outline">
-                    Annuler
-                </a>
-            </div>
-
-        </form>
-
-    </div>
-</div>
-
+        <div style="margin-top:20px;display:flex;gap:10px">
+            <button class="ds-btn ds-btn-primary" type="submit">Créer l'équipe</button>
+            <a class="ds-btn ds-btn-ghost" href="{{ route('services.equipes.index') }}">Annuler</a>
+        </div>
+    </form>
+</x-card>
 @endsection
