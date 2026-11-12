@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -30,12 +31,20 @@ class ProtectLogins
 
         $cle = 'login|' . $nom . '|' . sha1(strtolower((string) $request->input('email'))) . '|' . $request->ip();
 
-        if (RateLimiter::tooManyAttempts($cle, self::MAX_ECHECS)) {
-            $secondes = RateLimiter::availableIn($cle);
+        // Si le cache est indisponible (table « cache » absente, base lente…), on laisse la
+        // connexion se faire sans limitation plutôt que de la bloquer.
+        try {
+            if (RateLimiter::tooManyAttempts($cle, self::MAX_ECHECS)) {
+                $secondes = RateLimiter::availableIn($cle);
 
-            return back()
-                ->withInput($request->only('email'))
-                ->withErrors(['email' => "Trop de tentatives de connexion. Réessayez dans {$secondes} secondes."]);
+                return back()
+                    ->withInput($request->only('email'))
+                    ->withErrors(['email' => "Trop de tentatives de connexion. Réessayez dans {$secondes} secondes."]);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('ProtectLogins : limiteur indisponible', ['erreur' => $e->getMessage()]);
+
+            return $next($request);
         }
 
         $reponse = $next($request);
@@ -43,10 +52,13 @@ class ProtectLogins
         // Échec = le contrôleur vient de flasher des erreurs pour la requête suivante.
         $echec = in_array('errors', (array) $request->session()->get('_flash.new', []), true);
 
-        if ($echec) {
-            RateLimiter::hit($cle, self::DUREE);
-        } else {
-            RateLimiter::clear($cle);
+        try {
+            $echec ? RateLimiter::hit($cle, self::DUREE) : RateLimiter::clear($cle);
+        } catch (\Throwable $e) {
+            Log::warning('ProtectLogins : limiteur indisponible', ['erreur' => $e->getMessage()]);
+        }
+
+        if (! $echec) {
             $request->session()->regenerate();
         }
 
