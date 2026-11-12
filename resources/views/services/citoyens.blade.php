@@ -1,197 +1,71 @@
-@extends('services.master')
+@extends('layouts.portal')
 
-@section('title', 'Citoyens — ' . ($service->nom ?? 'CongoAssist'))
-
-@section('page-title', 'Citoyens actifs')
-@section('page-subtitle', 'Liste des utilisateurs inscrits sur la plateforme')
-
-@section('page-actions')
-    <button class="btn btn-outline btn-sm">
-        <i data-feather="filter"></i> Filtrer
-    </button>
-    <button class="btn btn-accent btn-sm">
-        <i data-feather="download"></i> Exporter
-    </button>
-@endsection
+@section('title', 'Citoyens')
+@section('page-title', 'Citoyens')
+@section('page-subtitle', 'Utilisateurs inscrits sur la plateforme')
 
 @section('content')
-<div style="display:flex; flex-direction:column; gap:24px;">
 
-    {{-- Stat cards --}}
-    <div class="grid-4 anim-fade">
-        <div class="stat-card green">
-            <div class="sc-icon" style="background:#D1FAE5;">
-                <i data-feather="users" style="color:#10B981;"></i>
-            </div>
-            <div class="sc-value">{{ $citoyens->total() }}</div>
-            <div class="sc-label">Total citoyens</div>
-        </div>
-        <div class="stat-card blue">
-            <div class="sc-icon" style="background:#DBEAFE;">
-                <i data-feather="user-check" style="color:#3B82F6;"></i>
-            </div>
-            <div class="sc-value">{{ $citoyens->where('etat_compte', 'actif')->count() }}</div>
-            <div class="sc-label">Comptes actifs</div>
-        </div>
-        <div class="stat-card purple">
-            <div class="sc-icon" style="background:#EDE9FE;">
-                <i data-feather="user" style="color:#8B5CF6;"></i>
-            </div>
-            <div class="sc-value">{{ $citoyens->where('sexe', 'M')->count() }}</div>
-            <div class="sc-label">Hommes</div>
-        </div>
-        <div class="stat-card accent">
-            <div class="sc-icon" style="background:rgba(29,184,122,.1);">
-                <i data-feather="user" style="color:var(--accent);"></i>
-            </div>
-            <div class="sc-value">{{ $citoyens->where('sexe', 'F')->count() }}</div>
-            <div class="sc-label">Femmes</div>
-        </div>
-    </div>
-
-    {{-- Table --}}
-    <div class="content-card anim-slide">
-        <div class="cc-header">
-            <div>
-                <div class="cc-title"><i data-feather="users"></i> Liste des citoyens</div>
-                <div class="cc-subtitle">{{ $citoyens->where('etat_compte', 'actif')->count() }} comptes actifs</div>
-            </div>
-        </div>
-
-        <div class="table-wrap">
-            <table id="citoyensTable" class="data-table">
-                <thead>
-                    <tr>
-                        <th><i data-feather="hash" style="width:13px;height:13px;"></i> ID</th>
-                        <th><i data-feather="user" style="width:13px;height:13px;"></i> Noms et Prénoms</th>
-                        <th><i data-feather="mail" style="width:13px;height:13px;"></i> Email</th>
-                        <th><i data-feather="map-pin" style="width:13px;height:13px;"></i> Adresse</th>
-                        <th><i data-feather="phone" style="width:13px;height:13px;"></i> Contact</th>
-                        <th><i data-feather="credit-card" style="width:13px;height:13px;"></i> Matricule</th>
-                        <th style="text-align:center;">État</th>
-                        <th style="text-align:center;">Genre</th>
-                        <th style="text-align:center;">Inscription</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($citoyens->where('etat_compte', 'actif') as $c)
-                    <tr>
-                        <td><span style="font-weight:600;">#{{ $c->id }}</span></td>
-                        <td>
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <div class="avatar-initials">
-                                    {{ strtoupper(substr($c->nom,0,1)) }}{{ strtoupper(substr($c->prenom,0,1)) }}
-                                </div>
-                                <div>
-                                    <div style="font-weight:600;">{{ $c->nom }} {{ $c->prenom }}</div>
-                                    <div style="font-size:11px; color:var(--text-muted);">Citoyen</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div style="display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-sec);">
-                                <i data-feather="mail" style="width:13px;height:13px;color:var(--border-mid);"></i>
-                                {{ $c->email }}
-                            </div>
-                        </td>
-                        <td>
-                            <div style="display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-sec);">
-                                <i data-feather="map-pin" style="width:13px;height:13px;color:var(--border-mid);"></i>
-                                {{ $c->adresse }}
-                            </div>
-                        </td>
-                        <td>
-                            <div style="display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-sec);">
-                                <i data-feather="phone" style="width:13px;height:13px;color:var(--border-mid);"></i>
-                                {{ $c->telephone }}
-                            </div>
-                        </td>
-                        <td>
-                            <span class="pill pill-gray" style="font-family:monospace;">{{ $c->matricule }}</span>
-                        </td>
-                        <td style="text-align:center;">
-                            <span class="pill pill-green"><i data-feather="check"></i> Actif</span>
-                        </td>
-                        <td style="text-align:center;">
-                            @if($c->sexe === 'M')
-                                <span class="pill pill-blue">M</span>
-                            @else
-                                <span class="pill" style="background:#FCE7F3; color:#9D174D;">F</span>
-                            @endif
-                        </td>
-                        <td style="text-align:center;">
-                            <div style="font-size:12.5px; font-weight:600; color:var(--text);">{{ $c->created_at->format('d/m/Y') }}</div>
-                            <div style="font-size:11px; color:var(--text-muted);">{{ $c->created_at->format('H:i') }}</div>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-
-        <div style="padding:16px 20px; border-top:1px solid var(--border);">
-            {!! $citoyens->links('pagination::bootstrap-5') !!}
-        </div>
-    </div>
+<div class="ds-stats ds-section">
+    <x-stat label="Citoyens inscrits" :value="$stats['total']" />
+    <x-stat label="Comptes actifs"    :value="$stats['actifs']" type="success" />
+    <x-stat label="Hommes"            :value="$stats['hommes']" type="info" />
+    <x-stat label="Femmes"            :value="$stats['femmes']" type="info" />
 </div>
 
-@push('styles')
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
-<style>
-    /* Intégration DataTables avec le design système */
-    .dataTables_wrapper { font-size: 13px; color: var(--text-sec); }
-    .dataTables_filter input,
-    .dataTables_length select {
-        border: 1.5px solid var(--border);
-        border-radius: 7px;
-        padding: 6px 10px;
-        font-family: inherit;
-        font-size: 13px;
-        color: var(--text);
-        outline: none;
-        background: var(--surface);
-    }
-    .dataTables_filter input:focus,
-    .dataTables_length select:focus { border-color: var(--accent); }
-    table.dataTable thead th { font-size: 10.5px !important; }
-    .dataTables_paginate .paginate_button {
-        border-radius: 6px !important;
-        padding: 4px 10px !important;
-        font-size: 12.5px !important;
-    }
-    .dataTables_paginate .paginate_button.current {
-        background: var(--accent) !important;
-        color: #fff !important;
-        border: none !important;
-    }
-</style>
-@endpush
+<x-card flush>
+    <form method="GET" action="{{ route('services.citoyens') }}" class="ds-filters">
+        <input class="ds-input" type="search" name="q" value="{{ request('q') }}" placeholder="Nom, email, téléphone, matricule, adresse…">
+        <select class="ds-select" name="sexe">
+            <option value="">Tous les genres</option>
+            <option value="M" @selected(request('sexe') === 'M')>Hommes</option>
+            <option value="F" @selected(request('sexe') === 'F')>Femmes</option>
+        </select>
+        <select class="ds-select" name="etat">
+            <option value="">Tous les états</option>
+            <option value="actif" @selected(request('etat') === 'actif')>Actifs</option>
+            <option value="inactif" @selected(request('etat') === 'inactif')>Inactifs</option>
+        </select>
+        <button class="ds-btn ds-btn-secondary" type="submit">Filtrer</button>
+        @if(request()->hasAny(['q', 'sexe', 'etat']))
+            <a class="ds-btn ds-btn-ghost" href="{{ route('services.citoyens') }}">Réinitialiser</a>
+        @endif
+    </form>
 
-@push('scripts')
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-<script>
-$(document).ready(function() {
-    $('#citoyensTable').DataTable({
-        pageLength: 10,
-        lengthMenu: [5, 10, 15, 25, 50],
-        responsive: true,
-        autoWidth: false,
-        order: [[0, 'desc']],
-        language: {
-            search:     "Rechercher :",
-            lengthMenu: "Afficher _MENU_ citoyens",
-            paginate:   { first:"Début", last:"Fin", next:"Suivant", previous:"Précédent" },
-            info:           "Affichage _START_ à _END_ sur _TOTAL_ citoyens",
-            infoEmpty:      "Aucun citoyen",
-            infoFiltered:   "(filtré depuis _MAX_ total)",
-            zeroRecords:    "Aucun citoyen trouvé"
-        },
-        columnDefs: [{ orderable: false, targets: [6, 7] }],
-        drawCallback: () => feather.replace({ width: 16, height: 16 })
-    });
-    feather.replace({ width: 16, height: 16 });
-});
-</script>
-@endpush
+    @if($citoyens->isEmpty())
+        <x-empty title="Aucun citoyen trouvé">Modifiez votre recherche ou vos filtres.</x-empty>
+    @else
+        <x-table>
+            <thead>
+                <tr>
+                    <th>Matricule</th>
+                    <th>Citoyen</th>
+                    <th>Email</th>
+                    <th>Contact</th>
+                    <th>Adresse</th>
+                    <th>Genre</th>
+                    <th>État</th>
+                    <th>Inscription</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($citoyens as $c)
+                    <tr>
+                        <td>{{ $c->matricule ?: '—' }}</td>
+                        <td><strong>{{ $c->nom }} {{ $c->prenom }}</strong></td>
+                        <td>{{ $c->email }}</td>
+                        <td>{{ $c->telephone ?: '—' }}</td>
+                        <td>{{ $c->adresse ?: '—' }}</td>
+                        <td>{{ $c->sexe === 'M' ? 'Homme' : ($c->sexe === 'F' ? 'Femme' : '—') }}</td>
+                        <td><x-badge :status="$c->etat_compte ?: 'inactif'" /></td>
+                        <td>{{ $c->created_at?->format('d/m/Y') }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </x-table>
+    @endif
+</x-card>
+
+@include('layouts.partials.pager', ['paginator' => $citoyens])
+
 @endsection
