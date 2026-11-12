@@ -51,7 +51,7 @@ class AdminRegisterController extends Controller
 
             Storage::disk('supabase')->putFileAs('admins/photos', $file, $filename);
 
-            $admin->photo_profil = env('SUPABASE_PUBLIC_URL') . '/admins/photos/' . $filename;
+            $admin->photo_profil = config('filesystems.disks.supabase.public_url') . '/admins/photos/' . $filename;
         }
 
         $admin->save();

@@ -69,7 +69,7 @@ class ServicesCompteController extends Controller
         }
 
         // Construction de l'URL publique
-        $publicUrl = env('SUPABASE_PUBLIC_URL') . '/pieces/' . $filename;
+        $publicUrl = config('filesystems.disks.supabase.public_url') . '/pieces/' . $filename;
 
         // Sauvegarde dans la base de données
         $service = \App\Models\Services::find($serviceId);

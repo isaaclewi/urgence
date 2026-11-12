@@ -44,7 +44,7 @@ class AdminActualiteController extends Controller
 
             Storage::disk('supabase')->putFileAs('actualites', $file, $filename);
 
-            $urlMedia  = env('SUPABASE_PUBLIC_URL') . '/actualites/' . $filename;
+            $urlMedia  = config('filesystems.disks.supabase.public_url') . '/actualites/' . $filename;
             $typeMedia = $ext === 'mp4' ? 'mp4' : 'image';
         }
 
@@ -97,7 +97,7 @@ class AdminActualiteController extends Controller
 
             Storage::disk('supabase')->putFileAs('actualites', $file, $filename);
 
-            $actualite->url_media  = env('SUPABASE_PUBLIC_URL') . '/actualites/' . $filename;
+            $actualite->url_media  = config('filesystems.disks.supabase.public_url') . '/actualites/' . $filename;
             $actualite->type_media = $ext === 'mp4' ? 'mp4' : 'image';
         }
 

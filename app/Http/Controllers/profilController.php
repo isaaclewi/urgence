@@ -70,7 +70,7 @@ class profilController extends Controller
             Storage::disk('supabase')->putFileAs('photo', $file, $filename);
 
             // URL publique
-            $citoyen->photo_profil = env('SUPABASE_PUBLIC_URL') . '/photo/' . $filename;
+            $citoyen->photo_profil = config('filesystems.disks.supabase.public_url') . '/photo/' . $filename;
         }
 
         $citoyen->save();

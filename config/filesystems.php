@@ -54,6 +54,8 @@ return [
         'region'   => env('SUPABASE_REGION', 'eu-west-1'),
         'bucket'   => env('SUPABASE_BUCKET'),
         'endpoint' => env('SUPABASE_ENDPOINT'),
+        // URL publique des fichiers (utilisée par les contrôleurs : config() fonctionne même après config:cache)
+        'public_url' => env('SUPABASE_PUBLIC_URL'),
         'use_path_style_endpoint' => true,
     ],
 

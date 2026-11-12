@@ -118,7 +118,7 @@ class UrgenceController extends Controller
                 $nom     = 'vocal_' . now()->format('YmdHis') . '_' . bin2hex(random_bytes(4)) . '.' . $fichier->extension();
 
                 Storage::disk('supabase')->putFileAs('alertes/vocaux', $fichier, $nom);
-                $vocal = env('SUPABASE_PUBLIC_URL') . '/alertes/vocaux/' . $nom;
+                $vocal = config('filesystems.disks.supabase.public_url') . '/alertes/vocaux/' . $nom;
             } catch (\Throwable $e) {
                 Log::warning('Alerte : échec du stockage du message vocal', ['erreur' => $e->getMessage()]);
             }

@@ -70,7 +70,7 @@ class ServicesProfilController extends Controller
             Storage::disk('supabase')->putFileAs('services', $file, $filename);
 
             // URL publique
-            $service->photo_profil = env('SUPABASE_PUBLIC_URL') . '/services/' . $filename;
+            $service->photo_profil = config('filesystems.disks.supabase.public_url') . '/services/' . $filename;
         }
 
         $service->save();

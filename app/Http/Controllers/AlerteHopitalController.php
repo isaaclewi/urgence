@@ -39,7 +39,7 @@ class AlerteHopitalController extends Controller
                         . '.' . $file->getClientOriginalExtension();
 
             Storage::disk('supabase')->putFileAs('alertes/photos', $file, $filename);
-            $photoPath = env('SUPABASE_PUBLIC_URL') . '/alertes/photos/' . $filename;
+            $photoPath = config('filesystems.disks.supabase.public_url') . '/alertes/photos/' . $filename;
         }
 
         // Gestion vocal base64 vers Supabase
@@ -52,7 +52,7 @@ class AlerteHopitalController extends Controller
             $filename     = 'vocal_hopital_' . time() . '.' . $extension;
 
             Storage::disk('supabase')->put('alertes/vocaux/' . $filename, $audioContent);
-            $vocalPath = env('SUPABASE_PUBLIC_URL') . '/alertes/vocaux/' . $filename;
+            $vocalPath = config('filesystems.disks.supabase.public_url') . '/alertes/vocaux/' . $filename;
         }
 
         alertes::create([
