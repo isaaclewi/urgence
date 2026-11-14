@@ -56,6 +56,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/avis', [RedirectionController::class, 'avis'])->name('avis');
 Route::get('/regle', [RedirectionController::class, 'regle'])->name('regle');
 
+Route::get('/admin/accueil', [RedirectionController::class, 'accueilAdmin'])->name('admin.accueil');
 Route::get('/admin/login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');
 Route::post('/admin/login', [AdminLoginController::class, 'processLogin'])->name('admin.login.process');
 
@@ -95,7 +96,6 @@ Route::middleware(['auth.citoyen', 'no.cache'])->group(function () {
 
 // ─── ADMIN (connecté) ───────────────────────────
 Route::middleware(['auth.admin', 'no.cache'])->prefix('admin')->group(function () {
-    Route::get('/accueil', [RedirectionController::class, 'accueilAdmin'])->name('admin.accueil');
     Route::get('/compte', [AdminCompteController::class, 'index'])->name('admin.compte');
     Route::get('/profil', [AdminProfilController::class, 'index'])->name('admin.profil');
     Route::get('/profil/edit', [AdminProfilController::class, 'edit'])->name('admin.profil.edit');
@@ -114,8 +114,8 @@ Route::post('/service-store', [ServicesController::class, 'store'])->name('admin
 Route::delete('/service-propose/{id}', [ServicesController::class, 'destroy'])->name('admin.serviceDestroy');
 
 // ✅ déplacé vers adminServicesController car ça agit sur le modèle Services (urgence)
-Route::get('/service-activer/{id}', [adminServicesController::class, 'activer'])->name('admin.serviceActiver');
-Route::get('/service-desactiver/{id}', [adminServicesController::class, 'desactiver'])->name('admin.serviceDesactiver');
+Route::post('/service-activer/{id}', [adminServicesController::class, 'activer'])->name('admin.serviceActiver');
+Route::post('/service-desactiver/{id}', [adminServicesController::class, 'desactiver'])->name('admin.serviceDesactiver');
     Route::get('/bilans', [AdminBilanController::class, 'index'])->name('admin.bilanSante');
     Route::get('/actualites', [AdminActualiteController::class, 'index'])->name('admin.actualite');
     Route::post('/actualites', [AdminActualiteController::class, 'store'])->name('admin.actualiteStore');

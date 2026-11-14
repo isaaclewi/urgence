@@ -23,7 +23,18 @@ class RedirectionController extends Controller
 
     public function accueilAdmin()
     {
-        return view('admin.accueil');
+        // Page publique : chiffres réels, sans jamais bloquer l'affichage si la base est lente
+        try {
+            $stats = [
+                'alertes'    => \App\Models\alertes::count(),
+                'en_attente' => \App\Models\alertes::whereIn('statut', ['ouvert', 'en attente'])->count(),
+                'services'   => \App\Models\Services::where('disponible', 1)->count(),
+            ];
+        } catch (\Throwable $e) {
+            $stats = ['alertes' => null, 'en_attente' => null, 'services' => null];
+        }
+
+        return view('admin.accueil', compact('stats'));
     }
 
     public function accueilService()
