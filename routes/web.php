@@ -60,6 +60,7 @@ Route::get('/admin/accueil', [RedirectionController::class, 'accueilAdmin'])->na
 Route::get('/admin/login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');
 Route::post('/admin/login', [AdminLoginController::class, 'processLogin'])->name('admin.login.process');
 
+Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('admin.logout');
 Route::get('/services/accueil', [RedirectionController::class, 'accueilService'])->name('services.accueil');
 Route::get('/services/login', [ServicesLoginController::class, 'showLoginForm'])->name('services.login');
 Route::post('/services/login', [ServicesLoginController::class, 'processLogin'])->name('services.login.process');
