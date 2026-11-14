@@ -8,14 +8,14 @@
 
     {{-- PWA --}}
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#1a56db">
+    <meta name="theme-color" content="#0B1E3D">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="CongoAssist">
     <link rel="apple-touch-icon" href="/icons/icon-192.png">
 
     {{-- Fonts --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
 
     {{-- Icons --}}
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
@@ -39,11 +39,11 @@
         /* ─── CSS Variables ─── */
         :root {
             --sidebar-w: 260px;
-            --sidebar-bg: #0f172a;
+            --sidebar-bg: #0B1E3D;
             --sidebar-border: rgba(255,255,255,0.06);
-            --accent: #2563eb;
-            --accent-light: #eff6ff;
-            --accent-hover: #1d4ed8;
+            --accent: #1DB87A;
+            --accent-light: #ECFDF5;
+            --accent-hover: #15A066;
             --green: #059669;
             --green-light: #ecfdf5;
             --red: #dc2626;
@@ -60,6 +60,14 @@
             --shadow-lg: 0 12px 40px rgba(0,0,0,.12);
             --nav-h: 60px;
         }
+
+
+        /* ─── Identité commune (design system CongoAssist) ─── */
+        .sidebar::before {
+            content: ''; display: block; height: 4px; flex-shrink: 0;
+            background: linear-gradient(90deg, #009E60 0 33.3%, #FBDE4A 33.3% 66.6%, #CE1126 66.6% 100%);
+        }
+        .sidebar-logo-text, h1, h2, .page-title { font-family: 'Sora', 'Inter', system-ui, sans-serif; }
 
         /* ─── Sidebar ─── */
         .sidebar {
@@ -137,7 +145,7 @@
             color: #fff;
         }
         .sb-link.active {
-            background: rgba(37,99,235,.3);
+            background: rgba(29,184,122,.3);
             color: #fff;
             font-weight: 600;
         }
@@ -286,7 +294,7 @@
         .stat-label { font-size: 12px; color: var(--text-sec); margin-top: 3px; font-weight: 500; }
 
         /* Color helpers */
-        .bg-blue-soft { background: #dbeafe; color: #1d4ed8; }
+        .bg-blue-soft { background: #D1FAE5; color: #047857; }
         .bg-green-soft { background: #d1fae5; color: #047857; }
         .bg-red-soft { background: #fee2e2; color: #b91c1c; }
         .bg-amber-soft { background: #fef3c7; color: #92400e; }
@@ -325,7 +333,7 @@
         .pill-green { background: #d1fae5; color: #065f46; }
         .pill-yellow { background: #fef3c7; color: #78350f; }
         .pill-red { background: #fee2e2; color: #991b1b; }
-        .pill-blue { background: #dbeafe; color: #1e40af; }
+        .pill-blue { background: #DBEAFE; color: #1D4ED8; }
         .pill-gray { background: #f3f4f6; color: #374151; }
 
         /* ─── Alert / Flash ─── */
@@ -355,7 +363,7 @@
         }
         .form-control:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+            box-shadow: 0 0 0 3px rgba(29,184,122,.18);
         }
         .form-control[readonly] { background: var(--surface2); color: var(--text-sec); }
         .form-group { margin-bottom: 18px; }

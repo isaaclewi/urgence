@@ -108,7 +108,7 @@
                    style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 10px;
                           background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);
                           text-decoration:none;transition:border-color .15s,box-shadow .15s;"
-                   onmouseover="this.style.borderColor='#2563eb';this.style.boxShadow='0 0 0 3px rgba(37,99,235,.08)'"
+                   onmouseover="this.style.borderColor='#1DB87A';this.style.boxShadow='0 0 0 3px rgba(29,184,122,.12)'"
                    onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
                     <div class="stat-icon {{ $sc['color'] }}" style="width:36px;height:36px;border-radius:9px;">
                         <i data-feather="{{ $sc['icon'] }}" style="width:16px;height:16px;"></i>
