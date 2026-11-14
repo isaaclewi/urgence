@@ -6,6 +6,13 @@
     <title>Mon Compte - CongoAssist</title>
     <link rel="icon" href="medias/Clogo.jpg" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        /* Palette CongoAssist (identique à design-system.css) : vert de marque + bleu marine */
+        tailwind.config = { theme: { extend: { colors: {
+            green: { 50:'#ECFDF5',100:'#D1FAE5',200:'#A7F3D0',300:'#6EE7B7',400:'#3FCF95',500:'#1DB87A',600:'#15A066',700:'#0F8A56',800:'#0B6E45',900:'#08543A' },
+            blue:  { 50:'#EEF3FA',100:'#DCE6F4',200:'#B9CCE6',300:'#8FAAD2',400:'#5C82B8',500:'#2F5C9A',600:'#1A3E6E',700:'#14325A',800:'#0F274A',900:'#0B1E3D' }
+        } } } };
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <style>
         @keyframes fadeIn {
