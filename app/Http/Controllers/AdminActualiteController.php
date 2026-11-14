@@ -85,6 +85,13 @@ class AdminActualiteController extends Controller
             'url_media' => 'nullable|file|mimes:jpg,jpeg,png,gif,mp4|max:51200',
         ]);
 
+        // Case « Retirer ce média » cochée (sans nouveau fichier)
+        if ($request->boolean('supprimer_media') && ! $request->hasFile('url_media') && $actualite->url_media) {
+            Storage::disk('supabase')->delete('actualites/' . basename($actualite->url_media));
+            $actualite->url_media  = null;
+            $actualite->type_media = null;
+        }
+
         if ($request->hasFile('url_media')) {
             if ($actualite->url_media) {
                 $oldFilename = basename($actualite->url_media);

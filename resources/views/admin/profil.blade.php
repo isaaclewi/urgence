@@ -1,106 +1,46 @@
-@extends('admin.master')
+@extends('layouts.portal')
 
-@section('title', 'Profil Administrateur')
-@section('profilActive', 'active')
+@section('title', 'Mon profil')
+@section('page-title', 'Mon profil')
+@section('page-subtitle', 'Vos informations de compte administrateur')
 
 @section('content')
+<div class="ds-grid ds-grid-aside">
+    <x-card>
+        <div style="text-align:center">
+            <img src="{{ $admin->photo_profil ? asset($admin->photo_profil) : asset('medias/default-user.jpg') }}"
+                 alt="Photo de profil" style="width:112px;height:112px;border-radius:50%;object-fit:cover;border:3px solid var(--ds-border)">
+            <h2 style="font:700 18px 'Sora','Inter',sans-serif;margin:12px 0 2px">{{ $admin->nom }} {{ $admin->prenom }}</h2>
+            <x-badge type="info">{{ $admin->role }}</x-badge>
+        </div>
+        <dl style="margin:16px 0 0;font-size:13px;display:grid;gap:8px">
+            <div><dt class="ds-muted">Email</dt><dd style="margin:0;word-break:break-all">{{ $admin->email }}</dd></div>
+            <div><dt class="ds-muted">Téléphone</dt><dd style="margin:0">{{ $admin->telephone }}</dd></div>
+            <div><dt class="ds-muted">Adresse</dt><dd style="margin:0">{{ $admin->adresse }}</dd></div>
+        </dl>
+    </x-card>
 
-<div class="card profil-card">
-    <img src="{{ $admin->photo_profil ? asset($admin->photo_profil) : asset('medias/default-user.jpg') }}" alt="Photo Profil">
-
-    <div class="profil-info">
-        <h2>{{ $admin->nom }} {{ $admin->prenom }}</h2>
-
-        <p>Email : <span>{{ $admin->email }}</span></p>
-        <p>Adresse : <span>{{ $admin->adresse }}</span></p>
-        <p>Téléphone : <span>{{ $admin->telephone }}</span></p>
-        <p>Rôle : <span>{{ $admin->role }}</span></p>
-
-        <hr>
-
+    <x-card title="Modifier mes informations">
         <form action="{{ route('admin.profil.update') }}" method="POST" enctype="multipart/form-data">
             @csrf
-
-            <div class="form-grid">
-                <input type="text" name="nom" value="{{ $admin->nom }}" placeholder="Nom">
-                <input type="text" name="prenom" value="{{ $admin->prenom }}" placeholder="Prénom">
-                <input type="email" name="email" value="{{ $admin->email }}" placeholder="Email">
-                <input type="text" name="adresse" value="{{ $admin->adresse }}" placeholder="Adresse">
-                <input type="text" name="telephone" value="{{ $admin->telephone }}" placeholder="Téléphone">
-                <input type="file" name="photo">
-                <input type="password" name="mot_passe" placeholder="Nouveau mot de passe">
+            <div class="ds-form-grid">
+                <div class="ds-field"><label class="ds-label" for="nom">Nom *</label>
+                    <input class="ds-input" id="nom" type="text" name="nom" value="{{ old('nom', $admin->nom) }}" required></div>
+                <div class="ds-field"><label class="ds-label" for="prenom">Prénom *</label>
+                    <input class="ds-input" id="prenom" type="text" name="prenom" value="{{ old('prenom', $admin->prenom) }}" required></div>
+                <div class="ds-field"><label class="ds-label" for="email">Email *</label>
+                    <input class="ds-input" id="email" type="email" name="email" value="{{ old('email', $admin->email) }}" required></div>
+                <div class="ds-field"><label class="ds-label" for="telephone">Téléphone *</label>
+                    <input class="ds-input" id="telephone" type="text" name="telephone" value="{{ old('telephone', $admin->telephone) }}" required></div>
+                <div class="ds-field"><label class="ds-label" for="adresse">Adresse *</label>
+                    <input class="ds-input" id="adresse" type="text" name="adresse" value="{{ old('adresse', $admin->adresse) }}" required></div>
+                <div class="ds-field"><label class="ds-label" for="photo">Photo (jpg, png — 2 Mo max)</label>
+                    <input class="ds-input" id="photo" type="file" name="photo" accept=".jpg,.jpeg,.png"></div>
+                <div class="ds-field"><label class="ds-label" for="mot_passe">Nouveau mot de passe</label>
+                    <input class="ds-input" id="mot_passe" type="password" name="mot_passe" minlength="6" autocomplete="new-password" placeholder="Laisser vide pour ne pas changer"></div>
             </div>
-
-            <button class="btn-primary">Mettre à jour</button>
+            <button class="ds-btn ds-btn-primary" type="submit">Mettre à jour</button>
         </form>
-    </div>
+    </x-card>
 </div>
-<style>
-            .card {
-    background:#fff;
-    border-radius:20px;
-    padding:25px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.08);
-    border-left:4px solid #FF6F61;
-}
-
-.profil-card {
-    display:flex;
-    gap:25px;
-    align-items:flex-start;
-    flex-wrap:wrap;
-}
-
-.profil-card img {
-    width:150px;
-    height:150px;
-    border-radius:50%;
-    border:3px solid #1B263B;
-    object-fit:cover;
-}
-
-.profil-info {
-    flex:1;
-}
-
-.profil-info h2 {
-    color:#0D3B66;
-    margin-bottom:10px;
-}
-
-.profil-info p {
-    margin:6px 0;
-    font-weight:500;
-}
-
-.profil-info span {
-    color:#FF6F61;
-    font-weight:600;
-}
-
-.form-grid {
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:12px;
-    margin-top:15px;
-}
-
-.form-grid input {
-    padding:10px;
-    border-radius:10px;
-    border:1px solid #A3D2CA;
-}
-
-.btn-primary {
-    margin-top:15px;
-    padding:12px 25px;
-    border:none;
-    border-radius:12px;
-    background:linear-gradient(90deg,#FFAB91,#FF6F61);
-    color:#fff;
-    font-weight:600;
-    cursor:pointer;
-}
-
-</style>
 @endsection

@@ -30,6 +30,11 @@ class bilanController extends Controller
         if (session()->has('citoyen_id')) {
             $citoyen = Citoyens::find(session('citoyen_id'));
 
+            if (! $citoyen) {
+                session()->forget('citoyen_id');
+                return redirect()->route('login')->with('error', 'Citoyen introuvable.');
+            }
+
             // Récupérer le bilan du citoyen (dernier bilan par exemple)
             $bilan = bilanSante::where('citoyen_id', $citoyen->id)->latest()->first();
 

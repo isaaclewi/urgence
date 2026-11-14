@@ -34,9 +34,8 @@ class AdminProfilController extends Controller
                 ->with('error', 'Vous devez être connecté.');
         }
 
-        $admin = Admins::find(session('admin_id'));
-
-        return view('admin.edit_profil', compact('admin'));
+        // Le formulaire de modification est intégré à la page profil
+        return redirect()->route('admin.profil');
     }
 
     public function update(Request $request)
@@ -50,6 +49,7 @@ class AdminProfilController extends Controller
 
         $validated = $request->validate([
             'nom'       => 'required|string|max:255',
+            'prenom'    => 'required|string|max:255',
             'email'     => 'required|email|unique:agents,email,' . $admin->id,
             'adresse'   => 'required|string|max:255',
             'telephone' => 'required|string|max:20',
@@ -58,6 +58,7 @@ class AdminProfilController extends Controller
         ]);
 
         $admin->nom       = $validated['nom'];
+        $admin->prenom    = $validated['prenom'];
         $admin->email     = $validated['email'];
         $admin->adresse   = $validated['adresse'];
         $admin->telephone = $validated['telephone'];

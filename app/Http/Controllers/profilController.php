@@ -58,7 +58,9 @@ class profilController extends Controller
         // Upload photo vers Supabase Storage
         if ($request->hasFile('photo')) {
             $file     = $request->file('photo');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = time() . '_' .
+                \Illuminate\Support\Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) .
+                '.' . strtolower($file->getClientOriginalExtension());
 
             // Supprimer l'ancienne photo si elle existe
             if ($citoyen->photo_profil) {
