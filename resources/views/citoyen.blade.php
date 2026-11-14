@@ -492,10 +492,12 @@
             </div>
             @endif
 
-            <a href="{{ route('accueil') }}" class="sb-link danger" style="margin-bottom:8px;">
-                <i data-feather="log-out" style="width:16px;height:16px;"></i>
-                Déconnexion
-            </a>
+            <form method="POST" action="{{ route('logout') }}" style="margin:0 0 8px;">
+                @csrf
+                <button type="submit" class="sb-link danger" style="width:100%;background:none;border:0;font:inherit;cursor:pointer;text-align:left;">
+                    <i data-feather="log-out" style="width:16px;height:16px;"></i> Déconnexion
+                </button>
+            </form>
 
         </div>
     </aside>
@@ -583,9 +585,12 @@
                 <i data-feather="grid" style="width:16px;height:16px;"></i> Code QR santé
             </a>
             <div class="sb-spacer"></div>
-            <a href="{{ route('accueil') }}" class="sb-link danger" style="margin-bottom:12px;">
-                <i data-feather="log-out" style="width:16px;height:16px;"></i> Déconnexion
-            </a>
+            <form method="POST" action="{{ route('logout') }}" style="margin:0 0 12px;">
+                @csrf
+                <button type="submit" class="sb-link danger" style="width:100%;background:none;border:0;font:inherit;cursor:pointer;text-align:left;">
+                    <i data-feather="log-out" style="width:16px;height:16px;"></i> Déconnexion
+                </button>
+            </form>
         </div>
     </aside>
 

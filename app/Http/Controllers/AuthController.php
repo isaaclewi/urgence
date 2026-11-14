@@ -28,6 +28,12 @@ class AuthController extends Controller
         $citoyen = Citoyens::where('email', $request->email)->first();
 
         if ($citoyen && Hash::check($request->password, $citoyen->password)) {
+            if ($citoyen->etat_compte !== 'actif') {
+                return back()
+                    ->withInput($request->only('email'))
+                    ->withErrors(['email' => "Votre compte n'est pas encore activé. Il sera validé par un administrateur."]);
+            }
+
             // Mettre l'ID en session
             session([
                 'citoyen_id' => $citoyen->id,

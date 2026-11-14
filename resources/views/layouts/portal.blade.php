@@ -41,8 +41,11 @@
         </nav>
 
         <div class="ds-sidebar-foot">
-            @if($portal === 'equipe')
-                <form method="POST" action="{{ route('equipe.logout') }}">
+            @php
+                $logoutRoute = $portal === 'equipe' ? 'equipe.logout' : (($portal === 'admin' && \Illuminate\Support\Facades\Route::has('admin.logout')) ? 'admin.logout' : null);
+            @endphp
+            @if($logoutRoute)
+                <form method="POST" action="{{ route($logoutRoute) }}">
                     @csrf
                     <button type="submit" class="ds-nav-link"><i data-feather="log-out" style="width:16px;height:16px"></i> Déconnexion</button>
                 </form>

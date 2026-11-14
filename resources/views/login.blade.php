@@ -173,6 +173,12 @@
                 </div>
 
                 <!-- Form -->
+                @if(session('error') || session('success') || $errors->any())
+                    <div class="mb-4 rounded-lg border px-4 py-3 text-sm {{ session('success') ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-700' }}" role="alert">
+                        {{ session('error') ?? session('success') ?? $errors->first() }}
+                    </div>
+                @endif
+
                 <form action="{{ route('processLogin') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                     @csrf
 
@@ -185,7 +191,7 @@
                         <div class="relative">
                    
                             <input type="email" 
-                                name="email" 
+                                name="email" value="{{ old('email') }}" 
                                 placeholder="Ex: lombaisaac8@gmail.com" 
                                 required
                                 class="input-with-icon w-full px-4 py-3.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
