@@ -21,9 +21,9 @@
                             {{ strtoupper(substr($service->nom, 0, 1)) }}
                         @endif
                     </div>
-                    <input class="ds-input" type="file" name="photo_profil" accept=".jpg,.jpeg,.png">
+                    <input class="ds-input" type="file" name="photo_profil" accept="image/jpeg,image/png,image/webp">
                 </div>
-                <span class="ds-muted" style="font-size:12px">JPG ou PNG, 2 Mo maximum.</span>
+                <span class="ds-muted" style="font-size:12px">JPG, PNG ou WebP, 10 Mo maximum.</span>
             </div>
 
             <div class="ds-field">

@@ -34,8 +34,8 @@
                     <input class="ds-input" id="telephone" type="text" name="telephone" value="{{ old('telephone', $admin->telephone) }}" required></div>
                 <div class="ds-field"><label class="ds-label" for="adresse">Adresse *</label>
                     <input class="ds-input" id="adresse" type="text" name="adresse" value="{{ old('adresse', $admin->adresse) }}" required></div>
-                <div class="ds-field"><label class="ds-label" for="photo">Photo (jpg, png — 2 Mo max)</label>
-                    <input class="ds-input" id="photo" type="file" name="photo" accept=".jpg,.jpeg,.png"></div>
+                <div class="ds-field"><label class="ds-label" for="photo">Photo (jpg, png, webp — 10 Mo max)</label>
+                    <input class="ds-input" id="photo" type="file" name="photo" accept="image/jpeg,image/png,image/webp"></div>
                 <div class="ds-field"><label class="ds-label" for="mot_passe">Nouveau mot de passe</label>
                     <input class="ds-input" id="mot_passe" type="password" name="mot_passe" minlength="6" autocomplete="new-password" placeholder="Laisser vide pour ne pas changer"></div>
             </div>

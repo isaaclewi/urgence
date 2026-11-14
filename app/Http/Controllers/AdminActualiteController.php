@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Actualite;
 use App\Models\Admins;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use App\Support\ImageUpload;
 
 class AdminActualiteController extends Controller
 {
@@ -16,7 +16,10 @@ class AdminActualiteController extends Controller
         }
 
         $admin = Admins::find(session('admin_id'));
-        $actualites = Actualite::latest()->get();
+        $actualites = Actualite::with('service:id,nom,photo_profil')
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->paginate(8);
 
         return view('admin.actualite', compact('admin', 'actualites'));
     }
@@ -31,21 +34,14 @@ class AdminActualiteController extends Controller
 
         $request->validate([
             'contenu'   => 'required|string|max:5000',
-            'url_media' => 'nullable|file|mimes:jpg,jpeg,png,gif,mp4|max:51200',
-        ]);
+            'url_media' => ImageUpload::REGLE_MEDIA,
+        ], ImageUpload::MESSAGES);
 
         $urlMedia  = null;
         $typeMedia = null;
 
         if ($request->hasFile('url_media')) {
-            $file     = $request->file('url_media');
-            $ext      = strtolower($file->getClientOriginalExtension());
-            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $file->getClientOriginalName());
-
-            Storage::disk('supabase')->putFileAs('actualites', $file, $filename);
-
-            $urlMedia  = config('filesystems.disks.supabase.public_url') . '/actualites/' . $filename;
-            $typeMedia = $ext === 'mp4' ? 'mp4' : 'image';
+            [$urlMedia, $typeMedia] = ImageUpload::storeMedia($request->file('url_media'), 'actualites');
         }
 
         Actualite::create([
@@ -82,30 +78,18 @@ class AdminActualiteController extends Controller
 
         $request->validate([
             'contenu'   => 'required|string|max:5000',
-            'url_media' => 'nullable|file|mimes:jpg,jpeg,png,gif,mp4|max:51200',
-        ]);
-
-        // Case « Retirer ce média » cochée (sans nouveau fichier)
-        if ($request->boolean('supprimer_media') && ! $request->hasFile('url_media') && $actualite->url_media) {
-            Storage::disk('supabase')->delete('actualites/' . basename($actualite->url_media));
-            $actualite->url_media  = null;
-            $actualite->type_media = null;
-        }
+            'url_media' => ImageUpload::REGLE_MEDIA,
+        ], ImageUpload::MESSAGES);
 
         if ($request->hasFile('url_media')) {
-            if ($actualite->url_media) {
-                $oldFilename = basename($actualite->url_media);
-                Storage::disk('supabase')->delete('actualites/' . $oldFilename);
-            }
-
-            $file     = $request->file('url_media');
-            $ext      = strtolower($file->getClientOriginalExtension());
-            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $file->getClientOriginalName());
-
-            Storage::disk('supabase')->putFileAs('actualites', $file, $filename);
-
-            $actualite->url_media  = config('filesystems.disks.supabase.public_url') . '/actualites/' . $filename;
-            $actualite->type_media = $ext === 'mp4' ? 'mp4' : 'image';
+            // Nouveau média envoyé d'abord ; l'ancien n'est supprimé qu'ensuite.
+            $ancien = $actualite->url_media;
+            [$actualite->url_media, $actualite->type_media] = ImageUpload::storeMedia($request->file('url_media'), 'actualites');
+            ImageUpload::supprimer($ancien, 'actualites');
+        } elseif ($request->boolean('supprimer_media') && $actualite->url_media) {
+            ImageUpload::supprimer($actualite->url_media, 'actualites');
+            $actualite->url_media  = null;
+            $actualite->type_media = null;
         }
 
         $actualite->contenu = $request->contenu;
@@ -123,10 +107,7 @@ class AdminActualiteController extends Controller
 
         $actualite = Actualite::findOrFail($id);
 
-        if ($actualite->url_media) {
-            $oldFilename = basename($actualite->url_media);
-            Storage::disk('supabase')->delete('actualites/' . $oldFilename);
-        }
+        ImageUpload::supprimer($actualite->url_media, 'actualites');
 
         $actualite->delete();
 

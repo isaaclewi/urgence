@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use App\Models\Admins;
+use App\Support\ImageUpload;
 
 class AdminProfilController extends Controller
 {
@@ -50,12 +50,16 @@ class AdminProfilController extends Controller
         $validated = $request->validate([
             'nom'       => 'required|string|max:255',
             'prenom'    => 'required|string|max:255',
-            'email'     => 'required|email|unique:agents,email,' . $admin->id,
+            // Avant : « unique:agents,email » -> mauvaise table (le personnel) au lieu de celle des admins.
+            'email'     => ['required', 'email', Rule::unique($admin->getTable(), 'email')->ignore($admin->id)],
             'adresse'   => 'required|string|max:255',
             'telephone' => 'required|string|max:20',
             'mot_passe' => 'nullable|min:6',
-            'photo'     => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ]);
+            'photo'     => ImageUpload::REGLE_IMAGE,
+        ], array_merge(ImageUpload::MESSAGES, [
+            'email.unique'  => 'Cet email est déjà utilisé par un autre compte.',
+            'mot_passe.min' => 'Le mot de passe doit contenir au minimum 6 caractères.',
+        ]));
 
         $admin->nom       = $validated['nom'];
         $admin->prenom    = $validated['prenom'];
@@ -67,28 +71,17 @@ class AdminProfilController extends Controller
             $admin->mot_passe = Hash::make($validated['mot_passe']);
         }
 
-        // Upload photo vers Supabase Storage
+        $anciennePhoto = null;
         if ($request->hasFile('photo')) {
-            $file = $request->file('photo');
-
-            $filename = time() . '_' .
-                Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) .
-                '.' . $file->getClientOriginalExtension();
-
-            // Supprimer l'ancienne photo si elle existe
-            if ($admin->photo_profil) {
-                $oldFilename = basename($admin->photo_profil);
-                Storage::disk('supabase')->delete('photo/' . $oldFilename);
-            }
-
-            // Upload vers Supabase
-            Storage::disk('supabase')->putFileAs('photo', $file, $filename);
-
-            // URL publique
-            $admin->photo_profil = config('filesystems.disks.supabase.public_url') . '/photo/' . $filename;
+            $anciennePhoto      = $admin->photo_profil;
+            $admin->photo_profil = ImageUpload::storeImage($request->file('photo'), 'admins/photos', 'photo');
         }
 
         $admin->save();
+
+        if ($anciennePhoto) {
+            ImageUpload::supprimer($anciennePhoto, 'photo');
+        }
 
         session([
             'admin_nom'       => $admin->nom,

@@ -17,6 +17,8 @@ RUN apt-get update && apt-get install -y \
     zip \
     libonig-dev \
     libpq-dev \
+    libwebp-dev \
+    && docker-php-ext-configure gd --with-jpeg --with-freetype --with-webp \
     && docker-php-ext-install pdo_mysql pdo_pgsql pgsql mbstring zip exif pcntl bcmath gd
 
 # ==============================
@@ -74,7 +76,7 @@ RUN echo "LimitRequestBody 57671680" >> /etc/apache2/apache2.conf
 # ==============================
 RUN echo "upload_max_filesize=50M" > /usr/local/etc/php/conf.d/uploads.ini \
     && echo "post_max_size=55M" >> /usr/local/etc/php/conf.d/uploads.ini \
-    && echo "memory_limit=128M" >> /usr/local/etc/php/conf.d/uploads.ini
+    && echo "memory_limit=256M" >> /usr/local/etc/php/conf.d/uploads.ini
 
 # ==============================
 # 13. EXPOSE PORT

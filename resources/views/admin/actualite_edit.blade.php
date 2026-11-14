@@ -34,7 +34,7 @@
 
         <div class="ds-field">
             <label class="ds-label" for="url_media">{{ $actualite->url_media ? 'Remplacer le média' : 'Ajouter un média' }} (facultatif)</label>
-            <input class="ds-input" type="file" id="url_media" name="url_media" accept=".jpg,.jpeg,.png,.gif,.mp4">
+            <input class="ds-input" type="file" id="url_media" name="url_media" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4">
         </div>
 
         <button class="ds-btn ds-btn-primary" type="submit">Enregistrer</button>

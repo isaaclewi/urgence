@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Services extends Model
 {
     use HasFactory;
+    use \App\Models\Concerns\NormalisePhotoProfil;
 
     protected $table = 'services';
 

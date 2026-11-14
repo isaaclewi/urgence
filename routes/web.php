@@ -125,6 +125,10 @@ Route::post('/service-desactiver/{id}', [adminServicesController::class, 'desact
     Route::delete('/actualites/{id}', [AdminActualiteController::class, 'destroy'])->name('admin.actualiteDestroy');
     Route::get('/alertes', [AdminAlertesController::class, 'index'])->name('admin.alertes');
 
+    // Création d'un compte administrateur (réservée aux admins déjà connectés)
+    Route::get('/register', [AdminRegisterController::class, 'create'])->name('admin.register');
+    Route::post('/register', [AdminRegisterController::class, 'store'])->name('admin.register.store');
+
 //Mon commentaire (Déchiffrement de la pièce d'identité)
 Route::get('/citoyen/piece/{id}', [PieceIdentiteCitoyenController::class, 'show'])->name('citoyen.piece');
 

@@ -5,8 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Actualite;
 use App\Models\Services;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use App\Support\ImageUpload;
 
 class ActualiteController extends Controller
 {
@@ -22,25 +21,15 @@ class ActualiteController extends Controller
             ->firstOrFail();
     }
 
-    /** Enregistre un média sur Supabase sous un nom aléatoire ; renvoie [url, type]. */
+    /** Enregistre un média sur Supabase (image réduite automatiquement) ; renvoie [url, type]. */
     private function stockerMedia($fichier): array
     {
-        $extension = strtolower($fichier->extension() ?: $fichier->getClientOriginalExtension());
-        $nom       = Str::uuid() . '.' . $extension;
-
-        Storage::disk('supabase')->putFileAs('actualites', $fichier, $nom);
-
-        return [
-            config('filesystems.disks.supabase.public_url') . '/actualites/' . $nom,
-            $extension === 'mp4' ? 'mp4' : 'image',
-        ];
+        return ImageUpload::storeMedia($fichier, 'actualites', 'url_media');
     }
 
     private function supprimerMedia(?string $url): void
     {
-        if ($url) {
-            Storage::disk('supabase')->delete('actualites/' . basename($url));
-        }
+        ImageUpload::supprimer($url, 'actualites');
     }
 
     public function index()
@@ -50,9 +39,11 @@ class ActualiteController extends Controller
         }
 
         $service    = Services::findOrFail(session('service_id'));
-        $actualites = Actualite::where('service_id', $service->id)
+        $actualites = Actualite::with('service:id,nom,photo_profil')
+            ->where('service_id', $service->id)
             ->orderByDesc('created_at')
-            ->paginate(10);
+            ->orderByDesc('id')
+            ->paginate(8);
 
         return view('services.actualite', compact('service', 'actualites'));
     }
@@ -67,8 +58,8 @@ class ActualiteController extends Controller
 
         $request->validate([
             'contenu'   => 'required|string|max:5000',
-            'url_media' => 'nullable|file|mimes:jpg,jpeg,png,gif,mp4|max:51200',
-        ]);
+            'url_media' => ImageUpload::REGLE_MEDIA,
+        ], ImageUpload::MESSAGES);
 
         $urlMedia = $typeMedia = null;
 
@@ -109,13 +100,15 @@ class ActualiteController extends Controller
 
         $request->validate([
             'contenu'         => 'required|string|max:5000',
-            'url_media'       => 'nullable|file|mimes:jpg,jpeg,png,gif,mp4|max:51200',
+            'url_media'       => ImageUpload::REGLE_MEDIA,
             'supprimer_media' => 'nullable|boolean',
-        ]);
+        ], ImageUpload::MESSAGES);
 
         if ($request->hasFile('url_media')) {
-            $this->supprimerMedia($actualite->url_media);
+            // Nouveau média envoyé d'abord ; l'ancien n'est supprimé qu'ensuite.
+            $ancien = $actualite->url_media;
             [$actualite->url_media, $actualite->type_media] = $this->stockerMedia($request->file('url_media'));
+            $this->supprimerMedia($ancien);
         } elseif ($request->boolean('supprimer_media')) {
             $this->supprimerMedia($actualite->url_media);
             $actualite->url_media  = null;

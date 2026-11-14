@@ -4,9 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use App\Models\Services;
+use App\Support\ImageUpload;
 
 class ServicesProfilController extends Controller
 {
@@ -44,34 +43,27 @@ class ServicesProfilController extends Controller
             'email'        => 'required|email|unique:services,email,' . $service->id,
             'adresse'      => 'nullable|string|max:255',
             'telephone'    => 'nullable|string|max:20',
-            'photo_profil' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ]);
+            'photo_profil' => ImageUpload::REGLE_IMAGE,
+        ], array_merge(ImageUpload::MESSAGES, [
+            'email.unique' => 'Cet email est déjà utilisé par un autre compte.',
+        ]));
 
         $service->nom       = $validated['nom'];
         $service->email     = $validated['email'];
         $service->adresse   = $validated['adresse'] ?? $service->adresse;
         $service->telephone = $validated['telephone'] ?? $service->telephone;
 
-        // Upload photo vers Supabase Storage
+        $anciennePhoto = null;
         if ($request->hasFile('photo_profil')) {
-            $file = $request->file('photo_profil');
-
-            $filename = Str::uuid() . '.' . strtolower($file->extension() ?: $file->getClientOriginalExtension());
-
-            // Supprimer l'ancienne photo si elle existe
-            if ($service->photo_profil) {
-                $oldFilename = basename($service->photo_profil);
-                Storage::disk('supabase')->delete('services/' . $oldFilename);
-            }
-
-            // Upload vers Supabase
-            Storage::disk('supabase')->putFileAs('services', $file, $filename);
-
-            // URL publique
-            $service->photo_profil = config('filesystems.disks.supabase.public_url') . '/services/' . $filename;
+            $anciennePhoto         = $service->photo_profil;
+            $service->photo_profil = ImageUpload::storeImage($request->file('photo_profil'), 'services', 'photo_profil');
         }
 
         $service->save();
+
+        if ($anciennePhoto) {
+            ImageUpload::supprimer($anciennePhoto, 'services');
+        }
 
         session([
             'service_nom'       => $service->nom,

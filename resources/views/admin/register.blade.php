@@ -86,6 +86,16 @@ form .row {display:flex;gap:20px;margin-bottom:20px;flex-wrap:wrap;}
 
         <h2>Inscription Administrateur</h2>
 
+        @if ($errors->any())
+            <div style="background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:14px;">
+                <ul style="margin:0;padding-left:18px;">
+                    @foreach ($errors->all() as $erreur)
+                        <li>{{ $erreur }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <form method="POST" action="{{ route('admin.register.store') }}" enctype="multipart/form-data">
             @csrf
 
@@ -144,7 +154,7 @@ form .row {display:flex;gap:20px;margin-bottom:20px;flex-wrap:wrap;}
                 </div>
                 <div class="form-group">
                     <label><i class="fas fa-image"></i> Photo de profil</label>
-                    <input type="file" name="photo" accept="image/*">
+                    <input type="file" name="photo" accept="image/jpeg,image/png,image/webp">
                 </div>
             </div>
 

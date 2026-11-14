@@ -239,12 +239,12 @@
                             Pièce d'identité
                         </label>
                         <div class="relative">
-                            <input type="file" name="piece_identite" accept="image/*" 
-                                onchange="if(this.files[0] && this.files[0].size>5*1024*1024){alert('Fichier trop gros (max 5MB)'); this.value='';} else if(this.files[0]){document.getElementById('file-name').textContent = this.files[0].name;}"
+                            <input type="file" name="piece_identite" accept="image/jpeg,image/png,image/webp" 
+                                onchange="if(this.files[0] && this.files[0].size>10*1024*1024){alert('Fichier trop gros (max 10 Mo)'); this.value='';} else if(this.files[0]){document.getElementById('file-name').textContent = this.files[0].name;}"
                                 class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                             <p class="text-xs text-gray-500 mt-2">
                                 <i data-feather="info" class="w-3 h-3 inline mr-1"></i>
-                                Format accepté: JPG, PNG (max 5MB)
+                                Formats acceptés : JPG, PNG, WebP (max 10 Mo)
                             </p>
                         </div>
                         <span id="file-name" class="text-sm text-green-600 mt-2 block"></span>

@@ -47,18 +47,18 @@
                                   cursor:pointer;border:2px solid #fff;">
                         <i data-feather="camera" style="width:11px;height:11px;"></i>
                     </label>
-                    <input type="file" id="photoInput" name="photo" accept="image/*"
+                    <input type="file" id="photoInput" name="photo" form="profilForm" accept="image/jpeg,image/png,image/webp"
                            style="display:none;"
-                           onchange="document.getElementById('profilePic').src=URL.createObjectURL(this.files[0])">
+                           onchange="if(this.files[0]){ if(this.files[0].size>10*1024*1024){alert('Photo trop lourde (10 Mo maximum).');this.value='';return;} document.getElementById('profilePic').src=URL.createObjectURL(this.files[0]); }">
                 </div>
                 <div>
                     <div style="font-size:15px;font-weight:700;color:var(--text);">{{ $citoyen->nom }} {{ $citoyen->prenom }}</div>
                     <div style="font-size:12px;color:var(--text-sec);margin-top:3px;">Cliquez sur l'icône pour changer la photo</div>
-                    <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">JPG / PNG — max 2 Mo</div>
+                    <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">JPG, PNG ou WebP — max 10 Mo</div>
                 </div>
             </div>
 
-            <form method="POST" enctype="multipart/form-data" action="{{ route('profil.update') }}">
+            <form id="profilForm" method="POST" enctype="multipart/form-data" action="{{ route('profil.update') }}">
                 @csrf
                 @method('PUT')
 

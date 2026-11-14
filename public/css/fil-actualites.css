@@ -1,0 +1,229 @@
+/* ═══════════════════════════════════════════════════════════════════
+   CongoAssist — Fil d'actualités (citoyen · services · admin)
+   Design type « réseau social » : publications pleine largeur,
+   médias adaptés à toutes les tailles d'écran (PC, tablette, Android).
+   Toutes les classes sont préfixées « fa- » : aucune collision.
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+    --fa-accent:      var(--ds-accent, var(--accent, #1DB87A));
+    --fa-accent-dark: var(--ds-accent-dark, var(--accent-hover, #15A066));
+    --fa-text:   #0f172a;
+    --fa-body:   #1e293b;
+    --fa-sec:    #475569;
+    --fa-mute:   #64748b;
+    --fa-border: #e2e8f0;
+    --fa-soft:   #f1f5f9;
+    --fa-surface:#ffffff;
+    --fa-danger: #dc2626;
+    --fa-radius: 16px;
+    --fa-bleed:  16px;               /* marge latérale de la page sur mobile */
+    --fa-media-max: 680px;           /* hauteur maximale d'une image / vidéo */
+}
+
+.fa-page, .fa-page * , .fa-lightbox, .fa-lightbox * { box-sizing: border-box; }
+.fa-page { width: 100%; margin: 0 auto; color: var(--fa-text); font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+.fa-page button, .fa-page a { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+
+/* ── Mise en page : toute la largeur disponible ─────────────────── */
+.fa-page { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: start; }
+.fa-feed { min-width: 0; width: 100%; max-width: 760px; margin: 0 auto; }
+.fa-aside { display: none; }
+
+@media (min-width: 1100px) {
+    .fa-page { grid-template-columns: minmax(0, 760px) 340px; justify-content: center; gap: 28px; }
+    .fa-feed { margin: 0; }
+    .fa-aside { display: block; position: sticky; top: 84px; }
+}
+@media (min-width: 1500px) {
+    .fa-page { grid-template-columns: minmax(0, 820px) 380px; gap: 36px; }
+    :root { --fa-media-max: 760px; }
+}
+
+/* ── Carte de publication ───────────────────────────────────────── */
+.fa-post {
+    background: var(--fa-surface); border: 1px solid var(--fa-border); border-radius: var(--fa-radius);
+    box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 6px 18px rgba(15,23,42,.05);
+    margin: 0 0 18px; overflow: hidden; scroll-margin-top: 84px;
+    animation: fa-in .35s ease both;
+}
+@keyframes fa-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+.fa-post-head { display: flex; align-items: center; gap: 12px; padding: 16px 18px 10px; }
+.fa-avatar {
+    position: relative; flex: 0 0 auto; width: 46px; height: 46px; border-radius: 50%; overflow: hidden;
+    background: linear-gradient(135deg, var(--fa-accent), var(--fa-accent-dark));
+    color: #fff; font: 700 18px/46px 'Sora', 'Inter', sans-serif; text-align: center;
+}
+.fa-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.fa-who { min-width: 0; flex: 1; }
+.fa-name { font-size: 15px; font-weight: 700; color: var(--fa-text); line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fa-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 6px; margin-top: 2px; font-size: 12.5px; color: var(--fa-mute); }
+.fa-meta svg { width: 12px; height: 12px; flex: 0 0 auto; }
+.fa-dot { opacity: .6; }
+
+/* ── Texte ──────────────────────────────────────────────────────── */
+.fa-body { padding: 2px 18px 14px; }
+.fa-text {
+    margin: 0; font-size: 15.5px; line-height: 1.65; color: var(--fa-body);
+    white-space: pre-line; overflow-wrap: anywhere; word-break: break-word;
+}
+.fa-text.is-clamped { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5; line-clamp: 5; overflow: hidden; }
+.fa-toggle {
+    margin: 6px 0 0; padding: 6px 0; min-height: 36px; background: none; border: 0; cursor: pointer;
+    font: 600 13.5px/1 'Inter', system-ui, sans-serif; color: var(--fa-accent-dark);
+}
+.fa-toggle:hover { text-decoration: underline; }
+.fa-toggle[hidden] { display: none; }
+
+/* ── Média : s'adapte à toute image (portrait, paysage, carrée) ──── */
+.fa-media {
+    position: relative; isolation: isolate; overflow: hidden; background: #0f172a;
+    display: flex; justify-content: center; align-items: center;
+}
+/* Fond flouté tiré de l'image elle-même : plus de bandes noires disgracieuses */
+.fa-media.is-image::before {
+    content: ""; position: absolute; inset: -24px; z-index: -1;
+    background: var(--fa-bg, none) center / cover no-repeat;
+    filter: blur(24px) brightness(.72) saturate(1.15); transform: scale(1.08);
+}
+.fa-media img {
+    display: block; width: 100%; height: auto; margin: 0 auto;
+    max-height: var(--fa-media-max); object-fit: contain; cursor: zoom-in;
+}
+.fa-media video {
+    display: block; width: 100%; height: auto; max-height: var(--fa-media-max);
+    background: #000; object-fit: contain;
+}
+.fa-media.is-broken { min-height: 160px; }
+.fa-media.is-broken img { display: none; }
+.fa-media.is-broken::after {
+    content: "Média indisponible"; color: #cbd5e1; font: 600 14px 'Inter', sans-serif; padding: 40px 16px;
+}
+
+/* ── Barre d'actions ────────────────────────────────────────────── */
+.fa-actions { display: flex; align-items: stretch; gap: 4px; padding: 6px 10px; border-top: 1px solid var(--fa-border); }
+.fa-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex: 1 1 0; min-height: 44px; padding: 8px 12px;
+    background: none; border: 0; border-radius: 10px; cursor: pointer; text-decoration: none;
+    font: 600 13.5px/1 'Inter', system-ui, sans-serif; color: var(--fa-sec);
+    transition: background .15s, color .15s;
+}
+.fa-btn svg { width: 18px; height: 18px; flex: 0 0 auto; }
+.fa-btn:hover { background: var(--fa-soft); color: var(--fa-text); }
+.fa-btn:focus-visible { outline: 2px solid var(--fa-accent); outline-offset: -2px; }
+.fa-btn-danger:hover { background: #fef2f2; color: var(--fa-danger); }
+.fa-actions form { display: contents; }
+
+/* ── Voir plus ──────────────────────────────────────────────────── */
+.fa-more-wrap { display: flex; justify-content: center; padding: 6px 0 24px; }
+.fa-load-more {
+    display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 0 26px;
+    border: 1px solid var(--fa-border); border-radius: 999px; background: var(--fa-surface); color: var(--fa-text);
+    font: 600 14px/1 'Inter', system-ui, sans-serif; text-decoration: none; cursor: pointer;
+    box-shadow: 0 1px 2px rgba(15,23,42,.06);
+}
+.fa-load-more:hover { background: var(--fa-soft); }
+.fa-load-more.is-loading { opacity: .6; pointer-events: none; }
+
+/* ── Compositeur (services / admin) ─────────────────────────────── */
+.fa-composer {
+    background: var(--fa-surface); border: 1px solid var(--fa-border); border-radius: var(--fa-radius);
+    box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 6px 18px rgba(15,23,42,.05); margin: 0 0 20px; padding: 16px 18px;
+}
+.fa-composer-top { display: flex; gap: 12px; align-items: flex-start; }
+.fa-composer textarea {
+    flex: 1; min-width: 0; width: 100%; min-height: 84px; max-height: 360px; resize: none; padding: 12px 14px;
+    border: 1px solid var(--fa-border); border-radius: 14px; background: var(--fa-soft);
+    font: 400 15.5px/1.55 'Inter', system-ui, sans-serif; color: var(--fa-text);
+}
+.fa-composer textarea:focus { outline: 2px solid var(--fa-accent); outline-offset: 0; background: #fff; }
+.fa-preview { position: relative; margin: 12px 0 0; border-radius: 12px; overflow: hidden; background: #0f172a; display: none; }
+.fa-preview.is-on { display: block; }
+.fa-preview img, .fa-preview video { display: block; width: 100%; max-height: 360px; object-fit: contain; }
+.fa-preview-remove {
+    position: absolute; top: 8px; right: 8px; width: 38px; height: 38px; border: 0; border-radius: 50%; cursor: pointer;
+    background: rgba(15,23,42,.72); color: #fff; font-size: 22px; line-height: 1;
+}
+.fa-composer-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.fa-attach {
+    display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: 10px; cursor: pointer;
+    font: 600 13.5px/1 'Inter', system-ui, sans-serif; color: var(--fa-sec); background: var(--fa-soft); border: 0;
+}
+.fa-attach:hover { background: #e2e8f0; color: var(--fa-text); }
+.fa-attach svg { width: 18px; height: 18px; }
+.fa-attach input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+.fa-count { margin-left: auto; font-size: 12.5px; color: var(--fa-mute); }
+.fa-publish {
+    min-height: 44px; padding: 0 24px; border: 0; border-radius: 10px; cursor: pointer;
+    background: var(--fa-accent); color: #fff; font: 700 14px/1 'Inter', system-ui, sans-serif;
+}
+.fa-publish:hover { background: var(--fa-accent-dark); }
+.fa-publish[disabled] { opacity: .65; cursor: progress; }
+.fa-hint { margin: 10px 0 0; font-size: 12.5px; color: var(--fa-mute); }
+
+/* ── Colonne latérale (grands écrans) ───────────────────────────── */
+.fa-side-card {
+    background: var(--fa-surface); border: 1px solid var(--fa-border); border-radius: var(--fa-radius);
+    padding: 18px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(15,23,42,.04);
+}
+.fa-side-card h3 { margin: 0 0 12px; font: 700 15px/1.2 'Sora', 'Inter', sans-serif; color: var(--fa-text); }
+.fa-side-card p, .fa-side-card li { font-size: 13.5px; line-height: 1.6; color: var(--fa-sec); }
+.fa-side-card ul { margin: 0; padding-left: 18px; }
+.fa-stat { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--fa-border); font-size: 13.5px; color: var(--fa-sec); }
+.fa-stat:first-of-type { border-top: 0; }
+.fa-stat strong { color: var(--fa-text); }
+
+/* ── Vide ───────────────────────────────────────────────────────── */
+.fa-empty { text-align: center; padding: 56px 24px; background: var(--fa-surface); border: 1px dashed #cbd5e1; border-radius: var(--fa-radius); }
+.fa-empty-icon { width: 64px; height: 64px; margin: 0 auto 14px; border-radius: 50%; background: var(--fa-soft); display: flex; align-items: center; justify-content: center; color: var(--fa-mute); }
+.fa-empty-icon svg { width: 28px; height: 28px; }
+.fa-empty h3 { margin: 0 0 6px; font: 700 16px/1.3 'Sora', 'Inter', sans-serif; }
+.fa-empty p { margin: 0; font-size: 14px; color: var(--fa-sec); }
+
+/* ── Visionneuse plein écran ────────────────────────────────────── */
+.fa-lightbox {
+    position: fixed; inset: 0; z-index: 9999; display: none; align-items: center; justify-content: center;
+    background: rgba(2,6,23,.94); padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+.fa-lightbox.is-open { display: flex; }
+.fa-lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; touch-action: pinch-zoom; }
+.fa-lightbox-close {
+    position: absolute; top: calc(12px + env(safe-area-inset-top)); right: 12px; width: 46px; height: 46px; border: 0; border-radius: 50%;
+    background: rgba(255,255,255,.14); color: #fff; font-size: 28px; line-height: 1; cursor: pointer;
+}
+
+/* ── Notification ───────────────────────────────────────────────── */
+.fa-toast {
+    position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); opacity: 0; z-index: 10000;
+    background: #0f172a; color: #fff; padding: 12px 18px; border-radius: 999px; font: 600 13.5px/1.2 'Inter', sans-serif; pointer-events: none;
+    transition: opacity .2s, transform .2s;
+}
+.fa-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+
+/* ── Mobile / Android : publications bord à bord ────────────────── */
+@media (max-width: 640px) {
+    :root { --fa-media-max: 70vh; }
+    @supports (height: 1dvh) { :root { --fa-media-max: min(70dvh, 560px); } }
+
+    .fa-post, .fa-composer, .fa-empty {
+        border-radius: 0; border-left: 0; border-right: 0;
+        margin-left: calc(var(--fa-bleed) * -1); margin-right: calc(var(--fa-bleed) * -1);
+        box-shadow: none;
+    }
+    .fa-post { margin-bottom: 10px; }
+    .fa-post-head { padding: 14px 14px 8px; }
+    .fa-body { padding: 2px 14px 12px; }
+    .fa-text { font-size: 15px; }
+    .fa-actions { padding: 4px 6px; }
+    .fa-btn { font-size: 13px; gap: 6px; padding: 8px 6px; }
+    .fa-composer { padding: 14px; }
+    .fa-composer-top .fa-avatar { display: none; }
+    .fa-publish { flex: 1 1 100%; }
+    .fa-count { order: 3; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fa-post { animation: none; }
+    .fa-btn, .fa-toast { transition: none; }
+}

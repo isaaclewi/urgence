@@ -38,7 +38,7 @@ class AuthController extends Controller
             session([
                 'citoyen_id' => $citoyen->id,
                 'citoyen_nom' => $citoyen->nom,
-                'citoyen_photo' => $citoyen->piece_identite,
+                'citoyen_photo' => $citoyen->photo_profil,
                 'citoyen_sexe' => $citoyen->sexe,
                 'citoyen_adresse' => $citoyen->adresse,
                 'citoyen_telephone' => $citoyen->telephone,

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Actualite;
 use App\Models\Citoyens;
 
@@ -11,21 +10,25 @@ class ActualitesController extends Controller
     public function index()
     {
         // Vérifier si un citoyen est connecté
-        if (session()->has('citoyen_id')) {
-            $citoyen = Citoyens::find(session('citoyen_id'));
-
-            if (!$citoyen) {
-                return redirect()->route('login')->with('error', 'Citoyen introuvable.');
-            }
-
-            // Récupérer les actualités du service du citoyen
-            $actualites = Actualite::orderBy('created_at','desc')->get();
-
-
-            return view('actualites', compact('citoyen', 'actualites'));
+        if (!session()->has('citoyen_id')) {
+            return redirect()->route('login')->with('error', 'Vous devez être connecté pour accéder à cette page.');
         }
 
-        // Si aucun citoyen en session, rediriger vers login
-        return redirect()->route('login')->with('error', 'Vous devez être connecté pour accéder à cette page.');
+        $citoyen = Citoyens::find(session('citoyen_id'));
+
+        if (!$citoyen) {
+            return redirect()->route('login')->with('error', 'Citoyen introuvable.');
+        }
+
+        // Pagination : avant, TOUTES les actualités (et leurs images) étaient chargées d'un coup,
+        // ce qui rendait la page lourde sur téléphone. Le fil charge la suite au défilement.
+        $actualites = Actualite::with('service:id,nom,photo_profil')
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->paginate(8);
+
+        $derniere = optional($actualites->first())->created_at;
+
+        return view('actualites', compact('citoyen', 'actualites', 'derniere'));
     }
 }

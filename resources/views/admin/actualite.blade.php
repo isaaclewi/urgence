@@ -4,63 +4,61 @@
 @section('page-title', 'Actualités')
 @section('page-subtitle', 'Publiez et gérez les informations visibles par les citoyens')
 
-@section('content')
-<x-card title="Nouvelle actualité" class="ds-section">
-    <form action="{{ route('admin.actualiteStore') }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        <div class="ds-field">
-            <label class="ds-label" for="contenu">Contenu *</label>
-            <textarea class="ds-textarea" id="contenu" name="contenu" rows="4" maxlength="5000" required>{{ old('contenu') }}</textarea>
-        </div>
-        <div class="ds-field">
-            <label class="ds-label" for="url_media">Image ou vidéo (facultatif · jpg, png, gif, mp4 — 50 Mo max)</label>
-            <input class="ds-input" type="file" id="url_media" name="url_media" accept=".jpg,.jpeg,.png,.gif,.mp4">
-        </div>
-        <button type="submit" class="ds-btn ds-btn-primary">Publier</button>
-    </form>
-</x-card>
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/fil-actualites.css') }}">
+@endpush
 
-@forelse($actualites as $actu)
-    <x-card class="ds-section" :flush="true">
-        @if($actu->url_media)
-            <div style="background:var(--ds-surface-2);display:flex;justify-content:center;max-height:360px;overflow:hidden">
-                @if($actu->type_media === 'mp4')
-                    <video controls preload="metadata" style="width:100%;max-height:360px;object-fit:contain;background:#000">
-                        <source src="{{ $actu->url_media }}" type="video/mp4">
-                    </video>
-                @else
-                    <img src="{{ $actu->url_media }}" alt="Média de l'actualité" loading="lazy" style="max-width:100%;max-height:360px;object-fit:cover">
-                @endif
+@section('content')
+<div class="fa-page">
+
+    <div class="fa-feed" id="fa-feed">
+
+        @include('partials.fil-composer', [
+            'action' => route('admin.actualiteStore'),
+            'auteur' => $admin->nom ?? 'Administration',
+            'photo'  => $admin->photo_profil ?? null,
+        ])
+
+        @forelse($actualites as $actu)
+            @include('partials.fil-post', [
+                'actu' => $actu, 'gerer' => true,
+                'routeEdit' => 'admin.actualiteEdit', 'routeDestroy' => 'admin.actualiteDestroy',
+            ])
+        @empty
+            <div class="fa-empty">
+                <div class="fa-empty-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+                </div>
+                <h3>Aucune actualité</h3>
+                <p>Utilisez le formulaire ci-dessus pour publier la première.</p>
+            </div>
+        @endforelse
+
+        @if($actualites->hasMorePages())
+            <div class="fa-more-wrap">
+                <a class="fa-load-more" href="{{ $actualites->nextPageUrl() }}" data-fa-more>Voir plus de publications</a>
             </div>
         @endif
+    </div>
 
-        <div style="padding:20px">
-            <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:8px">
-                <strong>{{ $actu->auteur_nom }}</strong>
-                <span class="ds-muted">{{ \Carbon\Carbon::parse($actu->date_publication)->format('d/m/Y') }}</span>
-            </div>
-
-            @if(mb_strlen($actu->contenu) > 280)
-                <p style="margin:0;white-space:pre-line">{{ \Illuminate\Support\Str::limit($actu->contenu, 280) }}</p>
-                <details style="margin-top:6px">
-                    <summary style="cursor:pointer;color:var(--ds-accent-dark);font-weight:600;font-size:13px">Lire la suite</summary>
-                    <p style="margin:8px 0 0;white-space:pre-line">{{ $actu->contenu }}</p>
-                </details>
-            @else
-                <p style="margin:0;white-space:pre-line">{{ $actu->contenu }}</p>
-            @endif
+    <aside class="fa-aside" aria-label="Résumé">
+        <div class="fa-side-card">
+            <h3>Fil des citoyens</h3>
+            <p>Tout ce que vous publiez ici apparaît dans la page « Actualités » des citoyens.</p>
+            <div class="fa-stat"><span>Publications</span><strong>{{ $actualites->total() }}</strong></div>
         </div>
-
-        <div class="ds-row-actions" style="padding:10px 20px;border-top:1px solid var(--ds-border)">
-            <a class="ds-btn ds-btn-secondary ds-btn-sm" href="{{ route('admin.actualiteEdit', $actu->id) }}">Modifier</a>
-            <form action="{{ route('admin.actualiteDestroy', $actu->id) }}" method="POST"
-                  onsubmit="return confirm('Supprimer cette actualité ? Cette action est irréversible.')">
-                @csrf @method('DELETE')
-                <button type="submit" class="ds-btn ds-btn-danger ds-btn-sm">Supprimer</button>
-            </form>
+        <div class="fa-side-card">
+            <h3>Conseils</h3>
+            <ul>
+                <li>Un texte court et clair est lu en entier.</li>
+                <li>Une photo nette attire davantage l'attention.</li>
+                <li>Vidéos MP4 : 50 Mo maximum.</li>
+            </ul>
         </div>
-    </x-card>
-@empty
-    <x-card><x-empty title="Aucune actualité">Utilisez le formulaire ci-dessus pour publier la première.</x-empty></x-card>
-@endforelse
+    </aside>
+</div>
 @endsection
+
+@push('scripts')
+<script src="{{ asset('javascript/fil-actualites.js') }}" defer></script>
+@endpush

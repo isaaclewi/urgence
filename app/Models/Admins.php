@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Schema;
 class Admins extends Model
 {
    use HasFactory;
+    use \App\Models\Concerns\NormalisePhotoProfil;
 
    /**
     * Table des comptes administrateur.

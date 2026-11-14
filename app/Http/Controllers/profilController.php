@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use App\Models\Citoyens;
+use App\Support\ImageUpload;
 
 class profilController extends Controller
 {
@@ -38,13 +38,11 @@ class profilController extends Controller
             'adresse'   => 'required|string|max:255',
             'telephone' => 'required|string|max:20',
             'password'  => 'nullable|min:6',
-            'photo'     => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ], [
+            'photo'     => ImageUpload::REGLE_IMAGE,
+        ], array_merge(ImageUpload::MESSAGES, [
             'password.min' => 'Le mot de passe doit contenir au minimum 6 caractères.',
-            'photo.image'  => 'La photo doit être une image valide.',
-            'photo.max'    => 'La taille de la photo ne doit pas dépasser 2 Mo.',
             'email.unique' => 'Cet email est déjà utilisé par un autre compte.',
-        ]);
+        ]));
 
         $citoyen->nom       = $validated['nom'];
         $citoyen->email     = $validated['email'];
@@ -55,27 +53,18 @@ class profilController extends Controller
             $citoyen->password = Hash::make($validated['password']);
         }
 
-        // Upload photo vers Supabase Storage
+        // Nouvelle photo : envoyée (et réduite) AVANT d'enregistrer, l'ancienne n'est supprimée qu'ensuite.
+        $anciennePhoto = null;
         if ($request->hasFile('photo')) {
-            $file     = $request->file('photo');
-            $filename = time() . '_' .
-                \Illuminate\Support\Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) .
-                '.' . strtolower($file->getClientOriginalExtension());
-
-            // Supprimer l'ancienne photo si elle existe
-            if ($citoyen->photo_profil) {
-                $oldFilename = basename($citoyen->photo_profil);
-                Storage::disk('supabase')->delete('photo/' . $oldFilename);
-            }
-
-            // Upload vers Supabase
-            Storage::disk('supabase')->putFileAs('photo', $file, $filename);
-
-            // URL publique
-            $citoyen->photo_profil = config('filesystems.disks.supabase.public_url') . '/photo/' . $filename;
+            $anciennePhoto         = $citoyen->photo_profil;
+            $citoyen->photo_profil = ImageUpload::storeImage($request->file('photo'), 'photo', 'photo');
         }
 
         $citoyen->save();
+
+        if ($anciennePhoto) {
+            ImageUpload::supprimer($anciennePhoto, 'photo');
+        }
 
         session([
             'citoyen_nom'       => $citoyen->nom,
