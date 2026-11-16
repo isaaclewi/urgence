@@ -42,8 +42,18 @@ class ImageUpload
 
     /* ───────────── URL publique ───────────── */
 
+    /** Vrai quand Supabase n'est pas configuré : les fichiers sont gardés en local (storage/app/medias). */
+    public static function local(): bool
+    {
+        return config('filesystems.disks.supabase.driver') === 'local';
+    }
+
     public static function base(): string
     {
+        if (self::local()) {
+            return '';
+        }
+
         $base = rtrim((string) config('filesystems.disks.supabase.public_url'), '/');
 
         if ($base === '') {
@@ -61,6 +71,10 @@ class ImageUpload
 
     public static function url(string $chemin): string
     {
+        if (self::local()) {
+            return '/fichiers/' . ltrim($chemin, '/');
+        }
+
         return self::base() . '/' . ltrim($chemin, '/');
     }
 
@@ -69,6 +83,10 @@ class ImageUpload
     {
         if (! $url) {
             return null;
+        }
+
+        if (str_starts_with($url, '/fichiers/')) {
+            return substr($url, strlen('/fichiers/'));
         }
 
         $base = self::base();

@@ -9,6 +9,7 @@ use App\Http\Controllers\CitoyenController;
 use App\Http\Controllers\compteController;
 use App\Http\Controllers\bilanController;
 use App\Http\Controllers\StockageDiagnosticController;
+use App\Http\Controllers\MediaLocalController;
 use App\Http\Controllers\actualitesController;
 use App\Http\Controllers\vaccinationMenuController;
 use App\Http\Controllers\MesAlertesController;
@@ -54,6 +55,7 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'processLogin'])->name('processLogin');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+Route::get('/fichiers/{chemin}', [MediaLocalController::class, 'show'])->where('chemin', '.*')->name('fichiers');
 Route::get('/avis', [RedirectionController::class, 'avis'])->name('avis');
 Route::get('/regle', [RedirectionController::class, 'regle'])->name('regle');
 

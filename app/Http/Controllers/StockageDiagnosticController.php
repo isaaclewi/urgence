@@ -18,6 +18,9 @@ class StockageDiagnosticController extends Controller
         $cfg = config('filesystems.disks.supabase');
         $lignes = [];
 
+        $lignes[] = ['Mode de stockage', ImageUpload::local()
+            ? 'LOCAL (storage/app/medias) — Supabase non configuré : les 4 variables SUPABASE_KEY, SUPABASE_SECRET, SUPABASE_BUCKET, SUPABASE_ENDPOINT doivent toutes être renseignées'
+            : 'Supabase (S3)'];
         $lignes[] = ['SUPABASE_KEY renseignée', ! empty($cfg['key']) ? 'oui' : 'NON  <-- à renseigner'];
         $lignes[] = ['SUPABASE_SECRET renseignée', ! empty($cfg['secret']) ? 'oui' : 'NON  <-- à renseigner'];
         $lignes[] = ['SUPABASE_BUCKET', $cfg['bucket'] ?: 'VIDE  <-- à renseigner'];
@@ -38,7 +41,7 @@ class StockageDiagnosticController extends Controller
             $lignes[] = ['1) Envoi vers Supabase', 'OK'];
 
             try {
-                $rep = Http::timeout(10)->get($url);
+                $rep = Http::timeout(10)->get(str_starts_with($url, '/') ? url($url) : $url);
                 $lignes[] = ['2) Lecture publique de ' . $url,
                     $rep->successful()
                         ? 'OK (HTTP ' . $rep->status() . ')'

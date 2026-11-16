@@ -1,5 +1,7 @@
 <?php
 
+$supabaseConfigure = env('SUPABASE_KEY') && env('SUPABASE_SECRET') && env('SUPABASE_BUCKET') && env('SUPABASE_ENDPOINT');
+
 return [
 
     /*
@@ -47,7 +49,9 @@ return [
             'report' => false,
         ],
 
-         'supabase' => [
+        // Stockage des images/médias : Supabase (S3) si les 4 variables SUPABASE_* sont renseignées,
+        // sinon dossier local storage/app/medias (servi par la route /fichiers/...) — utile en local.
+        'supabase' => $supabaseConfigure ? [
         'driver'   => 's3',
         'key'      => env('SUPABASE_KEY'),
         'secret'   => env('SUPABASE_SECRET'),
@@ -64,7 +68,13 @@ return [
         // Journalise la vraie erreur Supabase dans storage/logs au lieu de l'avaler silencieusement.
         'throw'  => false,
         'report' => true,
-    ],
+    ] : [
+            'driver'     => 'local',
+            'root'       => storage_path('app/medias'),
+            'public_url' => null,
+            'throw'      => false,
+            'report'     => true,
+        ],
 
     ],
 

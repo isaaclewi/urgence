@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Admins;
 use App\Models\servicesProposes;
+use App\Support\LiensServices;
 use Illuminate\Http\Request;
 
 class ServicesController extends Controller
@@ -17,7 +18,9 @@ class ServicesController extends Controller
         $admin             = Admins::find(session('admin_id'));
         $servicesProposes  = servicesProposes::orderBy('created_at', 'desc')->paginate(5);
 
-        return view('admin.serviceCreate', compact('admin', 'servicesProposes'));
+        $pages = LiensServices::options();
+
+        return view('admin.serviceCreate', compact('admin', 'servicesProposes', 'pages'));
     }
 
     // Ajouter un service proposé
@@ -28,11 +31,37 @@ class ServicesController extends Controller
         }
 
         $request->validate([
-            'nom_service' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'image'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'lien'        => 'required|string|max:255',
+            'page'         => 'required|string',
+            'nom_service'  => 'nullable|string|max:255',
+            'description'  => 'nullable|string',
+            'image'        => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'site'         => 'nullable|url|max:255',
+            'lien_externe' => 'required_if:page,autre|nullable|url|max:255',
+        ], [
+            'page.required'            => 'Choisissez le service concerné.',
+            'site.url'                 => "L'adresse du site doit commencer par http:// ou https://",
+            'lien_externe.required_if' => 'Saisissez le lien complet du service externe.',
+            'lien_externe.url'         => 'Le lien externe doit commencer par http:// ou https://',
         ]);
+
+        $pages = LiensServices::options();
+
+        if ($request->page === 'autre') {
+            $lien  = $request->lien_externe;
+            $titre = $request->nom_service;
+            $desc  = $request->description;
+        } else {
+            if (! isset($pages[$request->page])) {
+                return back()->withInput()->withErrors(['page' => 'Service inconnu.']);
+            }
+            $lien  = LiensServices::lien($request->page, $request->site);
+            $titre = $request->nom_service ?: $pages[$request->page]['libelle'];
+            $desc  = $request->description ?: $pages[$request->page]['description'];
+        }
+
+        if (! $titre) {
+            return back()->withInput()->withErrors(['nom_service' => 'Saisissez un titre pour ce lien externe.']);
+        }
 
         $imageData = null;
         if ($request->hasFile('image')) {
@@ -41,9 +70,9 @@ class ServicesController extends Controller
         }
 
         servicesProposes::create([
-            'nom_service' => $request->nom_service,
-            'description' => $request->description,
-            'lien'        => $request->lien,
+            'nom_service' => $titre,
+            'description' => $desc,
+            'lien'        => $lien,
             'image'       => $imageData,
             'admin_id'    => session('admin_id'),
         ]);
@@ -60,4 +89,3 @@ class ServicesController extends Controller
 
     // activer()/desactiver() retirées d'ici — déplacées dans adminServicesController
 }
-

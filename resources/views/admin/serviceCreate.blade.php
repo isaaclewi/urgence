@@ -13,10 +13,21 @@
     <form action="{{ route('admin.serviceStore') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="ds-form-grid">
-            <div class="ds-field"><label class="ds-label" for="nom_service">Titre *</label>
-                <input class="ds-input" id="nom_service" type="text" name="nom_service" value="{{ old('nom_service') }}" required></div>
-            <div class="ds-field"><label class="ds-label" for="lien">Lien *</label>
-                <input class="ds-input" id="lien" type="text" name="lien" value="{{ old('lien') }}" required></div>
+            <div class="ds-field"><label class="ds-label" for="page">Service concerné *</label>
+                <select class="ds-input" id="page" name="page" required>
+                    <option value="">— Choisir —</option>
+                    @foreach($pages as $cle => $p)
+                        <option value="{{ $cle }}" data-desc="{{ $p['description'] }}" @selected(old('page') === $cle)>{{ $p['libelle'] }}</option>
+                    @endforeach
+                    <option value="autre" @selected(old('page') === 'autre')>Autre (lien externe)…</option>
+                </select></div>
+            <div class="ds-field"><label class="ds-label" for="nom_service">Titre <span class="ds-muted">(facultatif : rempli automatiquement)</span></label>
+                <input class="ds-input" id="nom_service" type="text" name="nom_service" value="{{ old('nom_service') }}"></div>
+            <div class="ds-field" id="bloc-site"><label class="ds-label" for="site">Adresse du site <span class="ds-muted">(facultatif)</span></label>
+                <input class="ds-input" id="site" type="text" inputmode="url" name="site" value="{{ old('site') }}" placeholder="ex. {{ url('/') }}">
+                <small class="ds-muted">Laissez vide : le lien fonctionnera sur n'importe quelle adresse. Sinon le reste du lien est complété automatiquement.</small></div>
+            <div class="ds-field" id="bloc-externe" style="display:none"><label class="ds-label" for="lien_externe">Lien externe complet *</label>
+                <input class="ds-input" id="lien_externe" type="text" inputmode="url" name="lien_externe" value="{{ old('lien_externe') }}" placeholder="https://..."></div>
             <div class="ds-field"><label class="ds-label" for="image">Image (jpg, png — 2 Mo max)</label>
                 <input class="ds-input" id="image" type="file" name="image" accept=".jpg,.jpeg,.png"></div>
         </div>
@@ -24,6 +35,20 @@
             <textarea class="ds-textarea" id="description" name="description" rows="3">{{ old('description') }}</textarea></div>
         <button class="ds-btn ds-btn-primary" type="submit">Créer le service</button>
     </form>
+    <script>
+    (function(){
+        var sel=document.getElementById('page'), desc=document.getElementById('description'),
+            site=document.getElementById('bloc-site'), ext=document.getElementById('bloc-externe');
+        function maj(){
+            var autre = sel.value==='autre';
+            ext.style.display = autre ? '' : 'none';
+            site.style.display = autre ? 'none' : '';
+            var o = sel.options[sel.selectedIndex];
+            if(!autre && o && o.dataset.desc && !desc.value.trim()){ desc.value=o.dataset.desc; }
+        }
+        sel.addEventListener('change', maj); maj();
+    })();
+    </script>
 </x-card>
 
 @if($servicesProposes->isEmpty())
