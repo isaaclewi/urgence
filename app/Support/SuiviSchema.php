@@ -45,6 +45,34 @@ class SuiviSchema
             });
         }
 
+        if (! Schema::hasTable('enfants')) {
+            Schema::create('enfants', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('citoyen_id')->constrained('citoyens')->cascadeOnDelete();
+                $table->string('prenom', 80);
+                $table->string('nom', 80)->nullable();
+                $table->string('sexe', 1)->nullable();              // M | F
+                $table->date('date_naissance');
+                $table->timestamps();
+
+                $table->index('citoyen_id');
+            });
+        }
+
+        if (! Schema::hasTable('suivi_vaccin_enfant')) {
+            Schema::create('suivi_vaccin_enfant', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('enfant_id')->constrained('enfants')->cascadeOnDelete();
+                $table->foreignId('vaccin_id')->constrained('vaccin_enfants')->cascadeOnDelete();
+                $table->unsignedInteger('doses_recues')->default(0);
+                $table->date('derniere_dose')->nullable();
+                $table->date('prochaine_dose')->nullable();
+                $table->timestamps();
+
+                $table->unique(['enfant_id', 'vaccin_id']);
+            });
+        }
+
         if (! Schema::hasTable('notifications_app')) {
             Schema::create('notifications_app', function (Blueprint $table) {
                 $table->id();

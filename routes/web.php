@@ -103,6 +103,14 @@ Route::middleware(['auth.citoyen', 'no.cache'])->group(function () {
     Route::get('/mes-programmes', [\App\Http\Controllers\CitoyenProgrammesController::class, 'index'])->name('mesProgrammes');
     Route::post('/mes-programmes/{id}', [\App\Http\Controllers\CitoyenProgrammesController::class, 'inscrire'])->whereNumber('id')->name('mesProgrammes.inscrire');
     Route::delete('/mes-programmes/{id}', [\App\Http\Controllers\CitoyenProgrammesController::class, 'quitter'])->whereNumber('id')->name('mesProgrammes.quitter');
+
+    // Vaccination de mes enfants (calendrier par enfant)
+    Route::get('/mes-enfants', [\App\Http\Controllers\EnfantsController::class, 'index'])->name('enfants.index');
+    Route::post('/mes-enfants', [\App\Http\Controllers\EnfantsController::class, 'store'])->name('enfants.store');
+    Route::get('/mes-enfants/{id}', [\App\Http\Controllers\EnfantsController::class, 'show'])->whereNumber('id')->name('enfants.show');
+    Route::delete('/mes-enfants/{id}', [\App\Http\Controllers\EnfantsController::class, 'destroy'])->whereNumber('id')->name('enfants.destroy');
+    Route::post('/mes-enfants/{id}/vaccins/{vaccinId}/dose', [\App\Http\Controllers\EnfantsController::class, 'dose'])->whereNumber(['id', 'vaccinId'])->name('enfants.dose');
+    Route::delete('/mes-enfants/{id}/vaccins/{vaccinId}/dose', [\App\Http\Controllers\EnfantsController::class, 'retirerDose'])->whereNumber(['id', 'vaccinId'])->name('enfants.dose.retirer');
 });
 
 // ─── ADMIN (connecté) ───────────────────────────

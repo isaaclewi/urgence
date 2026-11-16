@@ -46,11 +46,18 @@
             'desc' => 'Alertes et programmes contre les épidémies locales pour une protection ciblée.',
         ],
         [
-            'route' => route('programmeVaccinEnfantController'),
+            'route' => route('enfants.index'),
             'icon' => 'heart',
             'color' => 'bg-purple-soft',
-            'title' => 'Vaccination enfant',
-            'desc' => 'Calendrier vaccinal pédiatrique. Consultez et suivez les vaccins de vos enfants.',
+            'title' => 'Mes enfants',
+            'desc' => 'Ajoutez vos enfants et suivez le calendrier de vaccination de chacun, avec rappels.',
+        ],
+        [
+            'route' => route('programmeVaccinEnfantController'),
+            'icon' => 'book-open',
+            'color' => 'bg-blue-soft',
+            'title' => 'Vaccins pour enfants',
+            'desc' => 'La liste des vaccins pédiatriques : doses, âge recommandé, caractère obligatoire.',
         ],
         [
             'route' => route('mesProgrammes'),
