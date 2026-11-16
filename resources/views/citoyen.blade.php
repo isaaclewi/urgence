@@ -72,7 +72,9 @@
         /* ─── Sidebar ─── */
         .sidebar {
             width: var(--sidebar-w);
-            min-height: 100vh;
+            height: 100vh;
+            height: 100dvh;
+            align-self: flex-start;   /* sinon le flex l'étire à la hauteur de la page et « sticky » ne sert à rien */
             background: var(--sidebar-bg);
             display: flex;
             flex-direction: column;
@@ -89,6 +91,10 @@
             flex-direction: column;
             height: 100%;
             padding: 20px 0;
+            overflow-y: auto;          /* si le menu est long, il défile à l'intérieur de la barre fixe */
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,.2) transparent;
         }
 
         /* Logo */
