@@ -57,8 +57,14 @@ return [
         // URL publique des fichiers (utilisée par les contrôleurs : config() fonctionne même après config:cache)
         'public_url' => env('SUPABASE_PUBLIC_URL'),
         'use_path_style_endpoint' => true,
+        // Les AWS SDK récents ajoutent par défaut un checksum CRC32 que certains stockages compatibles S3
+        // (dont Supabase) peuvent refuser : ces 2 lignes ne l'envoient que si c'est obligatoire.
+        'request_checksum_calculation'  => 'when_required',
+        'response_checksum_validation'  => 'when_required',
+        // Journalise la vraie erreur Supabase dans storage/logs au lieu de l'avaler silencieusement.
+        'throw'  => false,
+        'report' => true,
     ],
-
 
     ],
 

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+
 use Illuminate\Http\Request;
+use App\Support\ImageUpload;
 use Illuminate\Support\Facades\Storage;
 use App\Models\alertes;
 
@@ -31,18 +33,13 @@ class AlertePompierController extends Controller
             'media_vocal' => 'nullable|string',
         ]);
 
-        // Gestion photo vers Supabase
+        // Photo vers Supabase (réduite automatiquement ; erreur claire si l'envoi échoue)
         $photoPath = null;
         if ($request->hasFile('media_photo')) {
-            $file     = $request->file('media_photo');
-            $filename = time() . '_' . pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)
-                        . '.' . $file->getClientOriginalExtension();
-
-            Storage::disk('supabase')->putFileAs('alertes/photos', $file, $filename);
-            $photoPath = config('filesystems.disks.supabase.public_url') . '/alertes/photos/' . $filename;
+            $photoPath = ImageUpload::storeImage($request->file('media_photo'), 'alertes/photos', 'media_photo');
         }
 
-        // Gestion vocal base64 vers Supabase
+        // Vocal base64 vers Supabase
         $vocalPath = null;
         if ($request->media_vocal) {
             $data         = preg_replace('/^data:audio\/\w+;base64,/', '', $request->media_vocal);
@@ -50,8 +47,7 @@ class AlertePompierController extends Controller
             $audioContent = base64_decode($data);
             $filename     = 'vocal_' . time() . '.webm';
 
-            Storage::disk('supabase')->put('alertes/vocaux/' . $filename, $audioContent);
-            $vocalPath = config('filesystems.disks.supabase.public_url') . '/alertes/vocaux/' . $filename;
+            $vocalPath = ImageUpload::envoyerChemin('alertes/vocaux/' . $filename, $audioContent, 'media_vocal');
         }
 
         alertes::create([

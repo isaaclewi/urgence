@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\alertes;
+use App\Support\ImageUpload;
 
 class AlertePoliceController extends Controller
 {
@@ -34,12 +35,7 @@ class AlertePoliceController extends Controller
         //Gestion photo vers Supabase
         $photoPath = null;
         if ($request->hasFile('media_photo')) {
-            $file     = $request->file('media_photo');
-            $filename = time() . '_' . pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)
-                        . '.' . $file->getClientOriginalExtension();
-
-            Storage::disk('supabase')->putFileAs('alertes/photos', $file, $filename);
-            $photoPath = config('filesystems.disks.supabase.public_url') . '/alertes/photos/' . $filename;
+            $photoPath = ImageUpload::storeImage($request->file('media_photo'), 'alertes/photos', 'media_photo');
         }
 
         //Gestion vocal base64 vers Supabase
@@ -51,8 +47,7 @@ class AlertePoliceController extends Controller
             $audioContent = base64_decode($data);
             $filename     = 'vocal_police_' . time() . '.' . $extension;
 
-            Storage::disk('supabase')->put('alertes/vocaux/' . $filename, $audioContent);
-            $vocalPath = config('filesystems.disks.supabase.public_url') . '/alertes/vocaux/' . $filename;
+            $vocalPath = ImageUpload::envoyerChemin('alertes/vocaux/' . $filename, $audioContent, 'media_vocal');
         }
 
         alertes::create([

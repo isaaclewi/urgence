@@ -8,6 +8,7 @@ use App\Http\Controllers\ServiceEquipeController;
 use App\Http\Controllers\CitoyenController;
 use App\Http\Controllers\compteController;
 use App\Http\Controllers\bilanController;
+use App\Http\Controllers\StockageDiagnosticController;
 use App\Http\Controllers\actualitesController;
 use App\Http\Controllers\vaccinationMenuController;
 use App\Http\Controllers\MesAlertesController;
@@ -104,6 +105,7 @@ Route::middleware(['auth.admin', 'no.cache'])->prefix('admin')->group(function (
     Route::get('/profil/edit', [AdminProfilController::class, 'edit'])->name('admin.profil.edit');
     Route::post('/profil/update', [AdminProfilController::class, 'update'])->name('admin.profil.update');
     Route::get('/users', [GestionUsers::class, 'index'])->name('admin.users');
+    Route::get('/stockage-test', [StockageDiagnosticController::class, 'index'])->name('admin.stockage.test');
     Route::delete('/users/{id}', [GestionUsers::class, 'destroy'])->name('admin.users.delete');
     Route::get('/valider', [ValiderUsers::class, 'index'])->name('admin.valider');
     Route::post('/activer/{id}', [ValiderUsers::class, 'activer'])->name('admin.activer');
