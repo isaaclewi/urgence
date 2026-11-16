@@ -25,6 +25,8 @@ class Notifier
         }
 
         try {
+            SuiviSchema::assurer();
+
             NotificationApp::create([
                 'destinataire_type' => $type,
                 'destinataire_id'   => $id,

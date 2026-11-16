@@ -14,6 +14,13 @@
     </a>
 </div>
 
+@if(!empty($erreurTechnique))
+<div class="alert alert-warning anim-fade" style="margin-bottom:16px;display:block;">
+    <strong>Cette page n'a pas pu charger vos programmes.</strong><br>
+    <span style="font-size:13px;">Détail technique à transmettre au support : {{ $erreurTechnique }}</span>
+</div>
+@endif
+
 @if(session('success'))<div class="alert alert-success anim-fade" style="margin-bottom:16px;"><span>{{ session('success') }}</span></div>@endif
 @if(session('error'))<div class="alert alert-warning anim-fade" style="margin-bottom:16px;"><span>{{ session('error') }}</span></div>@endif
 

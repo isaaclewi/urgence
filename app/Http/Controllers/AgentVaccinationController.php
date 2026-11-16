@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\InscriptionVaccin;
 use App\Models\MonProgrammeVaccin;
 use App\Support\Notifier;
+use App\Support\SuiviSchema;
 use Illuminate\Http\Request;
 
 class AgentVaccinationController extends Controller
 {
     public function index(Request $request)
     {
+        SuiviSchema::assurer();
+
         $agent = $request->attributes->get('agent');
 
         $mes = InscriptionVaccin::with('programme.service:id,nom')
@@ -34,6 +37,8 @@ class AgentVaccinationController extends Controller
 
     public function inscrire(Request $request, $id)
     {
+        SuiviSchema::assurer();
+
         $agent     = $request->attributes->get('agent');
         $programme = MonProgrammeVaccin::where(fn ($q) => $q->whereNull('service_id')->orWhere('service_id', $agent->service_id))
             ->findOrFail($id);

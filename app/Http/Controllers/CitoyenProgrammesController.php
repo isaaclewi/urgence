@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\InscriptionVaccin;
 use App\Models\MonProgrammeVaccin;
 use App\Support\Notifier;
+use App\Support\SuiviSchema;
+use Illuminate\Support\Facades\Log;
 
 class CitoyenProgrammesController extends Controller
 {
@@ -15,31 +17,48 @@ class CitoyenProgrammesController extends Controller
 
     public function index()
     {
-        $mes = InscriptionVaccin::with(['programme.service:id,nom'])
-            ->where('citoyen_id', $this->citoyenId())
-            ->orderByRaw("CASE statut WHEN 'en_cours' THEN 0 WHEN 'inscrit' THEN 1 WHEN 'termine' THEN 2 ELSE 3 END")
-            ->orderByDesc('updated_at')
-            ->get();
+        try {
+            SuiviSchema::assurer();
 
-        $actifs = $mes->where('statut', '!=', 'abandonne')->pluck('programme_id')->all();
+            $mes = InscriptionVaccin::with(['programme.service:id,nom'])
+                ->where('citoyen_id', $this->citoyenId())
+                ->orderByRaw("CASE statut WHEN 'en_cours' THEN 0 WHEN 'inscrit' THEN 1 WHEN 'termine' THEN 2 ELSE 3 END")
+                ->orderByDesc('updated_at')
+                ->get();
 
-        // Programmes encore ouverts (non terminés) auxquels le citoyen n'est pas inscrit
-        $disponibles = MonProgrammeVaccin::with('service:id,nom')
-            ->where(fn ($q) => $q->whereNull('date_fin')->orWhereDate('date_fin', '>=', today()))
-            ->whereNotIn('id', $actifs)
-            ->orderBy('date_debut')
-            ->get();
+            $actifs = $mes->where('statut', '!=', 'abandonne')->pluck('programme_id')->all();
 
-        return view('mesProgrammes', [
-            'mes'         => $mes,
-            'disponibles' => $disponibles,
-            'prochaines'  => $mes->filter(fn ($i) => $i->prochaine_dose && $i->statut !== 'termine' && $i->statut !== 'abandonne')
-                                 ->sortBy('prochaine_dose')->values(),
-        ]);
+            // Programmes encore ouverts (non terminés) auxquels le citoyen n'est pas inscrit
+            $disponibles = MonProgrammeVaccin::with('service:id,nom')
+                ->where(fn ($q) => $q->whereNull('date_fin')->orWhereDate('date_fin', '>=', today()))
+                ->whereNotIn('id', $actifs)
+                ->orderBy('date_debut')
+                ->get();
+
+            return view('mesProgrammes', [
+                'mes'             => $mes,
+                'disponibles'     => $disponibles,
+                'erreurTechnique' => null,
+                'prochaines'      => $mes->filter(fn ($i) => $i->prochaine_dose && in_array($i->statut, ['inscrit', 'en_cours'], true))
+                                         ->sortBy('prochaine_dose')->values(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Mes programmes : erreur', ['erreur' => $e->getMessage(), 'fichier' => $e->getFile() . ':' . $e->getLine()]);
+
+            // La page s'ouvre quand même et indique la cause au lieu d'une page blanche
+            return view('mesProgrammes', [
+                'mes'             => collect(),
+                'disponibles'     => collect(),
+                'prochaines'      => collect(),
+                'erreurTechnique' => $e->getMessage(),
+            ]);
+        }
     }
 
     public function inscrire($id)
     {
+        SuiviSchema::assurer();
+
         $programme = MonProgrammeVaccin::findOrFail($id);
 
         if ($programme->date_fin && $programme->date_fin->lt(today())) {

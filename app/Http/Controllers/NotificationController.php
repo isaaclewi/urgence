@@ -10,6 +10,8 @@ class NotificationController extends Controller
     private function exigerConnexion(): void
     {
         abort_if(empty(Notifier::identites()), 403);
+
+        \App\Support\SuiviSchema::assurer();
     }
 
     /** Interrogé toutes les quelques secondes par la cloche : nouvelles notifications non lues. */

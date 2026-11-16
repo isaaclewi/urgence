@@ -18,6 +18,8 @@ class AgentEspaceController extends Controller
             ->orderBy('date_debut')
             ->get();
 
+        \App\Support\SuiviSchema::assurer();
+
         $suivis = \App\Models\InscriptionVaccin::with('programme')
             ->where('agent_id', $agent->id)->whereIn('statut', ['inscrit', 'en_cours'])->get();
 

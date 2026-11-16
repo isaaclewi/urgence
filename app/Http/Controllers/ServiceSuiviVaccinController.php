@@ -6,6 +6,7 @@ use App\Models\Agent;
 use App\Models\InscriptionVaccin;
 use App\Models\MonProgrammeVaccin;
 use App\Support\Notifier;
+use App\Support\SuiviSchema;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -49,6 +50,8 @@ class ServiceSuiviVaccinController extends Controller
 
     public function index(Request $request)
     {
+        SuiviSchema::assurer();
+
         $sid   = $this->serviceId();
         $liste = $this->portee()->with(['programme', 'citoyen', 'agent']);
 
