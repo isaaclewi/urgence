@@ -8,6 +8,7 @@ use App\Http\Controllers\ExportController;
 use App\Http\Controllers\ServiceEquipeController;
 use App\Http\Controllers\ServicesProfilController;
 use App\Http\Controllers\ServicesBilanController;
+use App\Http\Controllers\ServiceSuiviVaccinController;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,6 +60,13 @@ Route::middleware(['auth.service', 'no.cache'])->prefix('services')->name('servi
     Route::get('/personnel/gardes',        [PersonnelController::class, 'gardes'])->name('personnel.gardes');
     Route::post('/personnel/gardes',       [PersonnelController::class, 'storeGarde'])->name('personnel.gardes.store');
     Route::delete('/personnel/gardes/{id}',[PersonnelController::class, 'destroyGarde'])->whereNumber('id')->name('personnel.gardes.destroy');
+
+    // Suivi des inscriptions aux programmes de vaccination (citoyens + personnel)
+    Route::get('/suivi-vaccination',                  [ServiceSuiviVaccinController::class, 'index'])->name('vaccinationSuivi.index');
+    Route::post('/suivi-vaccination/personnel',       [ServiceSuiviVaccinController::class, 'inscrirePersonnel'])->name('vaccinationSuivi.personnel');
+    Route::post('/suivi-vaccination/{id}/dose',       [ServiceSuiviVaccinController::class, 'dose'])->whereNumber('id')->name('vaccinationSuivi.dose');
+    Route::post('/suivi-vaccination/{id}/statut',     [ServiceSuiviVaccinController::class, 'statut'])->whereNumber('id')->name('vaccinationSuivi.statut');
+    Route::post('/suivi-vaccination/{id}/rappel',     [ServiceSuiviVaccinController::class, 'rappel'])->whereNumber('id')->name('vaccinationSuivi.rappel');
 
     // Ressources : tableau de bord + véhicules + stocks
     Route::get('/ressources',                       [RessourceController::class, 'index'])->name('ressources.index');

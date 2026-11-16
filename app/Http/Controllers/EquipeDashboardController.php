@@ -123,6 +123,8 @@ class EquipeDashboardController extends Controller
             return back()->with('error', 'Impossible de revenir à une étape précédente.');
         }
 
+        $ancienStatut = $affectation->statut;
+
         DB::transaction(function () use ($affectation, $request) {
             $affectation->statut = $request->statut;
             $affectation->save();
@@ -154,6 +156,31 @@ class EquipeDashboardController extends Controller
                 );
             }
         });
+
+        if ($request->statut !== $ancienStatut && $request->statut !== 'transmise') {
+            $alerte  = $affectation->alerte;
+            $termine = $request->statut === 'terminee';
+
+            \App\Support\Notifier::citoyen(
+                $alerte->citoyen_id ? (int) $alerte->citoyen_id : null,
+                $termine ? 'Votre alerte a été traitée' : 'Une équipe prend en charge votre alerte',
+                $termine
+                    ? "L'intervention pour « {$alerte->titre} » est terminée."
+                    : "Une équipe intervient sur votre alerte « {$alerte->titre} ».",
+                route('SuiviAlertesController', [], false),
+                'important',
+                'alerte'
+            );
+
+            \App\Support\Notifier::service(
+                $affectation->service_source_id ? (int) $affectation->service_source_id : null,
+                $termine ? 'Intervention terminée' : 'Intervention en cours',
+                session('equipe_nom', 'Une équipe') . ' — « ' . $alerte->titre . ' » : ' . ($termine ? 'terminée.' : 'en cours.'),
+                route('services.urgenceSignalee', [], false),
+                'info',
+                'alerte'
+            );
+        }
 
         return back()->with('success', 'Statut mis à jour.');
     }

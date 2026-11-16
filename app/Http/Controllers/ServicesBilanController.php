@@ -145,6 +145,15 @@ class ServicesBilanController extends Controller
 
         BilanJournal::noter($bilan->citoyen_id, $bilan->id, $this->serviceId(), 'creation');
 
+        \App\Support\Notifier::citoyen(
+            (int) $bilan->citoyen_id,
+            'Bilan de santé disponible',
+            session('service_nom', 'Un service de santé') . ' a enregistré votre bilan de santé. Consultez-le dans votre espace.',
+            route('bilanController', [], false),
+            'important',
+            'bilan'
+        );
+
         return redirect()->route('services.citoyensBilanShow', $bilan->id)->with('success', 'Bilan enregistré.');
     }
 
@@ -189,6 +198,15 @@ class ServicesBilanController extends Controller
         $bilan->update(bilanSante::versColonnes($data) + ['modifie_par_service_id' => $this->serviceId()]);
 
         BilanJournal::noter($bilan->citoyen_id, $bilan->id, $this->serviceId(), 'modification');
+
+        \App\Support\Notifier::citoyen(
+            (int) $bilan->citoyen_id,
+            'Bilan de santé mis à jour',
+            session('service_nom', 'Un service de santé') . ' a mis à jour votre bilan de santé.',
+            route('bilanController', [], false),
+            'important',
+            'bilan'
+        );
 
         return redirect()->route('services.citoyensBilanShow', $bilan->id)->with('success', 'Bilan mis à jour.');
     }

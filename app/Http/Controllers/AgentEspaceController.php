@@ -18,7 +18,11 @@ class AgentEspaceController extends Controller
             ->orderBy('date_debut')
             ->get();
 
+        $suivis = \App\Models\InscriptionVaccin::with('programme')
+            ->where('agent_id', $agent->id)->whereIn('statut', ['inscrit', 'en_cours'])->get();
+
         return view('agents.espace', [
+            'suivis'  => $suivis,
             'agent'   => $agent,
             'service' => Services::find($agent->service_id),
             'equipe'  => $agent->equipe_id ? Services::find($agent->equipe_id) : null,

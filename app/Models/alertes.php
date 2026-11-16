@@ -11,6 +11,21 @@ class Alertes extends Model
     protected $table = "alertes";
 
 
+    /** Une nouvelle urgence prévient immédiatement le service concerné (notification + sonnerie). */
+    protected static function booted(): void
+    {
+        static::created(function ($alerte) {
+            \App\Support\Notifier::service(
+                $alerte->services_id ? (int) $alerte->services_id : null,
+                'Nouvelle urgence',
+                trim(($alerte->titre ?: ($alerte->type_alerte ?: 'Alerte')) . ($alerte->localisation ? ' — ' . $alerte->localisation : '')),
+                route('services.urgenceSignalee', [], false),
+                'urgent',
+                'alerte'
+            );
+        });
+    }
+
     protected $fillable = [
 
         'titre',

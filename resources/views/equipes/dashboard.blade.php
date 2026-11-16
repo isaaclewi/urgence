@@ -7,6 +7,8 @@
 
 @section('content')
 
+<script>window.NOTIF_TYPES_MUETS = ['mission'];</script>
+
 @push('styles')
 <style>
 .stats-grid {

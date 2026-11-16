@@ -232,6 +232,16 @@ class PersonnelController extends Controller
         $data['service_id'] = $sid;
         Garde::create($data);
 
+        \App\Support\Notifier::agent(
+            (int) $data['agent_id'],
+            'Nouvelle garde planifiée',
+            ucfirst($data['type']) . ' du ' . \Carbon\Carbon::parse($data['date_debut'])->format('d/m/Y H:i')
+                . ' au ' . \Carbon\Carbon::parse($data['date_fin'])->format('d/m/Y H:i') . '.',
+            route('agent.espace', [], false),
+            'important',
+            'garde'
+        );
+
         return redirect()->route('services.personnel.gardes')->with('success', 'Garde planifiée.');
     }
 

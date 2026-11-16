@@ -284,6 +284,15 @@ class UrgenceController extends Controller
             $alerte->save();
         });
 
+        \App\Support\Notifier::service(
+            $equipe->id,
+            'Nouvelle mission affectée',
+            trim(($alerte->titre ?: 'Urgence') . ($alerte->localisation ? ' — ' . $alerte->localisation : '')),
+            route('equipe.alertes', [], false),
+            'urgent',
+            'mission'
+        );
+
         return back()->with('success', "Urgence affectée à « {$equipe->nom} ».");
     }
 

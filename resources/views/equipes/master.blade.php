@@ -443,6 +443,22 @@
         Profil équipe
     </a>
 
+    @if(session('agent_id'))
+    <a href="{{ route('agent.espace') }}" class="sidebar-link">
+        <i data-feather="user-check"></i>
+        Mon espace agent
+    </a>
+    <a href="{{ route('agent.vaccination') }}" class="sidebar-link">
+        <i data-feather="shield"></i>
+        Mes vaccinations
+    </a>
+    @endif
+
+    <a href="{{ route('notifications.index') }}" class="sidebar-link">
+        <i data-feather="bell"></i>
+        Notifications
+    </a>
+
     <div class="sb-divider"></div>
 
     <form method="POST" action="{{ route('equipe.logout') }}">
@@ -487,5 +503,6 @@
     feather.replace({ width: 16, height: 16 });
 </script>
 @stack('scripts')
+@include('partials.notif-widget')
 </body>
 </html>

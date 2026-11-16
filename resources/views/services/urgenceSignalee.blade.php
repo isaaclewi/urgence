@@ -178,6 +178,9 @@
         select.form.submit();
     });
 
+    /* La cloche ne double pas la sonnerie des nouvelles urgences, déjà gérée ci-dessous */
+    window.NOTIF_TYPES_MUETS = ['alerte'];
+
     /* ── Temps réel (interrogation toutes les 5 s, aucune connexion longue) ── */
     function bip() {
         try {

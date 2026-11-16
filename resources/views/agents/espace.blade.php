@@ -19,6 +19,19 @@
 @endunless
 
 <x-card>
+    <h3 style="margin-bottom:.75rem">Mes vaccinations</h3>
+    @forelse($suivis as $s)
+        <div style="padding:.4rem 0;border-bottom:1px solid #E2E8F0">
+            <strong>{{ $s->programme->nom_programme }}</strong> — {{ $s->libelleDoses() }}
+            @if($s->prochaine_dose) · prochaine dose le <strong>{{ $s->prochaine_dose->format('d/m/Y') }}</strong>@endif
+        </div>
+    @empty
+        <p>Aucun programme en cours.</p>
+    @endforelse
+    <a class="ds-btn ds-btn-secondary ds-btn-sm" style="margin-top:.6rem" href="{{ route('agent.vaccination') }}">Gérer mes vaccinations</a>
+</x-card>
+
+<x-card>
     <h3 style="margin-bottom:.75rem">Mes gardes à venir</h3>
     @forelse($gardes as $g)
         <div style="padding:.5rem 0;border-bottom:1px solid #E2E8F0">

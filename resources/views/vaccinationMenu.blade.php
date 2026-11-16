@@ -9,6 +9,9 @@
         <h1>Vaccinations</h1>
         <p>Gérez vos programmes de vaccination et ceux de votre famille.</p>
     </div>
+    <a href="{{ route('mesProgrammes') }}" class="btn btn-primary">
+        <i data-feather="clipboard" style="width:14px;height:14px;"></i> Mes programmes
+    </a>
 </div>
 
 {{-- Stats --}}

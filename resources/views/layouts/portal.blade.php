@@ -98,5 +98,6 @@
     window.addEventListener('DOMContentLoaded', function () { if (window.feather) feather.replace(); });
 </script>
 @stack('scripts')
+@include('partials.notif-widget')
 </body>
 </html>

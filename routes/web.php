@@ -98,6 +98,11 @@ Route::middleware(['auth.citoyen', 'no.cache'])->group(function () {
     Route::get('/programmes-vaccination', [ProgrammeVaccinController::class, 'index'])->name('programmeVaccinController');
     Route::get('/programmes-epidemie', [ProgrammeVaccinEpidemieController::class, 'index'])->name('programmeVaccinEpidemieController');
     Route::get('/programmes-vaccination-enfant', [ProgrammeVaccinEnfantController::class, 'index'])->name('programmeVaccinEnfantController');
+
+    // Suivi de mes programmes de vaccination
+    Route::get('/mes-programmes', [\App\Http\Controllers\CitoyenProgrammesController::class, 'index'])->name('mesProgrammes');
+    Route::post('/mes-programmes/{id}', [\App\Http\Controllers\CitoyenProgrammesController::class, 'inscrire'])->whereNumber('id')->name('mesProgrammes.inscrire');
+    Route::delete('/mes-programmes/{id}', [\App\Http\Controllers\CitoyenProgrammesController::class, 'quitter'])->whereNumber('id')->name('mesProgrammes.quitter');
 });
 
 // ─── ADMIN (connecté) ───────────────────────────
@@ -203,6 +208,14 @@ Route::middleware(['auth.equipe', 'no.cache'])->prefix('equipe')->name('equipe.'
     Route::post('/logout', [ServicesLoginController::class, 'logout'])->name('logout');
 });
 
+// ─── NOTIFICATIONS (citoyen, service, équipe, agent : l'identité vient de la session) ───
+Route::middleware('no.cache')->prefix('notifications')->name('notifications.')->group(function () {
+    Route::get('/',                 [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
+    Route::get('/flux',             [\App\Http\Controllers\NotificationController::class, 'flux'])->name('flux');
+    Route::get('/{id}/ouvrir',      [\App\Http\Controllers\NotificationController::class, 'ouvrir'])->whereNumber('id')->name('ouvrir');
+    Route::post('/lues',            [\App\Http\Controllers\NotificationController::class, 'toutesLues'])->name('lues');
+});
+
 // ─── PERSONNEL (agents) ─────────────────────────
 Route::get('/personnel/connexion',  [\App\Http\Controllers\AgentAuthController::class, 'showLoginForm'])->name('agent.login');
 Route::post('/personnel/connexion', [\App\Http\Controllers\AgentAuthController::class, 'processLogin'])->name('agent.login.process');
@@ -211,6 +224,11 @@ Route::middleware(['auth.agent', 'no.cache'])->prefix('agent')->name('agent.')->
     Route::get('/espace',    [\App\Http\Controllers\AgentEspaceController::class, 'index'])->name('espace');
     Route::get('/mot-de-passe',  [\App\Http\Controllers\AgentEspaceController::class, 'passwordForm'])->name('password');
     Route::post('/mot-de-passe', [\App\Http\Controllers\AgentEspaceController::class, 'passwordUpdate'])->name('password.update');
+
+    // Vaccination du personnel
+    Route::get('/vaccinations', [\App\Http\Controllers\AgentVaccinationController::class, 'index'])->name('vaccination');
+    Route::post('/vaccinations/{id}', [\App\Http\Controllers\AgentVaccinationController::class, 'inscrire'])->whereNumber('id')->name('vaccination.inscrire');
+    Route::delete('/vaccinations/{id}', [\App\Http\Controllers\AgentVaccinationController::class, 'quitter'])->whereNumber('id')->name('vaccination.quitter');
     Route::post('/logout',   [\App\Http\Controllers\AgentAuthController::class, 'logout'])->name('logout');
 });
 

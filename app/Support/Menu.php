@@ -33,7 +33,8 @@ class Menu
             'Santé & citoyens' => [
                 ['services.citoyens',               'Citoyens',        'user',     'services.citoyens'],
                 ['services.citoyensBilan',          'Bilans de santé', 'heart',    'services.citoyensBilan*'],
-                ['services.vaccinationIndex',       'Vaccination',     'shield',   'services.vaccination*'],
+                ['services.vaccinationIndex',       'Vaccination',     'shield',   ['services.vaccinationIndex','services.vaccinationCreate','services.vaccinationEdit','services.vaccinationEnfants*']],
+                ['services.vaccinationSuivi.index', 'Suivi des inscriptions', 'clipboard', 'services.vaccinationSuivi.*'],
             ],
             'Mon compte' => [
                 ['services.profil',                 'Gestion interne', 'settings', 'services.profil*'],
@@ -61,6 +62,9 @@ class Menu
         'agent' => [
             'Mon espace' => [
                 ['agent.espace',    'Mon espace',   'home', 'agent.espace'],
+                ['equipe.dashboard','Mon équipe',   'users', 'equipe.dashboard', 'equipe_id'],
+                ['agent.vaccination','Mes vaccinations','shield', 'agent.vaccination*'],
+                ['notifications.index','Notifications','bell', 'notifications.*'],
                 ['agent.password',  'Mot de passe', 'lock', 'agent.password'],
             ],
         ],
@@ -69,6 +73,8 @@ class Menu
                 ['equipe.dashboard',                'Tableau de bord', 'home',     'equipe.dashboard'],
                 ['equipe.alertes',                  'Mes alertes',     'alert-triangle', 'equipe.alerte*'],
                 ['equipe.profil',                   'Profil',          'user',     'equipe.profil'],
+                ['agent.espace',                    'Mon espace agent','user-check','agent.espace', 'agent_id'],
+                ['agent.vaccination',               'Mes vaccinations','shield',   'agent.vaccination*', 'agent_id'],
             ],
         ],
     ];
@@ -82,7 +88,14 @@ class Menu
         foreach ((self::definition()[$portal] ?? []) as $section => $items) {
             $visibles = [];
 
-            foreach ($items as [$route, $label, $icon, $motif]) {
+            foreach ($items as $item) {
+                [$route, $label, $icon, $motif] = $item;
+
+                // 5e élément facultatif : clé de session exigée pour afficher le lien
+                if (! empty($item[4]) && ! session()->has($item[4])) {
+                    continue;
+                }
+
                 if (! Route::has($route) || ! Access::canRoute($route)) {
                     continue;
                 }
