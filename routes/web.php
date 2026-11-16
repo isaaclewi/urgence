@@ -76,6 +76,8 @@ Route::middleware(['auth.citoyen', 'no.cache'])->group(function () {
     Route::get('/profil', [profilController::class, 'index'])->name('profilController');
     Route::put('/profil/update', [profilController::class, 'update'])->name('profil.update');
     Route::get('/bilanSante', [bilanController::class, 'index'])->name('bilanController');
+    Route::post('/bilanSante/deverrouiller', [bilanController::class, 'deverrouiller'])->middleware('throttle:5,1')->name('bilanController.deverrouiller');
+    Route::post('/bilanSante/verrouiller', [bilanController::class, 'verrouiller'])->name('bilanController.verrouiller');
     Route::get('/actualites', [actualitesController::class, 'index'])->name('actualitesController');
     Route::get('/MesAlertes', [MesAlertesController::class, 'index'])->name('MesAlertesController');
     Route::get('/mes-alertes', [SuiviAlertesController::class, 'index'])->name('SuiviAlertesController');

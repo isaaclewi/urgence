@@ -6,6 +6,7 @@ use App\Models\AvisUser;
 use App\Models\Citoyens;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use App\Support\ImageUpload;
 
 class AvisController extends Controller
 {
@@ -25,34 +26,27 @@ class AvisController extends Controller
     }
 
     // Ajouter un nouvel avis
-  public function store(Request $request)
-{
-    $request->validate([
-        'description' => 'required|string',
-        'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-    ]);
+    public function store(Request $request)
+    {
+        $request->validate([
+            'description' => 'required|string',
+            'photo'       => ImageUpload::REGLE_IMAGE,
+        ], ImageUpload::MESSAGES);
 
-    $photoPath = null;
+        // Photo choisie pour l'avis, sinon la photo de profil du citoyen (clé de session : citoyen_photo)
+        if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
+            $photo = ImageUpload::storeImage($request->file('photo'), 'avis_photos', 'photo');
+        } else {
+            $photo = session('citoyen_photo');
+        }
 
-    // Si l'utilisateur a téléchargé une photo
-    if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
-        $photoPath = $request->file('photo')->store('avis_photos', 'public');
-    } 
-    // Sinon on prend sa photo de session (photo de profil)
-    elseif (session()->has('citoyen_photo1')) {
-        $photoPath = session('citoyen_photo1');
+        AvisUser::create([
+            'citoyen_id'   => session('citoyen_id'),
+            'nom'          => session('citoyen_nom') ?? 'Utilisateur',
+            'message'      => $request->description,
+            'photo_profil' => $photo,
+        ]);
+
+        return redirect()->back()->with('success', 'Avis ajouté avec succès !');
     }
-
-    AvisUser::create([
-        'citoyen_id' => session('citoyen_id'),
-        'nom'        => session('citoyen_nom') ?? 'Utilisateur',
-        'message'    => $request->description,
-        'photo'      => $photoPath, // toujours une valeur ici
-    ]);
-
-    return redirect()->back()->with('success', 'Avis ajouté avec succès !');
 }
-
-
-}
-
