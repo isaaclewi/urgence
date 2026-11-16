@@ -6,6 +6,9 @@ use App\Models\Agent;
 use App\Models\Garde;
 use App\Models\Services;
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class PersonnelController extends Controller
@@ -37,8 +40,6 @@ class PersonnelController extends Controller
         $sid = $this->serviceId();
 
         return [
-            'matricule'     => ['required', 'string', 'max:50',
-                                Rule::unique('agents', 'matricule')->where('service_id', $sid)->ignore($agent?->id)],
             'nom'           => ['required', 'string', 'max:100'],
             'prenom'        => ['required', 'string', 'max:100'],
             'fonction'      => ['required', 'string', 'max:100'],
@@ -106,12 +107,55 @@ class PersonnelController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate($this->rules());
-        $data['service_id'] = $this->serviceId();
+        $data    = $request->validate($this->rules());
+        $service = Services::findOrFail($this->serviceId());
+        $mdp     = Str::random(10);
 
-        Agent::create($data);
+        for ($essai = 1; ; $essai++) {
+            try {
+                $agent = Agent::create($data + [
+                    'service_id'       => $service->id,
+                    'matricule'        => Agent::genererMatricule($service),
+                    'password'         => Hash::make($mdp),
+                    'compte_actif'     => true,
+                    'doit_changer_mdp' => true,
+                ]);
+                break;
+            } catch (QueryException $e) {
+                if ($essai >= 3) {
+                    throw $e;
+                }
+            }
+        }
 
-        return redirect()->route('services.personnel.index')->with('success', 'Agent ajouté avec succès.');
+        return redirect()->route('services.personnel.index')->with('success', $this->messageAcces($agent, $mdp, 'Agent ajouté.'));
+    }
+
+    private function messageAcces(Agent $agent, string $mdp, string $debut): string
+    {
+        return "{$debut} Connexion sur " . route('agent.login') . " — matricule : {$agent->matricule} — mot de passe temporaire : {$mdp} (affiché une seule fois, à communiquer à l'agent ; il devra le changer à sa première connexion).";
+    }
+
+    /** Génère (ou régénère) l'accès de l'agent avec un nouveau mot de passe temporaire. */
+    public function resetAcces($id)
+    {
+        $agent = $this->agentOuEchec($id);
+        $mdp   = Str::random(10);
+
+        $agent->update(['password' => Hash::make($mdp), 'doit_changer_mdp' => true, 'compte_actif' => true]);
+
+        return back()->with('success', $this->messageAcces($agent, $mdp, "Accès de {$agent->nom_complet} réinitialisé."));
+    }
+
+    /** Suspend ou rétablit la connexion de l'agent (sa fiche est conservée). */
+    public function toggleAcces($id)
+    {
+        $agent = $this->agentOuEchec($id);
+        $agent->update(['compte_actif' => ! $agent->compte_actif]);
+
+        return back()->with('success', $agent->compte_actif
+            ? "Connexion de {$agent->nom_complet} rétablie."
+            : "Connexion de {$agent->nom_complet} suspendue.");
     }
 
     public function edit($id)

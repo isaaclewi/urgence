@@ -203,5 +203,16 @@ Route::middleware(['auth.equipe', 'no.cache'])->prefix('equipe')->name('equipe.'
     Route::post('/logout', [ServicesLoginController::class, 'logout'])->name('logout');
 });
 
+// ─── PERSONNEL (agents) ─────────────────────────
+Route::get('/personnel/connexion',  [\App\Http\Controllers\AgentAuthController::class, 'showLoginForm'])->name('agent.login');
+Route::post('/personnel/connexion', [\App\Http\Controllers\AgentAuthController::class, 'processLogin'])->name('agent.login.process');
+
+Route::middleware(['auth.agent', 'no.cache'])->prefix('agent')->name('agent.')->group(function () {
+    Route::get('/espace',    [\App\Http\Controllers\AgentEspaceController::class, 'index'])->name('espace');
+    Route::get('/mot-de-passe',  [\App\Http\Controllers\AgentEspaceController::class, 'passwordForm'])->name('password');
+    Route::post('/mot-de-passe', [\App\Http\Controllers\AgentEspaceController::class, 'passwordUpdate'])->name('password.update');
+    Route::post('/logout',   [\App\Http\Controllers\AgentAuthController::class, 'logout'])->name('logout');
+});
+
 require __DIR__.'/erp.php';
 require __DIR__.'/messagerie.php';

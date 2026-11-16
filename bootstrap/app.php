@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth.admin'   => \App\Http\Middleware\EnsureAdminAuth::class,
             'auth.service' => \App\Http\Middleware\EnsureServiceAuth::class,
             'auth.equipe'  => \App\Http\Middleware\EnsureEquipeAuth::class,
+            'auth.agent'   => \App\Http\Middleware\EnsureAgentAuth::class,
             'no.cache'     => \App\Http\Middleware\NoCache::class, // Ajout du middleware NoCache
         ]);
 

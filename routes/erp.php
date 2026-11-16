@@ -52,6 +52,8 @@ Route::middleware(['auth.service', 'no.cache'])->prefix('services')->name('servi
     Route::get('/personnel/{id}/edit',     [PersonnelController::class, 'edit'])->whereNumber('id')->name('personnel.edit');
     Route::put('/personnel/{id}',          [PersonnelController::class, 'update'])->whereNumber('id')->name('personnel.update');
     Route::delete('/personnel/{id}',       [PersonnelController::class, 'destroy'])->whereNumber('id')->name('personnel.destroy');
+    Route::post('/personnel/{id}/acces',        [PersonnelController::class, 'resetAcces'])->whereNumber('id')->name('personnel.acces.reset');
+    Route::post('/personnel/{id}/acces/statut', [PersonnelController::class, 'toggleAcces'])->whereNumber('id')->name('personnel.acces.toggle');
 
     // Planning des gardes
     Route::get('/personnel/gardes',        [PersonnelController::class, 'gardes'])->name('personnel.gardes');

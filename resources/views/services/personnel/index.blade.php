@@ -62,6 +62,17 @@
                         <td><x-badge :status="$a->statut" /></td>
                         <td class="ds-row-actions">
                             <a class="ds-btn ds-btn-secondary ds-btn-sm" href="{{ route('services.personnel.edit', $a->id) }}">Modifier</a>
+                            <form method="POST" action="{{ route('services.personnel.acces.reset', $a->id) }}"
+                                  onsubmit="return confirm('{{ $a->password ? 'Réinitialiser' : 'Créer' }} l\'accès de cet agent ? Un nouveau mot de passe temporaire sera affiché.')">
+                                @csrf
+                                <button class="ds-btn ds-btn-secondary ds-btn-sm" type="submit">{{ $a->password ? 'Réinitialiser l\'accès' : 'Créer l\'accès' }}</button>
+                            </form>
+                            @if($a->password)
+                            <form method="POST" action="{{ route('services.personnel.acces.toggle', $a->id) }}">
+                                @csrf
+                                <button class="ds-btn ds-btn-ghost ds-btn-sm" type="submit">{{ $a->compte_actif ? 'Suspendre' : 'Rétablir' }}</button>
+                            </form>
+                            @endif
                             <form method="POST" action="{{ route('services.personnel.destroy', $a->id) }}"
                                   onsubmit="return confirm('Supprimer cet agent ?')">
                                 @csrf @method('DELETE')

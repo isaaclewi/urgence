@@ -287,6 +287,8 @@
             <p>Sélectionnez votre type de compte pour accéder à votre espace.</p>
         </div>
 
+        <p style="margin-bottom:1rem;font-size:.9rem">Vous êtes agent du personnel ? <a href="{{ route('agent.login') }}">Connexion avec votre matricule</a></p>
+
         {{-- Sélecteur type de compte --}}
         <div class="type-switcher">
             <button type="button" class="type-btn active-service" id="btn-service" onclick="setType('service')">

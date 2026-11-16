@@ -30,6 +30,22 @@ class EnsureEquipeAuth
                 ->with('error', 'Ce compte équipe est désactivé.');
         }
 
+        // Connecté en tant qu'agent de l'équipe : son accès doit rester valide
+        if (session()->has('agent_id')) {
+            $agent = \App\Models\Agent::find(session('agent_id'));
+
+            if (! $agent || ! $agent->peutSeConnecter()) {
+                $request->session()->flush();
+                $request->session()->regenerate();
+
+                return redirect()->route('agent.login')->with('error', 'Votre accès est suspendu. Contactez votre service.');
+            }
+
+            if ($agent->doit_changer_mdp) {
+                return redirect()->route('agent.password');
+            }
+        }
+
         return $next($request);
     }
 }

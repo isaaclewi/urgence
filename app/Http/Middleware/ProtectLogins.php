@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ProtectLogins
 {
-    private const ROUTES = ['processLogin', 'admin.login.process', 'services.login.process'];
+    private const ROUTES = ['processLogin', 'admin.login.process', 'services.login.process', 'agent.login.process'];
     private const MAX_ECHECS = 5;
     private const DUREE = 60; // secondes
 
@@ -29,7 +29,7 @@ class ProtectLogins
             return $next($request);
         }
 
-        $cle = 'login|' . $nom . '|' . sha1(strtolower((string) $request->input('email'))) . '|' . $request->ip();
+        $cle = 'login|' . $nom . '|' . sha1(strtolower((string) ($request->input('email') ?? $request->input('matricule')))) . '|' . $request->ip();
 
         // Si le cache est indisponible (table « cache » absente, base lente…), on laisse la
         // connexion se faire sans limitation plutôt que de la bloquer.
@@ -38,8 +38,8 @@ class ProtectLogins
                 $secondes = RateLimiter::availableIn($cle);
 
                 return back()
-                    ->withInput($request->only('email'))
-                    ->withErrors(['email' => "Trop de tentatives de connexion. Réessayez dans {$secondes} secondes."]);
+                    ->withInput($request->only('email', 'matricule'))
+                    ->withErrors([$request->has('matricule') ? 'matricule' : 'email' => "Trop de tentatives de connexion. Réessayez dans {$secondes} secondes."]);
             }
         } catch (\Throwable $e) {
             Log::warning('ProtectLogins : limiteur indisponible', ['erreur' => $e->getMessage()]);

@@ -58,6 +58,12 @@ class Menu
                 ['admin.messagerie.gestion',        'Gérer les groupes','message-square', ['admin.messagerie.gestion*','admin.messagerie.membres*']],
             ],
         ],
+        'agent' => [
+            'Mon espace' => [
+                ['agent.espace',    'Mon espace',   'home', 'agent.espace'],
+                ['agent.password',  'Mot de passe', 'lock', 'agent.password'],
+            ],
+        ],
         'equipe' => [
             'Terrain' => [
                 ['equipe.dashboard',                'Tableau de bord', 'home',     'equipe.dashboard'],

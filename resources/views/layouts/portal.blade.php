@@ -1,10 +1,12 @@
 @php
     // Détection du portail à partir de la session existante
-    $portal = request()->is('equipe', 'equipe/*') ? 'equipe'
-            : (request()->is('admin', 'admin/*') ? 'admin' : 'service');
+    $portal = request()->is('agent', 'agent/*') ? 'agent'
+            : (request()->is('equipe', 'equipe/*') ? 'equipe'
+            : (request()->is('admin', 'admin/*') ? 'admin' : 'service'));
 
     $identity = match ($portal) {
-        'equipe' => ['nom' => session('equipe_nom', 'Équipe'),  'photo' => session('equipe_photo'),  'role' => 'Équipe terrain'],
+        'agent'  => ['nom' => session('agent_nom', 'Agent'),    'photo' => null,                     'role' => 'Agent · ' . session('agent_matricule')],
+        'equipe' => ['nom' => session('equipe_nom', 'Équipe'),  'photo' => session('equipe_photo'),  'role' => session('agent_nom') ? 'Agent : ' . session('agent_nom') : 'Équipe terrain'],
         'admin'  => ['nom' => session('admin_nom', 'Admin'),    'photo' => session('admin_photo'),   'role' => 'Administration'],
         default  => ['nom' => session('service_nom', 'Service'),'photo' => session('service_photo'), 'role' => 'Service'],
     };
@@ -42,7 +44,7 @@
 
         <div class="ds-sidebar-foot">
             @php
-                $logoutRoute = $portal === 'equipe' ? 'equipe.logout' : (($portal === 'admin' && \Illuminate\Support\Facades\Route::has('admin.logout')) ? 'admin.logout' : null);
+                $logoutRoute = $portal === 'agent' ? 'agent.logout' : ($portal === 'equipe' ? 'equipe.logout' : (($portal === 'admin' && \Illuminate\Support\Facades\Route::has('admin.logout')) ? 'admin.logout' : null));
             @endphp
             @if($logoutRoute)
                 <form method="POST" action="{{ route($logoutRoute) }}">

@@ -18,8 +18,8 @@
 
         <div class="ds-form-grid">
             <div class="ds-field">
-                <label class="ds-label" for="matricule">Matricule *</label>
-                <input class="ds-input" id="matricule" name="matricule" value="{{ old('matricule', $agent->matricule) }}" required>
+                <label class="ds-label" for="matricule">Matricule</label>
+                <input class="ds-input" id="matricule" value="{{ $edition ? $agent->matricule : 'Généré automatiquement' }}" readonly disabled>
             </div>
             <div class="ds-field">
                 <label class="ds-label" for="statut">Statut *</label>
