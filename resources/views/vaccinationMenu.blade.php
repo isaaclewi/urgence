@@ -56,7 +56,7 @@
             'desc' => 'Calendrier vaccinal pédiatrique. Consultez et suivez les vaccins de vos enfants.',
         ],
         [
-            'route' => '#',
+            'route' => route('mesProgrammes'),
             'icon' => 'user-check',
             'color' => 'bg-green-soft',
             'title' => 'Mon programme',
