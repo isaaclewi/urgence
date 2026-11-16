@@ -26,18 +26,9 @@ class CitoyenProgrammesController extends Controller
                 ->orderByDesc('updated_at')
                 ->get();
 
-            $actifs = $mes->where('statut', '!=', 'abandonne')->pluck('programme_id')->all();
-
-            // Programmes encore ouverts (non terminés) auxquels le citoyen n'est pas inscrit
-            $disponibles = MonProgrammeVaccin::with('service:id,nom')
-                ->where(fn ($q) => $q->whereNull('date_fin')->orWhereDate('date_fin', '>=', today()))
-                ->whereNotIn('id', $actifs)
-                ->orderBy('date_debut')
-                ->get();
 
             return view('mesProgrammes', [
                 'mes'             => $mes,
-                'disponibles'     => $disponibles,
                 'erreurTechnique' => null,
                 'prochaines'      => $mes->filter(fn ($i) => $i->prochaine_dose && in_array($i->statut, ['inscrit', 'en_cours'], true))
                                          ->sortBy('prochaine_dose')->values(),
@@ -48,7 +39,6 @@ class CitoyenProgrammesController extends Controller
             // La page s'ouvre quand même et indique la cause au lieu d'une page blanche
             return view('mesProgrammes', [
                 'mes'             => collect(),
-                'disponibles'     => collect(),
                 'prochaines'      => collect(),
                 'erreurTechnique' => $e->getMessage(),
             ]);

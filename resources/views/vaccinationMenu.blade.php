@@ -7,11 +7,8 @@
 <div class="page-header anim-fade">
     <div class="page-header-left">
         <h1>Vaccinations</h1>
-        <p>Gérez vos programmes de vaccination et ceux de votre famille.</p>
+        <p>Choisissez une catégorie pour découvrir les programmes et cliquez sur « Suivre ce programme ». Votre suivi se trouve dans « Mon programme ».</p>
     </div>
-    <a href="{{ route('mesProgrammes') }}" class="btn btn-primary">
-        <i data-feather="clipboard" style="width:14px;height:14px;"></i> Mes programmes
-    </a>
 </div>
 
 {{-- Stats --}}
@@ -60,7 +57,7 @@
             'icon' => 'user-check',
             'color' => 'bg-green-soft',
             'title' => 'Mon programme',
-            'desc' => 'Votre calendrier de vaccination personnalisé avec vos rappels et antécédents.',
+            'desc' => 'Le suivi des programmes que vous avez choisis : doses reçues, prochaine dose, rappels.',
         ],
     ];
     @endphp

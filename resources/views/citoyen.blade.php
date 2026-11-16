@@ -454,7 +454,7 @@
             <a href="{{ route('mesProgrammes') }}"
                class="sb-link {{ request()->routeIs('mesProgrammes') ? 'active' : '' }}">
                 <i data-feather="clipboard" style="width:16px;height:16px;"></i>
-                Mes programmes
+                Mon programme
             </a>
             <a href="{{ route('notifications.index') }}" class="sb-link">
                 <i data-feather="bell" style="width:16px;height:16px;"></i>
@@ -582,7 +582,7 @@
                 <i data-feather="shield" style="width:16px;height:16px;"></i> Vaccinations
             </a>
             <a href="{{ route('mesProgrammes') }}" class="sb-link {{ request()->routeIs('mesProgrammes') ? 'active' : '' }}">
-                <i data-feather="clipboard" style="width:16px;height:16px;"></i> Mes programmes
+                <i data-feather="clipboard" style="width:16px;height:16px;"></i> Mon programme
             </a>
             <a href="{{ route('notifications.index') }}" class="sb-link">
                 <i data-feather="bell" style="width:16px;height:16px;"></i> Notifications

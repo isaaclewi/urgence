@@ -7,7 +7,7 @@
 <div class="page-header anim-fade">
     <div class="page-header-left">
         <h1>Mes programmes de vaccination</h1>
-        <p>Suivez l'avancement des programmes que vous avez choisis. Vous êtes notifié à chaque nouvelle dose.</p>
+        <p>Le suivi des programmes que vous avez choisis. Vous êtes notifié à chaque nouvelle dose.</p>
     </div>
     <a href="{{ route('vaccinationMenuController') }}" class="btn btn-secondary">
         <i data-feather="arrow-left" style="width:14px;height:14px;"></i> Vaccinations
@@ -39,7 +39,11 @@
 
 @if($mes->isEmpty())
     <div class="card anim-fade" style="margin-bottom:28px;"><div class="card-body" style="text-align:center;color:var(--text-sec);">
-        Vous ne suivez aucun programme pour le moment. Choisissez-en un dans la liste ci-dessous.
+        Vous ne suivez aucun programme pour le moment. Choisissez-en un dans Pandémies ou Épidémies.
+        <div style="margin-top:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+            <a href="{{ route('programmeVaccinController') }}" class="btn btn-primary btn-sm">Pandémies</a>
+            <a href="{{ route('programmeVaccinEpidemieController') }}" class="btn btn-secondary btn-sm">Épidémies</a>
+        </div>
     </div></div>
 @else
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:32px;">
@@ -87,32 +91,6 @@
                 <button type="submit" class="btn btn-secondary btn-sm">Ne plus suivre</button>
             </form>
             @endif
-        </div>
-    </div>
-    @endforeach
-</div>
-@endif
-
-<h2 style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px;">Programmes disponibles</h2>
-
-@if($disponibles->isEmpty())
-    <div class="card"><div class="card-body" style="text-align:center;color:var(--text-sec);">Aucun autre programme ouvert pour le moment.</div></div>
-@else
-<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
-    @foreach($disponibles as $p)
-    <div class="card anim-fade">
-        <div class="card-body">
-            <strong style="font-size:15px;">{{ $p->nom_programme }}</strong>
-            <div style="font-size:12px;color:var(--text-sec);margin-top:4px;line-height:1.6;">
-                {{ $p->service?->nom ?? ($p->organisme_resp ?: 'Programme national') }}<br>
-                @if($p->age_cible)Âge cible : {{ $p->age_cible }}<br>@endif
-                @if($p->nb_vaccins){{ $p->nb_vaccins }} dose(s)<br>@endif
-                {{ $p->statut() }}@if($p->date_debut || $p->date_fin) · {{ $p->date_debut?->format('d/m/Y') ?? '…' }} → {{ $p->date_fin?->format('d/m/Y') ?? '…' }}@endif
-            </div>
-            <form method="POST" action="{{ route('mesProgrammes.inscrire', $p->id) }}" style="margin-top:14px;">
-                @csrf
-                <button type="submit" class="btn btn-primary btn-sm">Suivre ce programme</button>
-            </form>
         </div>
     </div>
     @endforeach

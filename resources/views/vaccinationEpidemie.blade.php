@@ -14,6 +14,9 @@
     </a>
 </div>
 
+@if(session('success'))<div class="alert alert-success anim-fade" style="margin-bottom:16px;"><span>{{ session('success') }}</span></div>@endif
+@if(session('error'))<div class="alert alert-warning anim-fade" style="margin-bottom:16px;"><span>{{ session('error') }}</span></div>@endif
+
 <div class="alert alert-warning anim-fade" style="margin-bottom:24px;">
     <i data-feather="alert-octagon" style="width:16px;height:16px;flex-shrink:0;"></i>
     <span>Ces programmes visent à protéger rapidement les populations à risque et à contenir la propagation des maladies infectieuses.</span>
@@ -110,6 +113,7 @@
                     <span style="font-weight:600;color:var(--text);font-size:13px;">{{ $programme->organisme_resp }}</span>
                 </div>
             </div>
+            @include('partials.suivre-programme')
         </div>
     </div>
     @empty

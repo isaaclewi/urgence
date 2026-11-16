@@ -23,6 +23,9 @@ class ProgrammeVaccinEpidemieController extends Controller
         }
     }
 
-    return view('vaccinationEpidemie', compact('programmes'));
+    \App\Support\SuiviSchema::assurer();
+    $suivis = \App\Models\InscriptionVaccin::where('citoyen_id', (int) session('citoyen_id'))->get()->keyBy('programme_id');
+
+    return view('vaccinationEpidemie', compact('programmes', 'suivis'));
 }
 }
