@@ -1,0 +1,52 @@
+# ======================================================================
+# .htaccess RACINE — à utiliser UNIQUEMENT si le serveur pointe sur la
+# racine du projet (hébergement FTP type /htdocs). Si le document root
+# est /public (Docker/Render), ce fichier n'est pas utilisé.
+# Le mieux reste de faire pointer le serveur sur /public.
+# ======================================================================
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # 1) Bloquer les fichiers cachés (.env, .git, .htpasswd…) sauf .well-known
+    RewriteRule (^|/)\.(?!well-known/) - [F,L]
+
+    # 2) Bloquer les dossiers internes de Laravel
+    RewriteRule ^(app|bootstrap|config|database|routes|storage|tests|vendor|node_modules|resources|docker|\.github)(/|$) - [F,L]
+
+    # 3) Bloquer les pièces d'identité et tout contenu d'uploads/pieces
+    RewriteRule ^uploads/pieces(/|$) - [F,L]
+
+    # 4) Bloquer fichiers sensibles ou inutiles au public
+    RewriteRule ^(artisan|composer\.(json|lock)|package(-lock)?\.json|phpunit\.xml|vite\.config\.js|dockerfile|docker-entrypoint\.sh|sftp\.json|README\.md|\.editorconfig)$ - [F,NC,L]
+    RewriteRule \.(env|log|sql|sqlite|bak|dump|zip|lock)$ - [F,NC,L]
+
+    # --- Reste : comportement Laravel d'origine ---------------------------
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Handle X-XSRF-Token Header
+    RewriteCond %{HTTP:x-xsrf-token} .
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# Sécurité supplémentaire (si mod_headers est actif)
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
