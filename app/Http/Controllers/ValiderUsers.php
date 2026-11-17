@@ -110,6 +110,7 @@ class ValiderUsers extends Controller
             'statut_verification' => 'rejete',
             'etat_compte'         => 'desactif',
             'motif_rejet'         => $data['motif'],
+            'numero_piece_hash'   => null, // la pièce rejetée ne bloque plus ce numéro
             'verifie_par'         => session('admin_id'),
             'verifie_le'          => now(),
         ]);

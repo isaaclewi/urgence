@@ -19,6 +19,11 @@ class CitoyenController extends Controller
 {
     public function store(Request $request)
     {
+        // Un dossier rejeté ne bloque pas son email : la personne peut se réinscrire (le même dossier est réutilisé).
+        $rejete = Citoyens::where('email', $request->input('email'))
+            ->where('statut_verification', 'rejete')
+            ->first();
+
         $majeur = now()->subYears(18)->toDateString();
 
         // Validation (10 Mo : une photo de téléphone dépasse presque toujours les 2 Mo d'avant)
@@ -29,7 +34,7 @@ class CitoyenController extends Controller
             'date_naissance'        => 'required|date|after:1900-01-01|before_or_equal:' . $majeur,
             'adresse'               => 'required|string|max:255',
             'telephone'             => 'required|string|max:20',
-            'email'                 => 'required|email|unique:citoyens,email',
+            'email'                 => ['required', 'email', Rule::unique('citoyens', 'email')->ignore($rejete?->id)],
             'password'              => 'required|confirmed|min:6',
             'type_piece'            => ['required', Rule::in(array_keys(Identite::TYPES))],
             'numero_piece'          => ['required', 'string', 'min:5', 'max:40', 'regex:/^[A-Za-z0-9\s\-\/]+$/'],
@@ -60,7 +65,9 @@ class CitoyenController extends Controller
 
         // Un même numéro de pièce ne peut servir qu'à un seul compte.
         $empreinte = Identite::empreinte($validated['type_piece'], $validated['numero_piece']);
-        if (Citoyens::where('numero_piece_hash', $empreinte)->exists()) {
+        if (Citoyens::where('numero_piece_hash', $empreinte)
+                ->when($rejete, fn ($q) => $q->where('id', '!=', $rejete->id))
+                ->exists()) {
             throw ValidationException::withMessages([
                 'numero_piece' => "Cette pièce d'identité est déjà associée à un compte. Si c'est la vôtre, connectez-vous ou contactez-nous.",
             ]);
@@ -98,8 +105,31 @@ class CitoyenController extends Controller
             'selfie_direct'         => $request->boolean('selfie_direct'),
         ];
 
-        $citoyen = Citoyens::create($donnees);
-        Identite::journaliser($citoyen->id, 'inscription', 'Dossier déposé par le citoyen');
+        if ($rejete) {
+            // Nouvelle demande après rejet : on remet le même dossier à zéro avec les nouvelles données.
+            $anciennePiece = $rejete->piece_identite;
+            $ancienSelfie  = $rejete->selfie_identite;
+
+            unset($donnees['matricule']); // le matricule d'origine est conservé
+
+            $rejete->forceFill($donnees + [
+                'motif_rejet'      => null,
+                'verifie_par'      => null,
+                'verifie_le'       => null,
+                'email_verifie_le' => null,
+                'created_at'       => now(), // le dossier repasse en bas de la file, comme une nouvelle demande
+            ])->save();
+
+            $citoyen = $rejete;
+
+            if ($anciennePiece) { ImageUpload::supprimer($anciennePiece, 'pieces_identite'); }
+            if ($ancienSelfie)  { ImageUpload::supprimer($ancienSelfie, 'selfies_identite'); }
+
+            Identite::journaliser($citoyen->id, 'renvoi_dossier', 'Nouvelle inscription après rejet');
+        } else {
+            $citoyen = Citoyens::create($donnees);
+            Identite::journaliser($citoyen->id, 'inscription', 'Dossier déposé par le citoyen');
+        }
 
         // Mail : confirmation de l'email (lien signé, valable 3 jours) + information sur la vérification
         try {
