@@ -46,6 +46,11 @@ class GestionUsers extends Controller
             if ($citoyen->piece_identite) {
                 Storage::disk('supabase')->delete($citoyen->piece_identite);
             }
+
+            if ($citoyen->selfie_identite) {
+                Storage::disk('supabase')->delete($citoyen->selfie_identite);
+            }
+
             if ($citoyen->photo_profil) {
                 Storage::disk('supabase')->delete('photo/' . basename($citoyen->photo_profil));
             }

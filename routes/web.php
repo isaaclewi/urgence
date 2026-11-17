@@ -43,6 +43,7 @@ use App\Http\Controllers\VaccinationController;
 use App\Http\Controllers\ServicesBilanController;
 use App\Http\Controllers\ServiceVaccinEnfantController;
 use App\Http\Controllers\ActualiteController;
+use App\Http\Controllers\ReverificationController;
 use App\Http\Controllers\PieceIdentiteCitoyenController; //Dechiffrement de la pièce d'identité
 
 
@@ -50,6 +51,13 @@ use App\Http\Controllers\PieceIdentiteCitoyenController; //Dechiffrement de la p
 Route::get('/', [RedirectionController::class, 'accueil'])->name('accueil');
 Route::get('/formulaire', [RedirectionController::class, 'formulaire'])->name('formulaire');
 Route::post('/citoyens', [CitoyenController::class, 'store'])->name('citoyens.store');
+
+Route::get('/verification-email/{id}', [CitoyenController::class, 'verifierEmail'])
+    ->middleware('signed')->whereNumber('id')->name('citoyen.email.verifier');
+Route::get('/verification/corriger/{id}', [ReverificationController::class, 'form'])
+    ->middleware('signed')->whereNumber('id')->name('citoyen.reverif.form');
+Route::post('/verification/corriger/{id}', [ReverificationController::class, 'soumettre'])
+    ->middleware('signed')->whereNumber('id')->name('citoyen.reverif.soumettre');
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'processLogin'])->name('processLogin');
@@ -125,6 +133,9 @@ Route::middleware(['auth.admin', 'no.cache'])->prefix('admin')->group(function (
     Route::get('/valider', [ValiderUsers::class, 'index'])->name('admin.valider');
     Route::post('/activer/{id}', [ValiderUsers::class, 'activer'])->name('admin.activer');
     Route::post('/desactiver/{id}', [ValiderUsers::class, 'desactiver'])->name('admin.desactiver');
+    Route::get('/valider/{id}', [ValiderUsers::class, 'show'])->whereNumber('id')->name('admin.valider.show');
+    Route::post('/valider/{id}/verifier', [ValiderUsers::class, 'verifier'])->whereNumber('id')->name('admin.valider.verifier');
+    Route::post('/valider/{id}/rejeter', [ValiderUsers::class, 'rejeter'])->whereNumber('id')->name('admin.valider.rejeter');
     Route::get('/services', [adminServicesController::class, 'index'])->name('admin.services');
 Route::post('/services/urgence', [adminServicesController::class, 'store'])->name('admin.services.store');
 Route::delete('/services/urgence/{id}', [adminServicesController::class, 'destroy'])->name('admin.services.destroy');
@@ -150,6 +161,8 @@ Route::post('/service-desactiver/{id}', [adminServicesController::class, 'desact
 
 //Mon commentaire (Déchiffrement de la pièce d'identité)
 Route::get('/citoyen/piece/{id}', [PieceIdentiteCitoyenController::class, 'show'])->name('citoyen.piece');
+Route::get('/citoyen/selfie/{id}', [PieceIdentiteCitoyenController::class, 'selfie'])->name('citoyen.selfie');
+
 
 
 });
