@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Citoyens;
+use App\Support\DefiSelfie;
 use App\Support\Identite;
 use App\Support\ImageUpload;
 use Illuminate\Http\Request;
@@ -35,6 +36,8 @@ class CitoyenController extends Controller
             'date_expiration_piece' => 'required|date|after:today',
             'piece_identite'        => 'required|image|mimes:jpg,jpeg,png,webp|max:10240',
             'selfie'                => 'required|image|mimes:jpg,jpeg,png,webp|max:10240',
+            'defi_id'               => 'required|string|size:32',
+            'selfie_direct'         => 'nullable|boolean',
         ], array_merge(ImageUpload::MESSAGES, [
             'password.min'                  => 'Le mot de passe doit contenir au minimum 6 caractères.',
             'password.confirmed'            => 'La confirmation du mot de passe est incorrecte.',
@@ -48,6 +51,12 @@ class CitoyenController extends Controller
             'selfie.max'                    => 'Le selfie ne doit pas dépasser 10 Mo.',
             'selfie.uploaded'               => "Le selfie n'a pas pu être envoyé (fichier trop lourd ou connexion coupée). Réessayez.",
         ]));
+
+        // Défi du selfie : la consigne (code + geste) doit exister, être récente, et ne sert qu'une fois.
+        $defi = DefiSelfie::consommer($validated['defi_id']);
+        if ($defi === null) {
+            throw ValidationException::withMessages(['selfie' => DefiSelfie::MESSAGE_EXPIRE]);
+        }
 
         // Un même numéro de pièce ne peut servir qu'à un seul compte.
         $empreinte = Identite::empreinte($validated['type_piece'], $validated['numero_piece']);
@@ -84,6 +93,9 @@ class CitoyenController extends Controller
             'piece_identite'        => $cheminPiece,
             'selfie_identite'       => $cheminSelfie,
             'statut_verification'   => 'en_attente',
+            'defi_selfie'           => $defi,
+            'selfie_pris_le'        => now(),
+            'selfie_direct'         => $request->boolean('selfie_direct'),
         ];
 
         $citoyen = Citoyens::create($donnees);
@@ -113,6 +125,12 @@ class CitoyenController extends Controller
         return redirect()
             ->route('login')
             ->with('success', "Bienvenue {$citoyen->prenom} ! Votre dossier a bien été reçu : il sera contrôlé et votre compte activé sous 24 heures. Pensez à confirmer votre email (lien envoyé par mail). En cas de danger immédiat, n'attendez pas : l'alerte de la page d'accueil fonctionne sans compte.");
+    }
+
+    /** Génère une consigne de selfie aléatoire (code + geste), valable 10 minutes. */
+    public function defiSelfie()
+    {
+        return response()->json(DefiSelfie::generer())->header('Cache-Control', 'no-store');
     }
 
     /** Lien signé reçu par mail : confirme que l'adresse email appartient bien à la personne. */

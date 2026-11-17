@@ -59,6 +59,9 @@ Route::get('/verification/corriger/{id}', [ReverificationController::class, 'for
 Route::post('/verification/corriger/{id}', [ReverificationController::class, 'soumettre'])
     ->middleware('signed')->whereNumber('id')->name('citoyen.reverif.soumettre');
 
+Route::get('/defi-selfie', [CitoyenController::class, 'defiSelfie'])
+    ->middleware('throttle:20,1')->name('citoyen.defi');
+
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'processLogin'])->name('processLogin');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

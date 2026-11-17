@@ -282,17 +282,8 @@
                             <span id="file-name" class="text-sm text-green-600 mt-2 block"></span>
                         </div>
 
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i data-feather="camera" class="w-4 h-4 inline mr-1"></i>
-                                Selfie (visage bien visible, sans lunettes ni masque)
-                            </label>
-                            <input type="file" name="selfie" required accept="image/jpeg,image/png,image/webp" capture="user"
-                                onchange="if(this.files[0] && this.files[0].size>10*1024*1024){alert('Fichier trop gros (max 10 Mo)'); this.value='';} else if(this.files[0]){document.getElementById('selfie-name').textContent = this.files[0].name;}"
-                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                            <span id="selfie-name" class="text-sm text-green-600 mt-2 block"></span>
-                            <p class="text-xs text-gray-500 mt-2">Formats acceptés : JPG, PNG, WebP (max 10 Mo)</p>
-                        </div>
+                        @include('partials.selfie-defi')
+                        <p class="text-xs text-gray-500">Formats acceptés : JPG, PNG, WebP (max 10 Mo)</p>
                     </div>
 
                     <!-- Mot de passe -->

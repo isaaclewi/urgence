@@ -25,6 +25,7 @@ class Identite
         'naissance'      => 'La date de naissance correspond',
         'non_expiree'    => "La pièce n'est pas expirée",
         'selfie'         => 'Le selfie correspond à la photo de la pièce',
+        'defi'           => 'Le code et le geste demandés sont bien visibles sur le selfie',
     ];
 
     public static function normaliserNumero(string $numero): string
@@ -63,6 +64,7 @@ class Identite
         if (! $citoyen->date_naissance)        { unset($liste['naissance']); }
         if (! $citoyen->date_expiration_piece) { unset($liste['non_expiree']); }
         if (! $citoyen->selfie_identite)       { unset($liste['selfie']); }
+        if (! $citoyen->defi_selfie)           { unset($liste['defi']); }
 
         return $liste;
     }

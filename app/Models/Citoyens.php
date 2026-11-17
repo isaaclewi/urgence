@@ -38,6 +38,9 @@ class Citoyens extends Model
         'verifie_par',
         'verifie_le',
         'email_verifie_le',
+        'defi_selfie',
+        'selfie_pris_le',
+        'selfie_direct',
     ];
 
     protected $hidden = [
@@ -51,6 +54,8 @@ class Citoyens extends Model
         'date_expiration_piece' => 'date',
         'verifie_le'            => 'datetime',
         'email_verifie_le'      => 'datetime',
+        'selfie_pris_le'        => 'datetime',
+        'selfie_direct'         => 'boolean',
     ];
 
     public function alertes()

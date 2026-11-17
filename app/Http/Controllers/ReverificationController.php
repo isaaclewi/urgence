@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Citoyens;
+use App\Support\DefiSelfie;
 use App\Support\Identite;
 use App\Support\ImageUpload;
 use Illuminate\Http\Request;
@@ -38,6 +39,8 @@ class ReverificationController extends Controller
             'date_expiration_piece' => 'required|date|after:today',
             'piece_identite'        => 'required|image|mimes:jpg,jpeg,png,webp|max:10240',
             'selfie'                => 'required|image|mimes:jpg,jpeg,png,webp|max:10240',
+            'defi_id'               => 'required|string|size:32',
+            'selfie_direct'         => 'nullable|boolean',
         ], array_merge(ImageUpload::MESSAGES, [
             'date_naissance.before_or_equal' => 'Vous devez avoir au moins 18 ans.',
             'date_expiration_piece.after'    => "Votre pièce d'identité est expirée : utilisez une pièce en cours de validité.",
@@ -45,6 +48,11 @@ class ReverificationController extends Controller
             'selfie.required'                => 'Le selfie est obligatoire.',
             'selfie.image'                   => 'Le selfie doit être une image valide.',
         ]));
+
+        $defi = DefiSelfie::consommer($validated['defi_id']);
+        if ($defi === null) {
+            throw ValidationException::withMessages(['selfie' => DefiSelfie::MESSAGE_EXPIRE]);
+        }
 
         $empreinte = Identite::empreinte($validated['type_piece'], $validated['numero_piece']);
         if (Citoyens::where('numero_piece_hash', $empreinte)->where('id', '!=', $citoyen->id)->exists()) {
@@ -74,6 +82,9 @@ class ReverificationController extends Controller
             'selfie_identite'       => $cheminSelfie,
             'statut_verification'   => 'en_attente',
             'motif_rejet'           => null,
+            'defi_selfie'           => $defi,
+            'selfie_pris_le'        => now(),
+            'selfie_direct'         => $request->boolean('selfie_direct'),
         ]);
 
         // Les anciens fichiers ne servent plus.

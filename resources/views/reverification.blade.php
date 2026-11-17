@@ -62,10 +62,7 @@
             <input type="file" name="piece_identite" required accept="image/jpeg,image/png,image/webp" class="{{ $champ }}">
         </div>
 
-        <div>
-            <label class="block text-sm font-semibold mb-1">Selfie (visage bien visible, sans lunettes ni masque)</label>
-            <input type="file" name="selfie" required accept="image/jpeg,image/png,image/webp" capture="user" class="{{ $champ }}">
-        </div>
+        @include('partials.selfie-defi')
 
         <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg">Renvoyer mon dossier</button>
     </form>

@@ -56,6 +56,15 @@
 
     <x-card>
         <h3 style="margin-top:0">Selfie</h3>
+        @if($citoyen->defi_selfie)
+            <div style="background:#fffbeb;border:1px solid #f59e0b;border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:14px">
+                <strong>Consigne donnée :</strong> {{ $citoyen->defi_selfie }}
+                <div class="ds-muted" style="font-size:12px;margin-top:4px">
+                    Envoyé le {{ $citoyen->selfie_pris_le?->format('d/m/Y à H:i') }} ·
+                    {{ $citoyen->selfie_direct ? 'caméra (déclaré par le navigateur)' : 'fichier importé : soyez plus strict' }}
+                </div>
+            </div>
+        @endif
         @if($citoyen->selfie_identite)
             <a href="{{ route('citoyen.selfie', $citoyen->id) }}" target="_blank" rel="noopener">
                 <img src="{{ route('citoyen.selfie', $citoyen->id) }}" alt="Selfie" style="max-width:100%;border-radius:8px;border:1px solid #ddd">
