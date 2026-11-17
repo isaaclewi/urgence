@@ -112,7 +112,7 @@ class CitoyenController extends Controller
 
         return redirect()
             ->route('login')
-            ->with('success', "Bienvenue {$citoyen->prenom} ! Votre dossier a bien été reçu : il sera contrôlé et votre compte activé sous 24 heures. Pensez à confirmer votre email (lien envoyé par mail).");
+            ->with('success', "Bienvenue {$citoyen->prenom} ! Votre dossier a bien été reçu : il sera contrôlé et votre compte activé sous 24 heures. Pensez à confirmer votre email (lien envoyé par mail). En cas de danger immédiat, n'attendez pas : l'alerte de la page d'accueil fonctionne sans compte.");
     }
 
     /** Lien signé reçu par mail : confirme que l'adresse email appartient bien à la personne. */

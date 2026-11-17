@@ -179,6 +179,11 @@
                     </div>
                 </div>
 
+                <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                    <strong>En danger ?</strong> Pas besoin de compte :
+                    <a href="{{ route('accueil') }}#alerte" class="underline font-semibold">envoyez une alerte maintenant</a>.
+                </div>
+
                 <!-- Form -->
                 @if(session('error') || session('success') || $errors->any())
                     <div class="mb-4 rounded-lg border px-4 py-3 text-sm {{ session('success') ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-700' }}" role="alert">

@@ -68,7 +68,10 @@ class UrgenceController extends Controller
             $liste->where('alertes.statut', $request->query('statut'));
         }
 
-        $alertes = $liste->orderByDesc('alertes.id')->paginate(20)->withQueryString();
+        $alertes = $liste
+            ->orderByRaw("CASE WHEN alertes.critique = true AND alertes.statut = 'en attente' THEN 0 ELSE 1 END")
+            ->orderByDesc('alertes.id')
+            ->paginate(20)->withQueryString();
 
         return view('services.urgenceSignalee', [
             'service' => $service,
@@ -138,10 +141,14 @@ class UrgenceController extends Controller
     // ─────────────────────────────────────────────────
     public function enregistrerAlerte(Request $request)
     {
-        // Formulaire ouvert à tous : on limite le spam (5 alertes / 10 min par adresse IP).
-        $cle = 'alerte-publique|' . $request->ip();
+        $critique = $request->boolean('critique');
 
-        if (RateLimiter::tooManyAttempts($cle, 5)) {
+        // Anti-spam par adresse IP : 5 alertes / 10 min ; 15 si la personne signale un danger immédiat
+        // (sur un réseau mobile, plusieurs personnes partagent souvent la même adresse IP).
+        $cle     = ($critique ? 'alerte-critique|' : 'alerte-publique|') . $request->ip();
+        $maximum = $critique ? 15 : 5;
+
+        if (RateLimiter::tooManyAttempts($cle, $maximum)) {
             $secondes = RateLimiter::availableIn($cle);
             $message  = "Trop d'alertes envoyées depuis cet appareil. Réessayez dans " . ceil($secondes / 60) . ' minute(s).';
 
@@ -151,12 +158,18 @@ class UrgenceController extends Controller
         }
 
         $request->validate([
-            'type_alerte'  => 'required|string|max:255',
-            'localisation' => 'required|string|max:255',
-            'description'  => 'nullable|string|max:2000',
-            'latitude'     => 'nullable|numeric|between:-90,90',
-            'longitude'    => 'nullable|numeric|between:-180,180',
-            'audio'        => 'nullable|file|mimes:webm,mp3,wav,ogg,m4a,mp4|max:10240',
+            'type_alerte'       => 'required|string|max:255',
+            // Le lieu peut être remplacé par la position GPS
+            'localisation'      => 'required_without_all:latitude,longitude|nullable|string|max:255',
+            'description'       => 'nullable|string|max:2000',
+            'latitude'          => 'nullable|numeric|between:-90,90',
+            'longitude'         => 'nullable|numeric|between:-180,180',
+            'telephone_contact' => ['nullable', 'string', 'max:30', 'regex:/^[0-9+\s().-]{6,30}$/'],
+            'critique'          => 'nullable|boolean',
+            'audio'             => 'nullable|file|mimes:webm,mp3,wav,ogg,m4a,mp4|max:10240',
+        ], [
+            'localisation.required_without_all' => 'Indiquez le lieu ou utilisez le bouton « Utiliser ma position ».',
+            'telephone_contact.regex'           => 'Le numéro de rappel n\'est pas valide.',
         ]);
 
         RateLimiter::hit($cle, 600);
@@ -175,18 +188,25 @@ class UrgenceController extends Controller
             }
         }
 
+        $lieu = trim((string) $request->localisation);
+        if ($lieu === '' && $request->filled('latitude') && $request->filled('longitude')) {
+            $lieu = 'Position GPS : ' . round((float) $request->latitude, 5) . ', ' . round((float) $request->longitude, 5);
+        }
+
         alertes::create([
-            'titre'        => $request->type_alerte,
-            'description'  => $request->description,
-            'date_heure'   => now(),
-            'localisation' => $request->localisation,
-            'latitude'     => $request->latitude,
-            'longitude'    => $request->longitude,
-            'media_vocal'  => $vocal,
-            'statut'       => 'en attente',
-            'type_alerte'  => $request->type_alerte,
-            'citoyen_id'   => session('citoyen_id'),   // null si la personne n'est pas connectée
-            'services_id'  => null,
+            'titre'             => $request->type_alerte,
+            'description'       => $request->description,
+            'date_heure'        => now(),
+            'localisation'      => $lieu,
+            'latitude'          => $request->latitude,
+            'longitude'         => $request->longitude,
+            'media_vocal'       => $vocal,
+            'statut'            => 'en attente',
+            'type_alerte'       => $request->type_alerte,
+            'telephone_contact' => $request->filled('telephone_contact') ? trim($request->telephone_contact) : null,
+            'critique'          => $critique,
+            'citoyen_id'        => session('citoyen_id'),   // null si la personne n'est pas connectée
+            'services_id'       => null,
         ]);
 
         return $request->expectsJson()

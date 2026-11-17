@@ -108,6 +108,11 @@
             </div>
         </header>
 
+        <div class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+            <strong>En danger ?</strong> Inutile de vous inscrire : l'alerte est ouverte à tous, sans compte ni vérification.
+            <a href="{{ route('accueil') }}#alerte" class="underline font-semibold">Envoyer une alerte maintenant</a>.
+        </div>
+
         <!-- Main Content -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Form Section -->

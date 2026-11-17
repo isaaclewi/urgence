@@ -565,7 +565,7 @@
         </section>
 
         {{-- ═══════════════════════ QUICK REPORT FORM ═══════════════════════ --}}
-        <section class="max-w-4xl mx-auto px-6 py-16">
+        <section id="alerte" class="max-w-4xl mx-auto px-6 py-16">
             <div class="bg-white rounded-3xl border border-gray-100 shadow-lg overflow-hidden">
 
                 {{-- Form header --}}
@@ -636,6 +636,57 @@
                                 </div>
                             </div>
                         </div>
+
+                        {{-- Position GPS, numéro de rappel, danger immédiat --}}
+                        <input type="hidden" name="latitude" id="alertLat">
+                        <input type="hidden" name="longitude" id="alertLng">
+
+                        <div class="flex flex-wrap items-center gap-3">
+                            <button type="button" id="gpsBtn"
+                                    class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition shadow-sm">
+                                <i data-feather="crosshair" class="w-4 h-4"></i> Utiliser ma position
+                            </button>
+                            <span id="gpsStatus" class="text-sm text-gray-500">Plus rapide que de taper l'adresse.</span>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                Numéro pour vous rappeler
+                                <span class="ml-2 text-xs font-normal text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">Optionnel</span>
+                            </label>
+                            <input type="tel" name="telephone_contact" value="{{ old('telephone_contact') }}"
+                                   placeholder="Ex : +242 06 777 88 90" class="form-field" autocomplete="tel">
+                            <p class="text-xs text-gray-400 mt-1">Les services pourront vous rappeler. Aucun compte n'est nécessaire.</p>
+                        </div>
+
+                        <label class="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-xl cursor-pointer">
+                            <input type="checkbox" name="critique" value="1" class="mt-1 w-5 h-5" @checked(old('critique'))>
+                            <span class="text-sm text-red-800">
+                                <strong>Danger immédiat</strong> : une vie est menacée maintenant.
+                                Votre alerte passera en tête de la liste des services.
+                            </span>
+                        </label>
+
+                        <script>
+                        (function () {
+                            var btn = document.getElementById('gpsBtn'), st = document.getElementById('gpsStatus');
+                            if (!btn) return;
+                            if (!navigator.geolocation) { btn.disabled = true; st.textContent = 'Position indisponible sur cet appareil : indiquez le lieu.'; return; }
+                            btn.addEventListener('click', function () {
+                                st.textContent = 'Recherche de votre position…';
+                                navigator.geolocation.getCurrentPosition(function (p) {
+                                    var lat = p.coords.latitude, lng = p.coords.longitude;
+                                    document.getElementById('alertLat').value = lat.toFixed(7);
+                                    document.getElementById('alertLng').value = lng.toFixed(7);
+                                    var loc = document.querySelector('#alertForm [name=localisation]');
+                                    if (loc && !loc.value.trim()) { loc.value = 'Position GPS : ' + lat.toFixed(5) + ', ' + lng.toFixed(5); }
+                                    st.textContent = 'Position enregistrée ✓';
+                                }, function () {
+                                    st.textContent = 'Position refusée ou indisponible : indiquez le lieu à la main.';
+                                }, { enableHighAccuracy: true, timeout: 15000 });
+                            });
+                        })();
+                        </script>
 
                         {{-- Description --}}
                         <div>

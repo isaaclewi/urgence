@@ -48,7 +48,10 @@ class Alertes extends Model
 
         'services_id',
 
-        'equipe_id'
+        'equipe_id',
+
+        'telephone_contact',
+        'critique',
     ];
 
 
@@ -56,6 +59,8 @@ class Alertes extends Model
     protected $casts = [
 
         'date_heure'=>'datetime',
+
+        'critique'=>'boolean',
 
         'latitude'=>'decimal:8',
 

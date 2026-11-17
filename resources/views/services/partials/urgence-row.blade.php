@@ -26,13 +26,14 @@
     };
     $libelle = ['en attente' => 'En attente', 'pris en charge' => 'Pris en charge', 'terminee' => 'Terminée'][$alerte->statut] ?? $alerte->statut;
 @endphp
-<tr id="alerte-row-{{ $alerte->id }}" data-id="{{ $alerte->id }}">
+<tr id="alerte-row-{{ $alerte->id }}" data-id="{{ $alerte->id }}"@if($alerte->critique && $alerte->statut === 'en attente') style="background:#fef2f2"@endif>
     <td>
         <strong>#{{ $alerte->id }}</strong>
         <div class="ds-muted" style="font-size:12px;white-space:nowrap">{{ $alerte->created_at?->format('d/m/Y H:i') }}</div>
     </td>
     <td>
         <strong>{{ $alerte->titre }}</strong>
+        @if($alerte->critique)<x-badge type="danger">DANGER IMMÉDIAT</x-badge>@endif
         <div class="ds-muted" style="font-size:12px">{{ $alerte->localisation ?: 'Lieu non précisé' }}</div>
     </td>
     <td>{{ $alerte->type_alerte ?: '—' }}</td>
@@ -40,7 +41,10 @@
         @if($c)
             {{ $c->nom }} {{ $c->prenom }}
         @else
-            <span class="ds-muted">Anonyme</span>
+            <span class="ds-muted">Anonyme · non vérifié</span>
+        @endif
+        @if($alerte->telephone_contact)
+            <div style="font-size:12px"><a href="tel:{{ preg_replace('/[^0-9+]/', '', $alerte->telephone_contact) }}">📞 {{ $alerte->telephone_contact }}</a></div>
         @endif
     </td>
     <td>
