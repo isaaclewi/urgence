@@ -26,3 +26,17 @@ Thumbs.db
 yarn-error.log
 
 /storage/framework/lsp-*.php
+
+sftp.json
+.vscode/sftp.json
+/uploads/*
+!/uploads/.gitkeep
+/storage/app/medias
+/storage/app/private
+/storage/logs
+*.zip
+*.sqlite
+*.sql
+*.bak
+*.dump
+/database/database.sqlite

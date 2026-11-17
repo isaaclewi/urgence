@@ -2,70 +2,107 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Citoyens;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Crypt;
+use App\Support\Identite;
 use App\Support\ImageUpload;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class CitoyenController extends Controller
 {
     public function store(Request $request)
     {
+        $majeur = now()->subYears(18)->toDateString();
+
         // Validation (10 Mo : une photo de téléphone dépasse presque toujours les 2 Mo d'avant)
         $validated = $request->validate([
-            'nom'            => 'required|string|max:255',
-            'prenom'         => 'required|string|max:255',
-            'sexe'           => 'required|in:M,F',
-            'adresse'        => 'required|string|max:255',
-            'telephone'      => 'required|string|max:20',
-            'email'          => 'required|email|unique:citoyens,email',
-            'password'       => 'required|confirmed|min:6',
-            'piece_identite' => 'required|image|mimes:jpg,jpeg,png,webp|max:10240',
+            'nom'                   => 'required|string|max:255',
+            'prenom'                => 'required|string|max:255',
+            'sexe'                  => 'required|in:M,F',
+            'date_naissance'        => 'required|date|after:1900-01-01|before_or_equal:' . $majeur,
+            'adresse'               => 'required|string|max:255',
+            'telephone'             => 'required|string|max:20',
+            'email'                 => 'required|email|unique:citoyens,email',
+            'password'              => 'required|confirmed|min:6',
+            'type_piece'            => ['required', Rule::in(array_keys(Identite::TYPES))],
+            'numero_piece'          => ['required', 'string', 'min:5', 'max:40', 'regex:/^[A-Za-z0-9\s\-\/]+$/'],
+            'date_expiration_piece' => 'required|date|after:today',
+            'piece_identite'        => 'required|image|mimes:jpg,jpeg,png,webp|max:10240',
+            'selfie'                => 'required|image|mimes:jpg,jpeg,png,webp|max:10240',
         ], array_merge(ImageUpload::MESSAGES, [
-            'password.min'       => 'Le mot de passe doit contenir au minimum 6 caractères.',
-            'password.confirmed' => 'La confirmation du mot de passe est incorrecte.',
-            'email.unique'       => 'Cet email est déjà utilisé.',
+            'password.min'                  => 'Le mot de passe doit contenir au minimum 6 caractères.',
+            'password.confirmed'            => 'La confirmation du mot de passe est incorrecte.',
+            'email.unique'                  => 'Cet email est déjà utilisé.',
+            'date_naissance.before_or_equal' => 'Vous devez avoir au moins 18 ans pour vous inscrire.',
+            'date_expiration_piece.after'   => "Votre pièce d'identité est expirée : utilisez une pièce en cours de validité.",
+            'numero_piece.regex'            => 'Le numéro de pièce ne doit contenir que des lettres, des chiffres, des espaces ou des tirets.',
+            'selfie.required'               => 'Le selfie est obligatoire.',
+            'selfie.image'                  => 'Le selfie doit être une image valide.',
+            'selfie.mimes'                  => 'Formats acceptés : JPG, PNG ou WebP.',
+            'selfie.max'                    => 'Le selfie ne doit pas dépasser 10 Mo.',
+            'selfie.uploaded'               => "Le selfie n'a pas pu être envoyé (fichier trop lourd ou connexion coupée). Réessayez.",
         ]));
 
-        // Pièce d'identité : réduite, chiffrée, puis envoyée. Si l'envoi échoue, l'inscription
-        // est refusée avec un message (avant : le chemin était enregistré même sans fichier).
-        [$contenu] = ImageUpload::reduire($request->file('piece_identite'), 1600);
+        // Un même numéro de pièce ne peut servir qu'à un seul compte.
+        $empreinte = Identite::empreinte($validated['type_piece'], $validated['numero_piece']);
+        if (Citoyens::where('numero_piece_hash', $empreinte)->exists()) {
+            throw ValidationException::withMessages([
+                'numero_piece' => "Cette pièce d'identité est déjà associée à un compte. Si c'est la vôtre, connectez-vous ou contactez-nous.",
+            ]);
+        }
 
-        $fichierChiffre = time() . '_' . Str::uuid() . '.enc';
-        ImageUpload::envoyerChemin(
-            'pieces_identite/' . $fichierChiffre,
-            Crypt::encrypt($contenu),
-            'piece_identite'
-        );
-
-        $validated['piece_identite'] = 'pieces_identite/' . $fichierChiffre;
-
-        // Matricule unique
-        $validated['matricule'] = 'CIT-' . strtoupper(Str::random(10));
-
-        // Mot de passe
-        $validated['password'] = Hash::make($validated['password']);
-
-        // État par défaut
-        $validated['etat_compte'] = 'desactif';
-
-        // Création
-        $citoyen = Citoyens::create($validated);
-
-        // Envoi email
+        // Pièce et selfie : réduits, chiffrés, puis envoyés. Si un envoi échoue, l'inscription est refusée avec un message.
+        $cheminPiece = Identite::stockerChiffre($request->file('piece_identite'), 'pieces_identite', 'piece_identite');
         try {
-            Mail::send([], [], function ($message) use ($citoyen) {
+            $cheminSelfie = Identite::stockerChiffre($request->file('selfie'), 'selfies_identite', 'selfie');
+        } catch (\Throwable $e) {
+            ImageUpload::supprimer($cheminPiece, 'pieces_identite'); // pas de fichier orphelin
+            throw $e;
+        }
+
+        $donnees = [
+            'nom'                   => $validated['nom'],
+            'prenom'                => $validated['prenom'],
+            'sexe'                  => $validated['sexe'],
+            'date_naissance'        => $validated['date_naissance'],
+            'adresse'               => $validated['adresse'],
+            'telephone'             => $validated['telephone'],
+            'email'                 => $validated['email'],
+            'password'              => Hash::make($validated['password']),
+            'matricule'             => 'CIT-' . strtoupper(Str::random(10)),
+            'etat_compte'           => 'desactif',
+            'type_piece'            => $validated['type_piece'],
+            'numero_piece'          => Crypt::encryptString(Identite::normaliserNumero($validated['numero_piece'])),
+            'numero_piece_hash'     => $empreinte,
+            'date_expiration_piece' => $validated['date_expiration_piece'],
+            'piece_identite'        => $cheminPiece,
+            'selfie_identite'       => $cheminSelfie,
+            'statut_verification'   => 'en_attente',
+        ];
+
+        $citoyen = Citoyens::create($donnees);
+        Identite::journaliser($citoyen->id, 'inscription', 'Dossier déposé par le citoyen');
+
+        // Mail : confirmation de l'email (lien signé, valable 3 jours) + information sur la vérification
+        try {
+            $lien = URL::temporarySignedRoute('citoyen.email.verifier', now()->addDays(3), ['id' => $citoyen->id]);
+
+            Mail::send([], [], function ($message) use ($citoyen, $lien) {
                 $message->to($citoyen->email)
-                    ->subject('Activation de votre compte CongoAssist')
+                    ->subject('Confirmez votre email - CongoAssist')
                     ->html("
                         <p>Bonjour <strong>{$citoyen->prenom}</strong>,</p>
-                        <p>Votre compte a été créé avec succès sur <strong>CongoAssist</strong>.</p>
-                        <p>⏳ Votre compte est actuellement <strong>désactivé</strong> et sera
-                        <strong>activé dans un délai de 24 heures</strong> après vérification.</p>
-                        <p>Vous recevrez une notification dès l'activation de votre compte.</p>
+                        <p>Votre compte a été créé sur <strong>CongoAssist</strong>.</p>
+                        <p>1. Confirmez votre adresse email : <a href=\"{$lien}\">cliquez ici</a> (lien valable 3 jours).</p>
+                        <p>2. Notre équipe contrôle votre pièce d'identité. Votre compte sera
+                        <strong>activé dans un délai de 24 heures</strong> si le dossier est conforme.
+                        Sinon, vous recevrez un email précisant ce qu'il faut corriger.</p>
                         <p>Cordialement,<br><strong>L'équipe CongoAssist</strong></p>
                     ");
             });
@@ -73,10 +110,21 @@ class CitoyenController extends Controller
             \Log::error('Erreur envoi mail citoyen : ' . $e->getMessage());
         }
 
-        // Le compte n'est pas encore actif : on ne connecte pas la personne (avant, elle était
-        // connectée puis aussitôt renvoyée avec « Votre compte est inactif », sans voir le message de bienvenue).
         return redirect()
             ->route('login')
-            ->with('success', "Bienvenue {$citoyen->prenom} ! Votre compte a bien été créé et sera activé dans 24 heures. Vous pourrez alors vous connecter.");
+            ->with('success', "Bienvenue {$citoyen->prenom} ! Votre dossier a bien été reçu : il sera contrôlé et votre compte activé sous 24 heures. Pensez à confirmer votre email (lien envoyé par mail).");
+    }
+
+    /** Lien signé reçu par mail : confirme que l'adresse email appartient bien à la personne. */
+    public function verifierEmail(Request $request, $id)
+    {
+        $citoyen = Citoyens::findOrFail($id);
+
+        if (! $citoyen->email_verifie_le) {
+            $citoyen->update(['email_verifie_le' => now()]);
+            Identite::journaliser($citoyen->id, 'email_verifie', null);
+        }
+
+        return redirect()->route('login')->with('success', 'Votre adresse email est confirmée. Merci !');
     }
 }

@@ -184,10 +184,12 @@
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
                                 <i data-feather="calendar" class="w-4 h-4 inline mr-1"></i>
-                                Âge
+                                Date de naissance
                             </label>
-                            <input type="number" name="age" placeholder="Ex: 20" required min="18"
+                            <input type="date" name="date_naissance" required value="{{ old('date_naissance') }}"
+                                max="{{ now()->subYears(18)->toDateString() }}"
                                 class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition">
+                            <p class="text-xs text-gray-500 mt-2">Inscription réservée aux personnes majeures (18 ans et plus).</p>
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
@@ -232,22 +234,60 @@
                             class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition">
                     </div>
 
-                    <!-- Pièce d'identité -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i data-feather="credit-card" class="w-4 h-4 inline mr-1"></i>
-                            Pièce d'identité
-                        </label>
-                        <div class="relative">
-                            <input type="file" name="piece_identite" accept="image/jpeg,image/png,image/webp" 
+                    <!-- Vérification d'identité -->
+                    <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 space-y-4">
+                        <p class="text-sm text-blue-800">
+                            <i data-feather="shield" class="w-4 h-4 inline mr-1"></i>
+                            Pour protéger la communauté, votre identité est contrôlée avant l'activation du compte.
+                            Vos documents sont chiffrés et vus uniquement par nos administrateurs.
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Type de pièce</label>
+                                <select name="type_piece" required
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition bg-white">
+                                    @foreach(\App\Support\Identite::TYPES as $val => $lib)
+                                        <option value="{{ $val }}" @selected(old('type_piece') === $val)>{{ $lib }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Numéro de la pièce</label>
+                                <input type="text" name="numero_piece" required autocomplete="off" value="{{ old('numero_piece') }}"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Date d'expiration de la pièce</label>
+                            <input type="date" name="date_expiration_piece" required value="{{ old('date_expiration_piece') }}"
+                                min="{{ now()->addDay()->toDateString() }}"
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i data-feather="credit-card" class="w-4 h-4 inline mr-1"></i>
+                                Photo de la pièce (recto, nette, en entier)
+                            </label>
+                            <input type="file" name="piece_identite" required accept="image/jpeg,image/png,image/webp"
                                 onchange="if(this.files[0] && this.files[0].size>10*1024*1024){alert('Fichier trop gros (max 10 Mo)'); this.value='';} else if(this.files[0]){document.getElementById('file-name').textContent = this.files[0].name;}"
                                 class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                            <p class="text-xs text-gray-500 mt-2">
-                                <i data-feather="info" class="w-3 h-3 inline mr-1"></i>
-                                Formats acceptés : JPG, PNG, WebP (max 10 Mo)
-                            </p>
+                            <span id="file-name" class="text-sm text-green-600 mt-2 block"></span>
                         </div>
-                        <span id="file-name" class="text-sm text-green-600 mt-2 block"></span>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i data-feather="camera" class="w-4 h-4 inline mr-1"></i>
+                                Selfie (visage bien visible, sans lunettes ni masque)
+                            </label>
+                            <input type="file" name="selfie" required accept="image/jpeg,image/png,image/webp" capture="user"
+                                onchange="if(this.files[0] && this.files[0].size>10*1024*1024){alert('Fichier trop gros (max 10 Mo)'); this.value='';} else if(this.files[0]){document.getElementById('selfie-name').textContent = this.files[0].name;}"
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <span id="selfie-name" class="text-sm text-green-600 mt-2 block"></span>
+                            <p class="text-xs text-gray-500 mt-2">Formats acceptés : JPG, PNG, WebP (max 10 Mo)</p>
+                        </div>
                     </div>
 
                     <!-- Mot de passe -->

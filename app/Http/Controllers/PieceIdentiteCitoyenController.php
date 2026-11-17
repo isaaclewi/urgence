@@ -2,33 +2,51 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Citoyens;
-use Illuminate\Support\Facades\Storage;
+use App\Support\Identite;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Storage;
 
+/** Affiche (déchiffrée, à la demande) la pièce d'identité ou le selfie d'un citoyen. Réservé aux admins. */
 class PieceIdentiteCitoyenController extends Controller
 {
-    //
     public function show($id)
     {
-        //Récupération du le citoyen
-        $citoyen = Citoyens::findOrFail($id);
+        return $this->servir($id, 'piece_identite', 'consultation_piece');
+    }
 
-        // Vérification de la pièce d'identité
-        if (!$citoyen->piece_identite) {
-            abort(404, "Pièce d'identité introuvable");
+    public function selfie($id)
+    {
+        return $this->servir($id, 'selfie_identite', 'consultation_selfie');
+    }
+
+    private function servir($id, string $champ, string $action)
+    {
+        $citoyen = Citoyens::findOrFail($id);
+        $chemin  = $citoyen->{$champ};
+
+        if (! $chemin) {
+            abort(404, 'Fichier introuvable');
         }
 
-        // Lecture du fichier chiffré depuis Supabase
-        $contenuChiffre = Storage::disk('supabase')
-            ->get($citoyen->piece_identite);
+        try {
+            $contenu = Crypt::decrypt(Storage::disk('supabase')->get($chemin));
+        } catch (\Throwable $e) {
+            report($e);
+            abort(404, 'Fichier introuvable ou illisible');
+        }
 
-        // Déchiffrement
-        $contenu = Crypt::decrypt($contenuChiffre);
+        // Chaque consultation est tracée : qui, quand, depuis quelle adresse.
+        Identite::journaliser($citoyen->id, $action);
 
-        // Retourner l'image au navigateur
+        $mime = (new \finfo(FILEINFO_MIME_TYPE))->buffer($contenu) ?: 'application/octet-stream';
+        if (! str_starts_with($mime, 'image/')) {
+            $mime = 'application/octet-stream';
+        }
+
         return response($contenu)
-            ->header('Content-Type', 'image/jpeg');
+            ->header('Content-Type', $mime)
+            ->header('Cache-Control', 'no-store, private')
+            ->header('X-Content-Type-Options', 'nosniff');
     }
 }
